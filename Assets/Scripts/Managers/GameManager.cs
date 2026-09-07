@@ -9,12 +9,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] internal UIManager uiManager;
     [SerializeField] private PopupManager popupManager;
     [SerializeField] private SlotView slotView;
-    [SerializeField] internal WheelSpinController wheelController;
 
     [Header("Spin Settings")]
-    [SerializeField] private float normalSpinDuration = 3.5f;
-    [SerializeField] private float turboSpinDuration = 2.0f;
-    [SerializeField] private float quickSpinCycleDuration = 0.8f;
+    [SerializeField] private float normalSpinDuration = 2.0f;
+    [SerializeField] private float turboSpinDuration = 1.0f;
+    [SerializeField] private float quickSpinCycleDuration = 0.1f;
 
     [Header("Win Settings")]
     [SerializeField] private double bigWinMultiplierThreshold = 500.0;
@@ -70,11 +69,6 @@ public class GameManager : MonoBehaviour
         if (initialMatrix != null && slotView != null)
         {
             slotView.SetInitialMatrix(initialMatrix);
-        }
-
-        if (wheelController != null && gameConfig.uSpinSegments != null)
-        {
-            wheelController.OverrideSegmentsWithData(gameConfig.uSpinSegments);
         }
 
         isInitialized = true;
@@ -272,12 +266,9 @@ public class GameManager : MonoBehaviour
     {
         if (lastResult != null)
         {
-            double featureDeferredWin = lastResult.GetTotalFeatureDeferredWins();
-            double reelStopBalance = lastResult.playerData != null ? (lastResult.playerData.balance - featureDeferredWin) : 0;
-
             playerData = new PlayerData
             {
-                balance = reelStopBalance,
+                balance = lastResult.playerData != null ? lastResult.playerData.balance : 0,
                 currentBetIndex = lastResult.playerData != null ? lastResult.playerData.currentBetIndex : currentBetIndex
             };
         }
@@ -291,8 +282,8 @@ public class GameManager : MonoBehaviour
             {
                 uiManager.DisableControlsDuringWinAnimation();
                 currentState = GameState.Idle;
-                slotView.ShowWinLineAnimation(lastResult.winLines, OnWinAnimationComplete);
                 StartCoroutine(TriggerWinPopupWithDelay(1.5f, lastResult));
+                OnWinAnimationComplete();
             }
             else
             {
@@ -301,7 +292,7 @@ public class GameManager : MonoBehaviour
                 uiManager.EnableControlsAfterWinAnimation();
                 uiManager.OnSpinCompleted(lastResult);
                 currentState = GameState.Idle;
-                slotView.ShowWinLineAnimation(lastResult.winLines, OnWinAnimationComplete);
+                OnWinAnimationComplete();
             }
         }
         else
@@ -364,21 +355,9 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        if (lastResult != null && lastResult.uSpinData != null && lastResult.uSpinData.triggered)
-        {
-            yield return StartCoroutine(DelayUSpinTriggerResult());
-            yield break;
-        }
-
-        if (lastResult != null && lastResult.moneyBagData != null && lastResult.moneyBagData.triggered)
-        {
-            yield return StartCoroutine(DelayMoneyBagTriggerResult());
-            yield break;
-        }
-
         if (lastResult != null && lastResult.freeSpinData != null && lastResult.freeSpinData.isTriggered && !isInFreeSpins)
         {
-            yield return StartCoroutine(DelayScatterTriggerResult());
+            ProcessSpinResult();
             yield break;
         }
 
@@ -395,65 +374,6 @@ public class GameManager : MonoBehaviour
         {
             ProcessSpinResult();
         }
-    }
-
-    private IEnumerator DelayScatterTriggerResult()
-    {
-        // Play special feature trigger sound AFTER all reels have stopped
-        AudioManager.Instance?.Play3UspinWinLineLoop();
-
-        // Start scatter animations together AFTER all reels have stopped
-        // Using 4 loops to match the 6-second delay (4 * 1.5s = 6s)
-        slotView.AnimateAllScatters(4);
-
-        // Wait for scatter hit animations to play
-        yield return new WaitForSeconds(3.5f);
-        ProcessSpinResult();
-    }
-
-    private IEnumerator DelayUSpinTriggerResult()
-    {
-        AudioManager.Instance?.Play3UspinWinLineLoop();
-
-        bool animFinished = false;
-        if (slotView != null)
-        {
-            slotView.AnimateUSpinWin(() =>
-            {
-                animFinished = true;
-            });
-        }
-        else
-        {
-            animFinished = true;
-        }
-
-        yield return new WaitUntil(() => animFinished);
-
-        uiManager.TriggerUSpinBonus(lastResult.uSpinData, () =>
-        {
-            AudioManager.Instance?.Stop3UspinWinLineLoop();
-            lastResult.uSpinData.triggered = false;
-            ResumeAfterSpecialFeature();
-        });
-    }
-
-    private IEnumerator DelayMoneyBagTriggerResult()
-    {
-        AudioManager.Instance?.Play3UspinWinLineLoop();
-
-        if (slotView != null)
-        {
-            slotView.AnimateMoneyBagWin();
-        }
-
-        yield return new WaitForSeconds(3.5f);
-
-        uiManager.TriggerMoneyBagBonus(lastResult.moneyBagData, () =>
-        {
-            lastResult.moneyBagData.triggered = false;
-            ResumeAfterSpecialFeature();
-        });
     }
 
     private IEnumerator DelayBeforeNextRound()
@@ -492,13 +412,6 @@ public class GameManager : MonoBehaviour
             freeSpinsRemaining = result.serverSpinsRemaining;
             freeSpinsUsed = result.serverSpinsUsed;
             int displayTotalSpins = result.serverTotalSpins;
-
-            if (result.uSpinData != null && result.uSpinData.triggered && result.uSpinData.freeGamesAwarded > 0)
-            {
-                // Defer adding the newly won free spins to total count until wheel spin completes and user presses Take!
-                displayTotalSpins -= result.uSpinData.freeGamesAwarded;
-                freeSpinsRemaining -= result.uSpinData.freeGamesAwarded;
-            }
 
             uiManager.UpdateFreeSpinCount(freeSpinsUsed, displayTotalSpins);
         }

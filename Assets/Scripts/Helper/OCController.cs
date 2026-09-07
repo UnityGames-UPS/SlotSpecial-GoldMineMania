@@ -35,9 +35,7 @@ public class OCController : MonoBehaviour
     [SerializeField] private Vector2 portraitSquareResizedObjectSize = new Vector2(1920f, 1920f);
 
     [Header("Slot Object Settings")]
-    [SerializeField] private Vector3 landscapeSlotScale = Vector3.one;
     [SerializeField] private Vector3 portraitSlotScale = new Vector3(0.73f, 0.73f, 0.73f);
-    [SerializeField] private Vector3 landscapeSlotPosition = Vector3.zero;
     [SerializeField] private Vector3 portraitSlotPosition = new Vector3(0f, -150f, 0f);
 
     [Header("Logo Object Settings")]
@@ -55,6 +53,9 @@ public class OCController : MonoBehaviour
     [SerializeField] private float transitionDuration = 0.2f;
 
     private List<Tween> activeTweens = new List<Tween>();
+    private Vector3 authoredLandscapeSlotScale;
+    private Vector3 authoredLandscapeSlotPosition;
+    private bool slotWasAdjustedForPortrait;
 
     private void Awake()
     {
@@ -69,6 +70,12 @@ public class OCController : MonoBehaviour
         if (canvasScaler == null && orientationChange != null)
         {
             canvasScaler = orientationChange.GetComponent<CanvasScaler>();
+        }
+
+        if (slotObject != null)
+        {
+            authoredLandscapeSlotScale = slotObject.localScale;
+            authoredLandscapeSlotPosition = slotObject.localPosition;
         }
     }
 
@@ -175,23 +182,19 @@ public class OCController : MonoBehaviour
             }
         }
 
-        // 5. Update Slot Object Scale and Position
+        // 5. Leave the authored landscape slot transform untouched at startup.
+        // Only restore it when returning from a portrait layout.
         if (slotObject != null)
         {
-            Vector3 targetScale = isMobilePortrait ? portraitSlotScale : landscapeSlotScale;
-            Vector3 targetPosition = isMobilePortrait ? portraitSlotPosition : landscapeSlotPosition;
-
-            if (transitionDuration > 0)
+            if (isMobilePortrait)
             {
-                Tween scaleTween = slotObject.DOScale(targetScale, transitionDuration).SetEase(Ease.OutCubic);
-                Tween posTween = slotObject.DOLocalMove(targetPosition, transitionDuration).SetEase(Ease.OutCubic);
-                activeTweens.Add(scaleTween);
-                activeTweens.Add(posTween);
+                ApplySlotTransform(portraitSlotScale, portraitSlotPosition);
+                slotWasAdjustedForPortrait = true;
             }
-            else
+            else if (slotWasAdjustedForPortrait)
             {
-                slotObject.localScale = targetScale;
-                slotObject.localPosition = targetPosition;
+                ApplySlotTransform(authoredLandscapeSlotScale, authoredLandscapeSlotPosition);
+                slotWasAdjustedForPortrait = false;
             }
         }
 
@@ -245,6 +248,22 @@ public class OCController : MonoBehaviour
             {
                 guideScrollObject.sizeDelta = targetScrollSize;
             }
+        }
+    }
+
+    private void ApplySlotTransform(Vector3 targetScale, Vector3 targetPosition)
+    {
+        if (transitionDuration > 0)
+        {
+            Tween scaleTween = slotObject.DOScale(targetScale, transitionDuration).SetEase(Ease.OutCubic);
+            Tween posTween = slotObject.DOLocalMove(targetPosition, transitionDuration).SetEase(Ease.OutCubic);
+            activeTweens.Add(scaleTween);
+            activeTweens.Add(posTween);
+        }
+        else
+        {
+            slotObject.localScale = targetScale;
+            slotObject.localPosition = targetPosition;
         }
     }
 

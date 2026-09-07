@@ -1,1423 +1,512 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+using System.Linq;
 using DG.Tweening;
+using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
+/// <summary>
+/// Owns the server-authoritative 5x3 reel presentation for Gold Mine Mania.
+/// Feature outcomes are never generated here; this class only presents the
+/// matrix and wins supplied by the server.
+/// </summary>
 public class SlotView : MonoBehaviour
 {
+    private const int DefaultReelCount = 5;
+    private const int DefaultRowCount = 3;
+
     [Header("References")]
     [SerializeField] private GameManager gameManager;
-
-    [Header("Symbol Sprites - Assign by Name")]
-    [SerializeField] private Sprite spriteLantern;           // ID: 0
-    [SerializeField] private Sprite spriteHammer;            // ID: 1
-    [SerializeField] private Sprite spriteMoneyPouch;         // ID: 2
-    [SerializeField] private Sprite spriteCoin;              // ID: 3
-    [SerializeField] private Sprite spriteA;                 // ID: 4
-    [SerializeField] private Sprite spriteK;                 // ID: 5
-    [SerializeField] private Sprite spriteQ;                 // ID: 6
-    [SerializeField] private Sprite spriteJ;                 // ID: 7
-    [SerializeField] private Sprite spriteTen;               // ID: 8
-    [SerializeField] private Sprite spriteNine;              // ID: 9
-    [SerializeField] private Sprite spriteWild;              // ID: 10
-    [SerializeField] private Sprite spriteUSpin;             // ID: 11
-    [SerializeField] private Sprite spriteMoneyBag;          // ID: 12
-
-    // Internal array built from named sprites
-    private Sprite[] symbolSprites;
-
-    [Header("Win Animation Sprite Arrays")]
-    [Tooltip("Animation sprite arrays for symbols. USpin = ID 11")]
-    [SerializeField] private List<Sprite> animSpritesUSpin;           // ID: 11
-
-    // Internal array of animation sprite lists
-    private List<Sprite>[] animationSpriteArrays;
-
-    [Header("Reel Containers")]
-    [SerializeField] private Transform[] reelTransforms;
-
-    [Header("Reel Images - 7 images per reel")]
-    [SerializeField] private List<ReelImages> reelImagesList;
-
-    [Header("Spin Settings")]
-    [SerializeField] private float symbolHeight = 100f;
-    [SerializeField] private float spinSpeed = 2000f;
-    [SerializeField] private float reelStartStagger = 0.08f;
-    [SerializeField] private float reelStopStagger = 0.12f;
-
-    [Header("Animation Settings - Casino Style")]
-    [SerializeField] private float anticipationUpDistance = 20f;
-    [SerializeField] private float anticipationUpDuration = 0.12f;
-
-    [Header("Win Animation Settings")]
-    [SerializeField] private float winPopDuration = 0.4f;
-    [SerializeField] private int winPopRepeat = 3;
-
-
-    [Header("Stop Animation Settings")]
-    [SerializeField] private float stopOvershootDistance = 50f;
-    [SerializeField] private float stopOvershootDuration = 0.20f;
-    [SerializeField] private float stopSettleDuration = 0.30f;
-
-    [Header("Quick Spin Settings")]
-    [SerializeField] private float quickStopStagger = 0.06f;
-    [SerializeField] private float quickStopOvershoot = 20f;
-    [SerializeField] private float quickStopDuration = 0.2f;
-    [SerializeField] private int minSpinCyclesBeforeStop = 3;
-
-
-    [Header("Win Animation Settings")]
-    [SerializeField] private float winAnimationDuration = 3.0f; // Total duration each win symbol animation plays
-    [SerializeField] private float winSymbolLoopDuration = 1.5f;
-    [SerializeField] private int winSymbolLoopCount = 3;
-    [Tooltip("Delay between enabling winBox overlay and starting the ImageAnimation - for sync timing")]
-    [SerializeField] private float winLineBoxToAnimationDelay = 0.05f;
-
-    [Header("Phase 1 Total Win Presentation")]
-    [SerializeField] private TMPro.TMP_Text phase1TotalWinText;
-
-    [Header("Win Box Overlays — Col 0..4  (each has 3 rows: 0=top .. 2=bottom)")]
-    [SerializeField] private ColumnOverlays[] winBoxColumns = new ColumnOverlays[5];
-
-    [Header("Win Animation Objects — Col 0..4  (each has 3 rows, contains ImageAnimation component)")]
-    [Tooltip("GameObject references for win animations. Each should have an ImageAnimation component attached.")]
-    [SerializeField] private ColumnOverlays[] winAnimationColumns = new ColumnOverlays[5];
-
-
-    [Header("Symbol Info Card")]
     [SerializeField] private SymbolInfoCard symbolInfoCard;
 
+    [Header("Symbol Sprites - Assign by Init Name")]
+    [SerializeField] private Sprite spriteMiner;                       // 0
+    [SerializeField] private Sprite spriteDonkey;                      // 1
+    [SerializeField] private Sprite spriteGoldHelmet;                  // 2
+    [SerializeField] private Sprite spriteBoots;                       // 3
+    [SerializeField] private Sprite spriteLantern;                     // 4
+    [SerializeField] private Sprite spriteA;                           // 5
+    [SerializeField] private Sprite spriteK;                           // 6
+    [SerializeField] private Sprite spriteQ;                           // 7
+    [SerializeField] private Sprite spriteJ;                           // 8
+    [SerializeField] private Sprite spriteWild;                        // 9
+    [SerializeField] private Sprite spriteFreeGameScatter;             // 10
+    [SerializeField] private Sprite spriteGoldBurstScatter;            // 11
+    [SerializeField] private Sprite spriteMegaGoldBurstScatter;        // 12
+    [SerializeField] private Sprite spriteUltimateGoldBurstScatter;    // 13
+    [SerializeField] private Sprite spriteGoldMineJourney;             // 14
 
-    private float middlePosition = 0f;
-    private float cycleDistance;
+    [Header("Reels")]
+    [Tooltip("Optional. If empty, 5x3SlotHolder (or Slots) is discovered automatically.")]
+    [SerializeField] private Transform reelRoot;
+    [SerializeField] private Transform[] reelTransforms = Array.Empty<Transform>();
 
+    [Header("Visible Result Slots")]
+    [Tooltip("Assign the top, middle and bottom result Image for each reel, from left to right.")]
+    [SerializeField] private ReelResultSlots[] resultSlotsByReel =
+        new ReelResultSlots[DefaultReelCount];
 
-    private List<Tween> spinTweens = new List<Tween>();
-    private List<Tween> winTweens = new List<Tween>();
-    private List<int> reelCycleCount = new List<int>();
-    private Coroutine winAnimationCoroutine;
+    [Header("Spin Timing")]
+    [SerializeField, Min(1)] private int minSpinCyclesBeforeStop = 3;
+    [SerializeField, Min(0f)] private float reelStartStagger = 0.08f;
+    [FormerlySerializedAs("reelStopStagger")]
+    [SerializeField, Min(0f)] private float normalReelStopInterval = 0.6f;
+    [SerializeField, Min(0f)] private float turboReelStopInterval = 0.06f;
+    [FormerlySerializedAs("quickStopStagger")]
+    [SerializeField, Min(0f)] private float quickReelStopInterval = 0.03f;
+    [FormerlySerializedAs("spinSpeed")]
+    [SerializeField, Min(100f)] private float normalReelSpeed = 4700f;
+    [SerializeField, Min(100f)] private float fastReelSpeed = 6000f;
+    [FormerlySerializedAs("anticipationUpDistance")]
+    [SerializeField, Min(0f)] private float stopAnticipationDistance = 20f;
+    [SerializeField, Min(0f)] private float stopOvershootDistance = 118f;
+    [SerializeField, Min(0.01f)] private float stopOvershootDuration = 0.2f;
+    [SerializeField, Min(0.01f)] private float stopSettleDuration = 0.3f;
 
+    [Header("Free Game Scatter Anticipation Timing")]
+    [SerializeField, Min(0f)] private float scatterAnticipationDuration = 1.5f;
+    [SerializeField, Min(1f)] private float scatterAnticipationSpeedMultiplier = 1.15f;
 
     internal List<List<int>> currentDisplayMatrix;
 
-    private bool isSpinning;
+    private readonly List<ReelRuntime> reels = new List<ReelRuntime>();
+    private readonly List<Tween> activeTweens = new List<Tween>();
+    private readonly Dictionary<int, Sprite> spritesByServerId = new Dictionary<int, Sprite>();
+    private readonly List<int> mappedServerSymbolIds = new List<int>();
+    private readonly HashSet<int> reportedUnknownSymbolIds = new HashSet<int>();
+    private readonly HashSet<string> reportedResultSlotIssues = new HashSet<string>();
 
-    #region Initialization
+    private Coroutine reelStartRoutine;
+    private Coroutine reelStopRoutine;
+    private bool isSpinning;
+    private bool quickStopRequested;
+
+    private sealed class ReelRuntime
+    {
+        internal RectTransform transform;
+        internal readonly List<Image> symbols = new List<Image>();
+        internal Vector2 restingPosition;
+        internal float symbolPitch;
+        internal Tween motionTween;
+        internal float motionBasePixelsPerSecond;
+        internal Tween stopTween;
+        internal bool isAnticipating;
+        internal int completedCycles;
+    }
 
     private void Awake()
     {
-        BuildSymbolSpriteArray();
-        InitializeReels();
+        gameManager = gameManager != null ? gameManager : FindSceneComponent<GameManager>();
+        symbolInfoCard = symbolInfoCard != null
+            ? symbolInfoCard
+            : FindSceneComponent<SymbolInfoCard>();
+
+        BuildReelCache();
+        symbolInfoCard?.HideCard();
     }
 
     private void Start()
     {
-        if (symbolSprites == null || symbolSprites.Length == 0)
+        EnsureConfiguration();
+    }
+
+    private void OnDisable()
+    {
+        StopViewCoroutines();
+        KillAllTweens();
+        isSpinning = false;
+    }
+
+    private void OnDestroy()
+    {
+        StopViewCoroutines();
+        KillAllTweens();
+    }
+
+    private void EnsureConfiguration()
+    {
+        if (gameManager == null)
         {
-            BuildSymbolSpriteArray();
+            gameManager = FindSceneComponent<GameManager>();
         }
-        DisableAllOverlays();
-        SetupSymbolButtons();
-    }
 
-    private void DisableAllOverlays()
-    {
-        DisableColumns(winBoxColumns);
-        DisableColumns(winAnimationColumns);
-        HidePhase1TotalWinText();
-        if (symbolInfoCard) symbolInfoCard.HideCard();
-    }
-
-    private void SetupSymbolButtons()
-    {
-        if (reelImagesList == null) return;
-        for (int col = 0; col < reelImagesList.Count; col++)
+        if (gameManager?.gameConfig != null)
         {
-            var reel = reelImagesList[col];
-            if (reel == null || reel.images == null) continue;
-            int visibleStartIndex = 2;
-            int rowCount = 3;
-            for (int row = 0; row < rowCount; row++)
+            BuildServerSymbolMapping(gameManager.gameConfig.symbols);
+        }
+    }
+
+    #region Reel and symbol setup
+
+    private void BuildReelCache()
+    {
+        reels.Clear();
+        reportedResultSlotIssues.Clear();
+        EnsureResultSlotArraySize();
+
+        Transform discoveredRoot = reelRoot != null
+            ? reelRoot
+            : FindSceneTransform("5x3SlotHolder") ?? FindSceneTransform("Slots");
+
+        List<RectTransform> candidates = new List<RectTransform>();
+        if (discoveredRoot != null)
+        {
+            for (int i = 0; i < discoveredRoot.childCount; i++)
             {
-                int imageIndex = visibleStartIndex + row;
-                if (imageIndex < reel.images.Count && reel.images[imageIndex] != null)
+                if (discoveredRoot.GetChild(i) is RectTransform rect && HasDirectSymbolImages(rect))
                 {
-                    Image img = reel.images[imageIndex];
-                    SymbolButtonHandler btnHandler = img.GetComponent<SymbolButtonHandler>();
-                    if (btnHandler == null)
-                    {
-                        btnHandler = img.gameObject.AddComponent<SymbolButtonHandler>();
-                    }
-                    btnHandler.Init(col, row, this);
+                    candidates.Add(rect);
                 }
             }
         }
-    }
 
-    internal void HideSymbolInfoCard()
-    {
-        if (symbolInfoCard != null) symbolInfoCard.HideCard();
-    }
-
-    internal void OnBetChanged()
-    {
-        if (symbolInfoCard != null && symbolInfoCard.gameObject.activeSelf)
+        if (candidates.Count == 0 && reelTransforms != null)
         {
-            symbolInfoCard.RefreshCard(gameManager);
-        }
-    }
-
-    internal void OnSymbolClicked(int col, int row, RectTransform symbolRect)
-    {
-        if (isSpinning)
-        {
-            if (symbolInfoCard != null) symbolInfoCard.HideCard();
-            return;
+            candidates.AddRange(reelTransforms
+                .OfType<RectTransform>()
+                .Where(HasDirectSymbolImages));
         }
 
-        if (currentDisplayMatrix == null || col >= currentDisplayMatrix.Count || row >= currentDisplayMatrix[col].Count)
+        foreach (RectTransform reelTransform in candidates.Take(DefaultReelCount))
         {
-            return;
-        }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(reelTransform);
 
-        int symbolId = currentDisplayMatrix[col][row];
-        if (symbolInfoCard != null)
-        {
-            symbolInfoCard.ShowCard(symbolId, col, row, symbolRect, gameManager);
-        }
-    }
-
-    private static void DisableColumns(ColumnOverlays[] cols)
-    {
-        if (cols == null) return;
-        foreach (var col in cols)
-            if (col?.rows != null)
-                foreach (var go in col.rows)
-                    if (go) go.SetActive(false);
-    }
-
-    private static GameObject WinBox(ColumnOverlays[] cols, int col, int row)
-        => (col >= 0 && col < cols?.Length && cols[col]?.rows != null && row >= 0 && row < cols[col].rows.Length)
-            ? cols[col].rows[row] : null;
-
-    private void BuildSymbolSpriteArray()
-    {
-        // Build the symbol sprite array from named sprite fields
-        symbolSprites = new Sprite[13];
-        symbolSprites[0] = spriteLantern;
-        symbolSprites[1] = spriteHammer;
-        symbolSprites[2] = spriteMoneyPouch;
-        symbolSprites[3] = spriteCoin;
-        symbolSprites[4] = spriteA;
-        symbolSprites[5] = spriteK;
-        symbolSprites[6] = spriteQ;
-        symbolSprites[7] = spriteJ;
-        symbolSprites[8] = spriteTen;
-        symbolSprites[9] = spriteNine;
-        symbolSprites[10] = spriteWild;
-        symbolSprites[11] = spriteUSpin;
-        symbolSprites[12] = spriteMoneyBag;
-
-        // Validate
-        for (int i = 0; i < symbolSprites.Length; i++)
-        {
-            if (symbolSprites[i] == null)
+            ReelRuntime reel = new ReelRuntime
             {
-                Debug.LogError($"[SlotView] Symbol sprite at index {i} is not assigned in inspector!");
+                transform = reelTransform,
+                restingPosition = reelTransform.anchoredPosition,
+                symbolPitch = CalculateSymbolPitch(reelTransform)
+            };
+
+            for (int symbolIndex = 0; symbolIndex < reelTransform.childCount; symbolIndex++)
+            {
+                Transform symbolTransform = reelTransform.GetChild(symbolIndex);
+                Image symbolImage = symbolTransform.GetComponent<Image>() ??
+                                    symbolTransform.GetComponentInChildren<Image>(true);
+                if (symbolImage != null)
+                {
+                    reel.symbols.Add(symbolImage);
+                }
+            }
+
+            reels.Add(reel);
+        }
+
+        if (reels.Count == 0)
+        {
+            Debug.LogError("[SlotView] No reel strips with symbol Images were found.", this);
+            return;
+        }
+
+        if (reels.Count != DefaultReelCount)
+        {
+            Debug.LogError($"[SlotView] Found {reels.Count} reels; expected {DefaultReelCount}.", this);
+        }
+
+        reelRoot = discoveredRoot;
+        reelTransforms = reels.Select(reel => (Transform)reel.transform).ToArray();
+
+        SetupSymbolButtons(GetRowCount());
+    }
+
+    private void EnsureResultSlotArraySize()
+    {
+        if (resultSlotsByReel != null && resultSlotsByReel.Length == DefaultReelCount) return;
+
+        ReelResultSlots[] previous = resultSlotsByReel;
+        resultSlotsByReel = new ReelResultSlots[DefaultReelCount];
+        if (previous != null)
+        {
+            Array.Copy(previous, resultSlotsByReel, Mathf.Min(previous.Length, resultSlotsByReel.Length));
+        }
+    }
+
+    private static bool HasDirectSymbolImages(RectTransform candidate)
+    {
+        if (candidate == null) return false;
+
+        for (int i = 0; i < candidate.childCount; i++)
+        {
+            Transform child = candidate.GetChild(i);
+            if (child.GetComponent<Image>() != null || child.GetComponentInChildren<Image>(true) != null)
+            {
+                return true;
             }
         }
 
-        // Build the animation sprite arrays
-        animationSpriteArrays = new List<Sprite>[13];
-        // Only USpin has an animation in this game
-        animationSpriteArrays[11] = animSpritesUSpin;
+        return false;
     }
 
-    private void InitializeReels()
+    private static float CalculateSymbolPitch(RectTransform reelTransform)
     {
-        cycleDistance = symbolHeight;
-        middlePosition = 0f;
+        float height = 200f;
+        float spacing = 0f;
 
-        int rowCount = (gameManager != null && gameManager.gameConfig != null) ? gameManager.gameConfig.rowCount : 3;
-
-        currentDisplayMatrix = new List<List<int>>();
-        for (int col = 0; col < 5; col++)
+        if (reelTransform.childCount > 0 && reelTransform.GetChild(0) is RectTransform firstSymbol)
         {
-            var defaultCol = new List<int>();
-            for (int r = 0; r < rowCount; r++)
+            height = Mathf.Max(1f, firstSymbol.rect.height);
+        }
+
+        VerticalLayoutGroup layout = reelTransform.GetComponent<VerticalLayoutGroup>();
+        if (layout != null)
+        {
+            spacing = layout.spacing;
+        }
+
+        return Mathf.Max(1f, height + spacing);
+    }
+
+    private void SetupSymbolButtons(int rowCount)
+    {
+        int safeRows = Mathf.Min(DefaultRowCount, Mathf.Max(1, rowCount));
+        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
+        {
+            for (int row = 0; row < safeRows; row++)
             {
-                defaultCol.Add(0);
-            }
-            currentDisplayMatrix.Add(defaultCol);
-            reelCycleCount.Add(0);
-        }
-    }
+                Image symbolImage = GetResultSlotImage(reelIndex, row);
+                if (symbolImage == null) continue;
 
-    internal void SetInitialMatrix(List<List<int>> matrix)
-    {
-        if (matrix == null || matrix.Count != 5) return;
+                SymbolButtonHandler handler = symbolImage.GetComponent<SymbolButtonHandler>();
+                if (handler == null)
+                {
+                    handler = symbolImage.gameObject.AddComponent<SymbolButtonHandler>();
+                }
 
-        int rowCount = (gameManager != null && gameManager.gameConfig != null) ? gameManager.gameConfig.rowCount : 3;
-
-        for (int col = 0; col < 5; col++)
-        {
-            if (matrix[col].Count != rowCount) return;
-        }
-
-        currentDisplayMatrix = matrix;
-
-        for (int col = 0; col < 5; col++)
-        {
-            SetReelSymbols(col, matrix[col], true);
-        }
-    }
-
-    #endregion
-
-    #region Symbol Display
-
-    private void SetReelSymbols(int columnIndex, List<int> visibleSymbolIds, bool isInitial = false)
-    {
-        if (columnIndex >= reelImagesList.Count)
-        {
-            Debug.LogError($"SetReelSymbols: Invalid column index {columnIndex}, max is {reelImagesList.Count - 1}");
-            return;
-        }
-
-        int rowCount = (gameManager != null && gameManager.gameConfig != null) ? gameManager.gameConfig.rowCount : 3;
-
-        if (visibleSymbolIds == null || visibleSymbolIds.Count != rowCount)
-        {
-            Debug.LogError($"SetReelSymbols: Invalid visibleSymbolIds count {visibleSymbolIds?.Count}, expected {rowCount}");
-            return;
-        }
-
-        var reel = reelImagesList[columnIndex];
-
-        if (reel.images == null || reel.images.Count != 7)
-        {
-            Debug.LogError($"SetReelSymbols: Reel {columnIndex} has invalid image count {reel.images?.Count}, expected 7");
-            return;
-        }
-
-        int visibleStartIndex = 2;
-        for (int row = 0; row < rowCount; row++)
-        {
-            int imageIndex = visibleStartIndex + row;
-            if (imageIndex < reel.images.Count)
-            {
-                int symbolId = visibleSymbolIds[row];
-                reel.images[imageIndex].sprite = GetSymbolSprite(symbolId);
+                handler.Init(reelIndex, row, this);
             }
         }
+    }
 
-        for (int i = 0; i < visibleStartIndex; i++)
+    private Image GetResultSlotImage(int reelIndex, int row)
+    {
+        if (reelIndex < 0 || reelIndex >= reels.Count || row < 0 || row >= DefaultRowCount)
         {
-            reel.images[i].sprite = GetSymbolSprite(Random.Range(0, 10));
+            return null;
         }
 
-        for (int i = visibleStartIndex + rowCount; i < reel.images.Count; i++)
+        ReelResultSlots slots = resultSlotsByReel != null && reelIndex < resultSlotsByReel.Length
+            ? resultSlotsByReel[reelIndex]
+            : null;
+        Image image = slots?.Get(row);
+
+        if (image == null)
         {
-            reel.images[i].sprite = GetSymbolSprite(Random.Range(0, 10));
+            ReportResultSlotIssue(
+                $"missing-{reelIndex}-{row}",
+                $"[SlotView] Assign reel {reelIndex + 1} result slot '{GetResultRowName(row)}' in the Inspector.");
+            return null;
         }
 
-        if (isInitial && reelTransforms[columnIndex] != null)
+        if (!reels[reelIndex].symbols.Contains(image))
         {
-            reelTransforms[columnIndex].localPosition = new Vector3(
-                reelTransforms[columnIndex].localPosition.x,
-                middlePosition,
-                0
-            );
+            ReportResultSlotIssue(
+                $"wrong-reel-{reelIndex}-{row}",
+                $"[SlotView] Reel {reelIndex + 1} result slot '{GetResultRowName(row)}' is not an Image in that reel strip.");
+            return null;
         }
+
+        return image;
+    }
+
+    private int GetTravelSymbolCount(int reelIndex)
+    {
+        if (reelIndex < 0 || reelIndex >= reels.Count) return DefaultRowCount;
+
+        ReelRuntime reel = reels[reelIndex];
+        Image top = GetResultSlotImage(reelIndex, 0);
+        if (top == null) return DefaultRowCount;
+
+        int topIndex = reel.symbols.IndexOf(top);
+        Image middle = GetResultSlotImage(reelIndex, 1);
+        Image bottom = GetResultSlotImage(reelIndex, 2);
+        int middleIndex = reel.symbols.IndexOf(middle);
+        int bottomIndex = reel.symbols.IndexOf(bottom);
+
+        if (middleIndex != topIndex + 1 || bottomIndex != topIndex + 2)
+        {
+            ReportResultSlotIssue(
+                $"order-{reelIndex}",
+                $"[SlotView] Reel {reelIndex + 1} result Images must be consecutive in top, middle, bottom order.");
+        }
+
+        return Mathf.Max(DefaultRowCount, topIndex);
+    }
+
+    private void ReportResultSlotIssue(string key, string message)
+    {
+        if (reportedResultSlotIssues.Add(key)) Debug.LogError(message, this);
+    }
+
+    private static string GetResultRowName(int row)
+    {
+        switch (row)
+        {
+            case 0: return "Top";
+            case 1: return "Middle";
+            case 2: return "Bottom";
+            default: return row.ToString();
+        }
+    }
+
+    private bool BuildServerSymbolMapping(List<SymbolInfo> symbols)
+    {
+        spritesByServerId.Clear();
+        mappedServerSymbolIds.Clear();
+        reportedUnknownSymbolIds.Clear();
+
+        if (symbols == null || symbols.Count == 0)
+        {
+            Debug.LogWarning("[SlotView] Init did not provide symbol definitions.", this);
+            return false;
+        }
+
+        bool complete = true;
+        HashSet<int> ids = new HashSet<int>();
+        foreach (SymbolInfo symbol in symbols)
+        {
+            if (symbol == null || !ids.Add(symbol.id))
+            {
+                complete = false;
+                Debug.LogError("[SlotView] Init contains a null or duplicate symbol entry.", this);
+                continue;
+            }
+
+            if (!TryResolveNamedSymbol(NormalizeSymbolName(symbol.name), out Sprite sprite) || sprite == null)
+            {
+                complete = false;
+                Debug.LogError(
+                    $"[SlotView] Assign a sprite for init symbol {symbol.id} ('{symbol.name}').",
+                    this);
+                continue;
+            }
+
+            spritesByServerId.Add(symbol.id, sprite);
+            mappedServerSymbolIds.Add(symbol.id);
+        }
+
+        if (complete)
+        {
+            Debug.Log($"[SlotView] Mapped all {mappedServerSymbolIds.Count} init symbols.", this);
+        }
+
+        return complete;
+    }
+
+    private bool TryResolveNamedSymbol(string normalizedName, out Sprite sprite)
+    {
+        sprite = null;
+        switch (normalizedName)
+        {
+            case "miner": sprite = spriteMiner; break;
+            case "donkey": sprite = spriteDonkey; break;
+            case "goldhelmet":
+            case "helmet": sprite = spriteGoldHelmet; break;
+            case "boots":
+            case "boot": sprite = spriteBoots; break;
+            case "lantern": sprite = spriteLantern; break;
+            case "a":
+            case "ace": sprite = spriteA; break;
+            case "k":
+            case "king": sprite = spriteK; break;
+            case "q":
+            case "queen": sprite = spriteQ; break;
+            case "j":
+            case "jack": sprite = spriteJ; break;
+            case "wild": sprite = spriteWild; break;
+            case "freegamescatter":
+            case "freegame": sprite = spriteFreeGameScatter; break;
+            case "goldburstscatter":
+            case "goldburst": sprite = spriteGoldBurstScatter; break;
+            case "megagoldburstscatter":
+            case "megagoldburst": sprite = spriteMegaGoldBurstScatter; break;
+            case "ultimategoldburstscatter":
+            case "ultimategoldburst": sprite = spriteUltimateGoldBurstScatter; break;
+            case "goldminejourney": sprite = spriteGoldMineJourney; break;
+            default: return false;
+        }
+
+        return true;
+    }
+
+    private static string NormalizeSymbolName(string symbolName)
+    {
+        return string.IsNullOrWhiteSpace(symbolName)
+            ? string.Empty
+            : new string(symbolName
+                .Where(char.IsLetterOrDigit)
+                .Select(char.ToLowerInvariant)
+                .ToArray());
     }
 
     private Sprite GetSymbolSprite(int symbolId)
     {
-        if (symbolSprites == null || symbolSprites.Length == 0)
+        if (spritesByServerId.TryGetValue(symbolId, out Sprite sprite) && sprite != null)
         {
-            BuildSymbolSpriteArray();
+            return sprite;
         }
 
-        if (symbolSprites == null || symbolSprites.Length == 0)
+        if (reportedUnknownSymbolIds.Add(symbolId))
         {
-            Debug.LogError("[SlotView] symbolSprites array is null or empty after BuildSymbolSpriteArray!");
-            return null;
+            Debug.LogError($"[SlotView] Symbol id {symbolId} is missing a sprite mapping.", this);
         }
 
-        // Validate symbolId range (0-12)
-        if (symbolId < 0 || symbolId >= symbolSprites.Length)
-        {
-            Debug.LogWarning($"[SlotView] Invalid symbolId {symbolId}, using default sprite 0. Total sprites: {symbolSprites.Length}");
-            return symbolSprites[0];
-        }
-
-        if (symbolSprites[symbolId] == null)
-        {
-            Debug.LogError($"[SlotView] Symbol sprite for ID {symbolId} is null!");
-            return symbolSprites[0];
-        }
-
-        return symbolSprites[symbolId];
+        return spritesByServerId.Values.FirstOrDefault(candidate => candidate != null);
     }
 
     #endregion
 
-    #region Spin Animation
+    #region Public slot flow
+
+    internal void SetInitialMatrix(List<List<int>> matrix)
+    {
+        if (reels.Count == 0) BuildReelCache();
+
+        EnsureConfiguration();
+        SetupSymbolButtons(GetRowCount());
+
+        if (!IsValidMatrix(matrix))
+        {
+            Debug.LogWarning("[SlotView] Ignored an invalid initial matrix.", this);
+            return;
+        }
+
+        ApplyMatrix(matrix);
+    }
 
     internal void StartSpin()
     {
-        if (isSpinning) return;
+        if (isSpinning || reels.Count == 0) return;
 
-        if (symbolInfoCard != null) symbolInfoCard.HideCard();
+        EnsureConfiguration();
+        HideSymbolInfoCard();
+        KillReelTweens(true);
 
+        quickStopRequested = false;
         isSpinning = true;
-        KillAllTweens();
-
-        DisableAllOverlays();
-
-        for (int i = 0; i < reelCycleCount.Count; i++)
-        {
-            reelCycleCount[i] = 0;
-        }
-
-        for (int col = 0; col < 5; col++)
-        {
-            StartReelCycleWithDelay(col, col * reelStartStagger);
-        }
+        reelStartRoutine = StartCoroutine(StartReelsSequentially());
     }
 
-    private void StartReelCycleWithDelay(int columnIndex, float delay)
+    internal void StopSpin(List<List<int>> resultMatrix, Action onComplete)
     {
-        if (columnIndex >= reelTransforms.Length) return;
-
-        Transform slotTransform = reelTransforms[columnIndex];
-
-        Sequence startSequence = DOTween.Sequence();
-
-        if (delay > 0)
-        {
-            startSequence.AppendInterval(delay);
-        }
-
-        startSequence.Append(
-            slotTransform.DOLocalMoveY(middlePosition + anticipationUpDistance, anticipationUpDuration)
-                .SetEase(Ease.OutQuad)
-        );
-
-        startSequence.Append(
-            slotTransform.DOLocalMoveY(middlePosition, anticipationUpDuration * 0.5f)
-                .SetEase(Ease.InQuad)
-        );
-
-        startSequence.OnComplete(() => {
-            if (isSpinning)
-            {
-                StartReelCycle(columnIndex);
-            }
-        });
-
-        startSequence.Play();
-
-        if (spinTweens.Count <= columnIndex)
-            spinTweens.Add(startSequence);
-        else
-            spinTweens[columnIndex] = startSequence;
+        BeginStop(resultMatrix, false, onComplete);
     }
 
-    private void StartReelCycle(int columnIndex)
+    internal void QuickStop(List<List<int>> resultMatrix, Action onComplete = null)
     {
-        if (columnIndex >= reelTransforms.Length) return;
-        if (!isSpinning) return;
-
-        Transform slotTransform = reelTransforms[columnIndex];
-
-        slotTransform.localPosition = new Vector3(slotTransform.localPosition.x, middlePosition, 0);
-
-        float currentSpeed = spinSpeed;
-
-        float cycleDuration = symbolHeight / currentSpeed;
-
-        Sequence cycleSequence = DOTween.Sequence();
-
-        cycleSequence.Append(
-            slotTransform.DOLocalMoveY(middlePosition - symbolHeight, cycleDuration)
-                .SetEase(Ease.Linear)
-        );
-
-        cycleSequence.OnComplete(() => {
-            if (isSpinning)
-            {
-                CycleReelSymbols(columnIndex);
-
-                if (columnIndex < reelCycleCount.Count)
-                {
-                    reelCycleCount[columnIndex]++;
-                }
-
-                StartReelCycle(columnIndex);
-            }
-        });
-
-        cycleSequence.Play();
-
-        if (spinTweens.Count <= columnIndex)
-            spinTweens.Add(cycleSequence);
-        else
-            spinTweens[columnIndex] = cycleSequence;
+        BeginStop(resultMatrix, true, onComplete);
     }
 
-    private void CycleReelSymbols(int columnIndex)
+    internal void ApplySpinSpeed(SpinSpeed speed)
     {
-        var reel = reelImagesList[columnIndex];
-        if (reel.images == null || reel.images.Count != 7) return;
-
-        for (int i = 6; i > 0; i--)
-        {
-            reel.images[i].sprite = reel.images[i - 1].sprite;
-        }
-
-        reel.images[0].sprite = GetSymbolSprite(Random.Range(0, 10));
+        if (gameManager != null) gameManager.currentSpinSpeed = speed;
+        foreach (ReelRuntime reel in reels) ApplyReelMotionSpeed(reel);
     }
 
-    #endregion
-
-    #region Stop Spin
-
-    internal void StopSpin(List<List<int>> resultMatrix, System.Action onComplete)
-    {
-        if (!isSpinning)
-        {
-            currentDisplayMatrix = resultMatrix;
-            for (int col = 0; col < 5; col++)
-            {
-                SetReelSymbols(col, resultMatrix[col], false);
-            }
-            onComplete?.Invoke();
-            return;
-        }
-
-        StartCoroutine(StopSpinSequence(resultMatrix, onComplete, false));
-    }
-
-    private IEnumerator StopSpinSequence(List<List<int>> resultMatrix, System.Action onComplete, bool isQuickStop)
-    {
-        currentDisplayMatrix = resultMatrix;
-
-        while (true)
-        {
-            bool allReelsReady = true;
-            for (int col = 0; col < 5; col++)
-            {
-                if (reelCycleCount[col] < minSpinCyclesBeforeStop)
-                {
-                    allReelsReady = false;
-                    break;
-                }
-            }
-
-            if (allReelsReady) break;
-            yield return null;
-        }
-
-        float stagger = isQuickStop ? quickStopStagger : reelStopStagger;
-
-        for (int col = 0; col < 5; col++)
-        {
-            float delay = col * stagger;
-            StartCoroutine(StopSingleReel(col, resultMatrix[col], delay, isQuickStop));
-        }
-
-        float longestStopTime;
-        if (isQuickStop)
-        {
-            longestStopTime = (4 * stagger) + quickStopDuration;
-        }
-        else
-        {
-            longestStopTime = (4 * stagger) + stopOvershootDuration + stopSettleDuration;
-        }
-
-        yield return new WaitForSeconds(longestStopTime);
-
-        isSpinning = false;
-
-        onComplete?.Invoke();
-    }
-
-    private IEnumerator StopSingleReel(int columnIndex, List<int> targetSymbols, float delay, bool isQuickStop)
-    {
-        if (delay > 0)
-        {
-            yield return new WaitForSeconds(delay);
-        }
-
-        if (columnIndex < spinTweens.Count && spinTweens[columnIndex] != null)
-        {
-            spinTweens[columnIndex].Kill();
-        }
-
-        Transform slotTransform = reelTransforms[columnIndex];
-
-        SetReelSymbols(columnIndex, targetSymbols, false);
-
-        float currentY = slotTransform.localPosition.y;
-        float targetY = middlePosition;
-        float offset = (currentY - targetY) % cycleDistance;
-        if (offset < 0) offset += cycleDistance;
-
-        slotTransform.localPosition = new Vector3(
-            slotTransform.localPosition.x,
-            targetY + offset,
-            0
-        );
-
-        // ── Play reel-stop sound immediately when symbols lock in ──────────
-        AudioManager.Instance?.PlayReelStop();
-
-        // Detect wild symbols in this column for hit sounds
-        if (currentDisplayMatrix != null && columnIndex < currentDisplayMatrix.Count)
-        {
-            bool hasWild = false;
-            int wildId = gameManager?.gameConfig != null ? gameManager.gameConfig.wildSymbolId : 10;
-            foreach (int sym in currentDisplayMatrix[columnIndex])
-            {
-                if (sym == wildId) hasWild = true;
-            }
-            if (hasWild) AudioManager.Instance?.PlayReelStop();
-        }
-        // ──────────────────────────────────────────────────────────────────
-
-        if (isQuickStop)
-        {
-            Sequence quickStopSequence = DOTween.Sequence();
-
-            quickStopSequence.Append(
-                slotTransform.DOLocalMoveY(middlePosition - quickStopOvershoot, quickStopDuration * 0.3f)
-                    .SetEase(Ease.OutQuad)
-            );
-
-            quickStopSequence.Append(
-                slotTransform.DOLocalMoveY(middlePosition, quickStopDuration * 0.7f)
-                    .SetEase(Ease.InOutQuad)
-            );
-
-            quickStopSequence.OnComplete(() => PlayStopAnimationsForColumn(columnIndex));
-
-            spinTweens[columnIndex] = quickStopSequence;
-        }
-        else
-        {
-            Sequence stopSequence = DOTween.Sequence();
-
-            stopSequence.Append(
-                slotTransform.DOLocalMoveY(middlePosition - stopOvershootDistance, stopOvershootDuration)
-                    .SetEase(Ease.OutQuad)
-            );
-
-            stopSequence.Append(
-                slotTransform.DOLocalMoveY(middlePosition, stopSettleDuration)
-                    .SetEase(Ease.InOutQuad)
-            );
-
-            stopSequence.OnComplete(() => PlayStopAnimationsForColumn(columnIndex));
-
-            spinTweens[columnIndex] = stopSequence;
-        }
-    }
-
-    #endregion
-
-    #region Quick Spin
-
-    internal void QuickStop(List<List<int>> resultMatrix, System.Action onComplete = null)
-    {
-        if (!isSpinning)
-        {
-            currentDisplayMatrix = resultMatrix;
-            for (int col = 0; col < 5; col++)
-            {
-                if (col < reelTransforms.Length)
-                {
-                    SetReelSymbols(col, resultMatrix[col], false);
-                    reelTransforms[col].localPosition = new Vector3(
-                        reelTransforms[col].localPosition.x,
-                        middlePosition,
-                        0
-                    );
-                    PlayStopAnimationsForColumn(col);
-                }
-            }
-            
-            onComplete?.Invoke();
-            return;
-        }
-
-        StartCoroutine(StopSpinSequence(resultMatrix, onComplete, true));
-    }
-
-    #endregion
-
-    #region Stop Symbol Animations
-
-    private void PlayStopAnimationsForColumn(int col)
-    {
-        if (currentDisplayMatrix == null || col >= currentDisplayMatrix.Count) return;
-        
-        for (int row = 0; row < currentDisplayMatrix[col].Count; row++)
-        {
-            int symId = currentDisplayMatrix[col][row];
-            int wildId = gameManager?.gameConfig != null ? gameManager.gameConfig.wildSymbolId : 10;
-            bool isWild = (symId == wildId);
-            
-            if (isWild)
-            {
-                AnimateSymbolSingleLoop(col, row, 1);
-            }
-        }
-    }
-
-    internal void AnimateAllScatters(int loopCount)
-    {
-        if (currentDisplayMatrix == null) return;
-
-        // Clear any individual hit animations before starting the collective one
-        KillWinTweens();
-
-        int actualScatterId = gameManager?.gameConfig != null ? gameManager.gameConfig.scatterSymbolId : -1;
-        if (actualScatterId < 0) return;
-        
-        for (int col = 0; col < 5; col++)
-        {
-            for (int row = 0; row < currentDisplayMatrix[col].Count; row++)
-            {
-                if (currentDisplayMatrix[col][row] == actualScatterId)
-                {
-                    AnimateSymbolSingleLoop(col, row, loopCount);
-                }
-            }
-        }
-    }
-
-    internal void AnimateUSpinWin(System.Action onComplete = null)
-    {
-        if (currentDisplayMatrix == null)
-        {
-            onComplete?.Invoke();
-            return;
-        }
-
-        KillWinTweens();
-        AudioManager.Instance?.PlayWinLinePhase1Start();
-
-        List<ImageAnimation> activeUSpinAnims = new List<ImageAnimation>();
-        int completedCount = 0;
-        int targetLoops = 2; // Exactly 2 loops of full animation
-
-        for (int col = 0; col < 5; col++)
-        {
-            if (col >= currentDisplayMatrix.Count) continue;
-            for (int row = 0; row < currentDisplayMatrix[col].Count; row++)
-            {
-                if (currentDisplayMatrix[col][row] == 11) // USpin Symbol ID
-                {
-                    EnableWinBox(col, row);
-                    
-                    var animGO = WinBox(winAnimationColumns, col, row);
-                    if (animGO != null)
-                    {
-                        ImageAnimation imageAnim = animGO.GetComponent<ImageAnimation>();
-                        int imageIndex = 2 + row;
-                        Image symbolImage = (col < reelImagesList.Count && reelImagesList[col].images != null && imageIndex < reelImagesList[col].images.Count)
-                            ? reelImagesList[col].images[imageIndex]
-                            : null;
-
-                        if (imageAnim != null)
-                        {
-                            activeUSpinAnims.Add(imageAnim);
-
-                            List<Sprite> animSprites = animationSpriteArrays[11];
-                            imageAnim.textureArray = animSprites;
-                            imageAnim.doLoopAnimation = true;
-
-                            animGO.SetActive(true);
-                            Image animRenderer = imageAnim.rendererDelegate != null ? imageAnim.rendererDelegate : animGO.GetComponent<Image>();
-                            if (animRenderer != null)
-                            {
-                                animRenderer.DOKill();
-                                Color c = animRenderer.color;
-                                animRenderer.color = new Color(c.r, c.g, c.b, 1f);
-                            }
-                            if (symbolImage != null)
-                            {
-                                symbolImage.DOKill();
-                                symbolImage.DOFade(0f, 0.2f);
-                            }
-
-                            imageAnim.onLoopComplete = (loopCount) =>
-                            {
-                                if (loopCount >= targetLoops)
-                                {
-                                    imageAnim.onLoopComplete = null;
-                                    imageAnim.StopAnimation();
-                                    animGO.SetActive(false);
-
-                                    if (symbolImage != null)
-                                    {
-                                        symbolImage.DOKill();
-                                        symbolImage.DOFade(1f, 0.2f);
-                                    }
-
-                                    completedCount++;
-                                    if (completedCount >= activeUSpinAnims.Count)
-                                    {
-                                        onComplete?.Invoke();
-                                    }
-                                }
-                            };
-
-                            imageAnim.StartAnimation();
-                        }
-                    }
-                }
-            }
-        }
-
-        if (activeUSpinAnims.Count == 0)
-        {
-            onComplete?.Invoke();
-        }
-    }
-
-    internal void AnimateMoneyBagWin()
-    {
-        if (currentDisplayMatrix == null) return;
-
-        KillWinTweens();
-        AudioManager.Instance?.PlayWinLinePhase1Start();
-
-        for (int col = 0; col < 5; col++)
-        {
-            if (col >= currentDisplayMatrix.Count) continue;
-            for (int row = 0; row < currentDisplayMatrix[col].Count; row++)
-            {
-                if (currentDisplayMatrix[col][row] == 12) // MoneyBag Symbol ID
-                {
-                    EnableWinBox(col, row);
-                }
-            }
-        }
-    }
-
-    private void AnimateSymbolSingleLoop(int column, int row, int loopCount = 1)
-    {
-        if (column >= reelImagesList.Count) return;
-
-        var reel = reelImagesList[column];
-        if (reel.images == null || reel.images.Count != 7) return;
-
-        int imageIndex = 2 + row;
-        if (imageIndex >= reel.images.Count) return;
-
-        Image symbolImage = reel.images[imageIndex];
-        if (symbolImage == null) return;
-
-        var animGO = WinBox(winAnimationColumns, column, row);
-        if (animGO == null) return;
-
-        ImageAnimation imageAnim = animGO.GetComponent<ImageAnimation>();
-        if (imageAnim == null) return;
-
-        int symbolId = currentDisplayMatrix[column][row];
-        if (symbolId < 0 || symbolId >= animationSpriteArrays.Length) return;
-
-        List<Sprite> animSprites = animationSpriteArrays[symbolId];
-        if (animSprites == null || animSprites.Count == 0) return;
-
-        imageAnim.textureArray = animSprites;
-
-        Color originalColor = new Color(symbolImage.color.r, symbolImage.color.g, symbolImage.color.b, 1f);
-
-        Sequence seq = DOTween.Sequence();
-        
-        seq.AppendCallback(() => {
-            animGO.SetActive(true);
-            Image animRenderer = imageAnim.rendererDelegate;
-            if (animRenderer != null)
-            {
-                animRenderer.DOKill();
-                Color c = animRenderer.color;
-                animRenderer.color = new Color(c.r, c.g, c.b, 1f);
-            }
-            symbolImage.DOKill();
-            symbolImage.DOFade(0f, 0.2f);
-            
-            imageAnim.StartAnimation();
-        });
-
-        seq.AppendInterval(winSymbolLoopDuration * loopCount);
-
-        seq.AppendCallback(() => {
-            Image animRenderer = imageAnim != null ? imageAnim.rendererDelegate : null;
-
-            if (animRenderer != null)
-            {
-                animRenderer.DOKill();
-                Color c = animRenderer.color;
-                animRenderer.color = new Color(c.r, c.g, c.b, 1f);
-            }
-
-            if (imageAnim != null) imageAnim.StopAnimation();
-            if (animGO != null) animGO.SetActive(false);
-
-            if (symbolImage != null)
-            {
-                symbolImage.DOKill();
-                symbolImage.DOFade(originalColor.a, 0.2f);
-            }
-        });
-
-        winTweens.Add(seq);
-    }
-
-    #endregion
-
-    #region Win Line Animation
-
-    internal void ShowWinLineAnimation(List<WinLine> winLines, System.Action onComplete)
-    {
-        if (winLines == null || winLines.Count == 0)
-        {
-            onComplete?.Invoke();
-            return;
-        }
-
-        KillWinTweens();
-        winAnimationCoroutine = StartCoroutine(PlayTwoPhaseWinLines(winLines, onComplete));
-    }
-
-    private IEnumerator PlayTwoPhaseWinLines(List<WinLine> winLines, System.Action onComplete)
-    {
-        int rowLimit = (gameManager != null && gameManager.gameConfig != null) ? gameManager.gameConfig.rowCount : 3;
-
-        // ==========================================
-        // PHASE 1: Show all winning icons at once
-        // ==========================================
-        HashSet<int> allWinPositions = new HashSet<int>();
-        foreach (var winLine in winLines)
-        {
-            if (winLine.positions != null)
-            {
-                foreach (int flatIndex in winLine.positions)
-                {
-                    allWinPositions.Add(flatIndex);
-                }
-            }
-        }
-
-        Debug.Log($"[PlayTwoPhaseWinLines] Phase 1: Showing all {allWinPositions.Count} winning icons at once for {winLines.Count} win lines");
-
-        // Calculate Phase 1 Total Win Amount
-        double totalWinAmount = 0;
-        foreach (var winLine in winLines)
-        {
-            totalWinAmount += winLine.winAmount;
-        }
-        if (totalWinAmount <= 0 && gameManager != null && gameManager.lastResult != null)
-        {
-            totalWinAmount = gameManager.lastResult.winAmount;
-        }
-
-        // Show Phase 1 Total Win Text with final win value
-        ShowPhase1TotalWin(totalWinAmount);
-
-        AudioManager.Instance?.PlayWinLinePhase1Start();
-
-        // Animate all winning symbols and wait for their ImageAnimation loops to complete
-        yield return StartCoroutine(AnimateWinPositions(allWinPositions));
-
-        KillWinTweens(false);
-        HideAllWinLineTexts();
-        HidePhase1TotalWinText();
-
-        // Invoke onComplete immediately after Phase 1 so game logic (Free Spins / Autoplay / Win complete) can proceed
-        onComplete?.Invoke();
-
-        // Skip Phase 2 if in Free Spins, Autoplay, or if a Special Feature (USpin, MoneyBag, Scatter trigger) was triggered
-        bool hasSpecialFeature = (gameManager != null && gameManager.lastResult != null && (
-            (gameManager.lastResult.uSpinData != null && gameManager.lastResult.uSpinData.triggered) ||
-            (gameManager.lastResult.moneyBagData != null && gameManager.lastResult.moneyBagData.triggered) ||
-            (gameManager.lastResult.freeSpinData != null && gameManager.lastResult.freeSpinData.isTriggered)
-        ));
-
-        bool skipPhase2 = (gameManager != null && (gameManager.isInFreeSpins || gameManager.isAutoPlaying)) || hasSpecialFeature;
-        if (skipPhase2)
-        {
-            yield break;
-        }
-
-        // ==========================================
-        // PHASE 2: Individual Win Line presentation loop
-        // ==========================================
-        while (true)
-        {
-            foreach (var winLine in winLines)
-            {
-                if (winLine.positions == null || winLine.positions.Count == 0) continue;
-
-                KillWinTweens(false);
-                HideAllWinLineTexts();
-
-                // Show WinLineText on 1st icon of the active win line only if there are multiple win lines
-                if (winLines.Count > 1)
-                {
-                    int firstFlatIndex = winLine.positions[0];
-                    int firstRow = firstFlatIndex / 5;
-                    int firstCol = firstFlatIndex % 5;
-                    ShowWinLineTextOnIcon(firstCol, firstRow, winLine.winAmount);
-                }
-
-                // Animate win line symbols and wait for their ImageAnimation loops to complete
-                yield return StartCoroutine(AnimateWinPositions(winLine.positions));
-            }
-        }
-    }
-
-    private IEnumerator AnimateWinPositions(IEnumerable<int> flatPositions)
-    {
-        if (flatPositions == null) yield break;
-
-        int rowLimit = (gameManager != null && gameManager.gameConfig != null) ? gameManager.gameConfig.rowCount : 3;
-        int loopCountTarget = (gameManager != null && (gameManager.isInFreeSpins || gameManager.isAutoPlaying)) ? 1 : winSymbolLoopCount;
-
-        List<ImageAnimation> activeAnims = new List<ImageAnimation>();
-        int completedCount = 0;
-        bool isCompleted = false;
-
-        foreach (int flatIndex in flatPositions)
-        {
-            int row = flatIndex / 5;
-            int col = flatIndex % 5;
-
-            if (col < 0 || col >= 5 || row < 0 || row >= rowLimit) continue;
-
-            EnableWinBox(col, row);
-
-            if (col >= reelImagesList.Count) continue;
-            var reel = reelImagesList[col];
-            if (reel.images == null || reel.images.Count != 7) continue;
-
-            int imageIndex = 2 + row;
-            if (imageIndex >= reel.images.Count) continue;
-
-            Image symbolImage = reel.images[imageIndex];
-            if (symbolImage == null) continue;
-
-            var animGO = WinBox(winAnimationColumns, col, row);
-            if (animGO == null) continue;
-
-            ImageAnimation imageAnim = animGO.GetComponent<ImageAnimation>();
-            if (imageAnim == null) continue;
-
-            if (col >= currentDisplayMatrix.Count || row >= currentDisplayMatrix[col].Count) continue;
-            int symbolId = currentDisplayMatrix[col][row];
-            if (symbolId < 0 || symbolId >= animationSpriteArrays.Length) continue;
-
-            List<Sprite> animSprites = animationSpriteArrays[symbolId];
-            if (animSprites == null || animSprites.Count == 0) continue;
-
-            imageAnim.textureArray = animSprites;
-            imageAnim.doLoopAnimation = true;
-
-            animGO.SetActive(true);
-            Image animRenderer = imageAnim.rendererDelegate != null ? imageAnim.rendererDelegate : animGO.GetComponent<Image>();
-            if (animRenderer != null)
-            {
-                animRenderer.DOKill();
-                Color c = animRenderer.color;
-                animRenderer.color = new Color(c.r, c.g, c.b, 1f);
-            }
-
-            symbolImage.DOKill();
-            symbolImage.DOFade(0f, 0.2f);
-
-            activeAnims.Add(imageAnim);
-
-            imageAnim.onLoopComplete = (currentLoop) =>
-            {
-                if (currentLoop >= loopCountTarget)
-                {
-                    imageAnim.onLoopComplete = null;
-                    imageAnim.StopAnimation();
-                    if (animGO != null) animGO.SetActive(false);
-
-                    if (symbolImage != null)
-                    {
-                        symbolImage.DOKill();
-                        symbolImage.DOFade(1f, 0.2f);
-                    }
-
-                    completedCount++;
-                    if (completedCount >= activeAnims.Count)
-                    {
-                        isCompleted = true;
-                    }
-                }
-            };
-        }
-
-        if (winLineBoxToAnimationDelay > 0)
-        {
-            yield return new WaitForSeconds(winLineBoxToAnimationDelay);
-        }
-
-        foreach (var imageAnim in activeAnims)
-        {
-            imageAnim.StartAnimation();
-        }
-
-        if (activeAnims.Count > 0)
-        {
-            yield return new WaitUntil(() => isCompleted);
-        }
-        else
-        {
-            yield return new WaitForSeconds(winSymbolLoopDuration);
-        }
-    }
-
-    private void ShowWinLineTextOnIcon(int col, int row, double winAmount)
-    {
-        if (col < 0 || col >= reelImagesList.Count) return;
-        var reel = reelImagesList[col];
-        if (reel.images == null) return;
-        int imageIndex = 2 + row;
-        if (imageIndex >= reel.images.Count) return;
-
-        Image symbolImage = reel.images[imageIndex];
-        if (symbolImage == null) return;
-
-        Transform textTransform = symbolImage.transform.Find("WinLineText");
-        if (textTransform != null)
-        {
-            var tmpText = textTransform.GetComponent<TMPro.TMP_Text>();
-            if (tmpText != null)
-            {
-                tmpText.text = winAmount.ToString("0.###");
-            }
-            AnimateTextScaleAppear(textTransform);
-        }
-    }
-
-    private void HideAllWinLineTexts()
-    {
-        if (reelImagesList == null) return;
-        foreach (var reel in reelImagesList)
-        {
-            if (reel.images != null)
-            {
-                foreach (var image in reel.images)
-                {
-                    if (image != null)
-                    {
-                        Transform textTransform = image.transform.Find("WinLineText");
-                        if (textTransform != null)
-                        {
-                            textTransform.DOKill();
-                            textTransform.localScale = Vector3.one;
-                            textTransform.gameObject.SetActive(false);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void ShowPhase1TotalWin(double totalWinAmount)
-    {
-        if (phase1TotalWinText != null)
-        {
-            phase1TotalWinText.text = totalWinAmount.ToString("0.###");
-            AnimateTextScaleAppear(phase1TotalWinText.transform);
-        }
-    }
-
-    private void HidePhase1TotalWinText()
-    {
-        if (phase1TotalWinText != null)
-        {
-            phase1TotalWinText.transform.DOKill();
-            phase1TotalWinText.transform.localScale = Vector3.one;
-            phase1TotalWinText.gameObject.SetActive(false);
-        }
-    }
-
-    private void AnimateTextScaleAppear(Transform textTransform, float popScale = 1.2f, float durationUp = 0.15f, float durationDown = 0.10f)
-    {
-        if (textTransform == null) return;
-        textTransform.DOKill();
-        textTransform.localScale = Vector3.zero;
-        textTransform.gameObject.SetActive(true);
-
-        Sequence seq = DOTween.Sequence();
-        seq.Append(textTransform.DOScale(popScale, durationUp).SetEase(Ease.OutQuad));
-        seq.Append(textTransform.DOScale(1.0f, durationDown).SetEase(Ease.InQuad));
-        winTweens.Add(seq);
-    }
-    private void EnableWinBox(int col, int row)
-    {
-        var go = WinBox(winBoxColumns, col, row);
-        if (go)
-        {
-            go.SetActive(true);
-        }
-        else
-        {
-            Debug.LogError($"[EnableWinBox] WinBox GameObject is NULL at col: {col}, row: {row}");
-        }
-    }
-
-    private void DisableWinBox(int col, int row)
-    {
-        var go = WinBox(winBoxColumns, col, row);
-        if (go) go.SetActive(false);
-    }
-
-    private void ResetSymbolScale(int col, int row)
-    {
-        if (col >= reelImagesList.Count) return;
-        var reel = reelImagesList[col];
-        if (reel.images == null) return;
-        int imageIndex = 2 + row;
-        if (imageIndex >= reel.images.Count) return;
-        if (reel.images[imageIndex] != null)
-        {
-            reel.images[imageIndex].DOKill();
-            reel.images[imageIndex].transform.localScale = Vector3.one;
-            // Restore alpha to full opacity
-            Color c = reel.images[imageIndex].color;
-            reel.images[imageIndex].color = new Color(c.r, c.g, c.b, 1f);
-        }
-
-        // Also ensure the corresponding animation object is disabled
-        var animGO = WinBox(winAnimationColumns, col, row);
-        if (animGO != null)
-        {
-            ImageAnimation imageAnim = animGO.GetComponent<ImageAnimation>();
-            if (imageAnim != null)
-            {
-                if (imageAnim.rendererDelegate != null) imageAnim.rendererDelegate.DOKill();
-                imageAnim.StopAnimation();
-            }
-            animGO.SetActive(false);
-        }
-    }
-
-
-    private void AnimateWinSymbol(int column, int row)
-    {
-
-        if (column >= reelImagesList.Count)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Invalid column {column}, max is {reelImagesList.Count - 1}");
-            return;
-        }
-
-        var reel = reelImagesList[column];
-        if (reel.images == null || reel.images.Count != 7)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Reel {column} has invalid images list");
-            return;
-        }
-
-        int imageIndex = 2 + row;
-        if (imageIndex >= reel.images.Count)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Image index {imageIndex} out of range for reel {column}");
-            return;
-        }
-
-        Image symbolImage = reel.images[imageIndex];
-        if (symbolImage == null)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Symbol image is NULL at col: {column}, row: {row}, imageIndex: {imageIndex}");
-            return;
-        }
-
-
-
-        // Get the animation GameObject for this position
-        var animGO = WinBox(winAnimationColumns, column, row);
-        if (animGO == null)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Animation GameObject is NULL at col: {column}, row: {row}");
-            return;
-        }
-
-        // Get the ImageAnimation component
-        ImageAnimation imageAnim = animGO.GetComponent<ImageAnimation>();
-        if (imageAnim == null)
-        {
-            Debug.LogError($"[AnimateWinSymbol] ImageAnimation component not found on animation object at col: {column}, row: {row}");
-            return;
-        }
-
-        // Get the current symbol ID at this position
-        if (column >= currentDisplayMatrix.Count || row >= currentDisplayMatrix[column].Count)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Invalid matrix position col: {column}, row: {row}");
-            return;
-        }
-
-        int symbolId = currentDisplayMatrix[column][row];
-        
-        // Validate symbolId
-        if (symbolId < 0 || symbolId >= animationSpriteArrays.Length)
-        {
-            Debug.LogError($"[AnimateWinSymbol] Invalid symbolId {symbolId} at col: {column}, row: {row}");
-            return;
-        }
-
-        // Get the animation sprite array for this symbol
-        List<Sprite> animSprites = animationSpriteArrays[symbolId];
-        if (animSprites == null || animSprites.Count == 0)
-        {
-            // Expected for most symbols now
-            return;
-        }
-
-        // Set the sprite array on the ImageAnimation component
-        imageAnim.textureArray = animSprites;
-
-        Color originalColor = new Color(symbolImage.color.r, symbolImage.color.g, symbolImage.color.b, 1f);
-
-        Sequence seq = DOTween.Sequence();
-        
-        seq.AppendCallback(() => {
-            animGO.SetActive(true);
-            Image animRenderer = imageAnim.rendererDelegate;
-            if (animRenderer != null)
-            {
-                animRenderer.DOKill();
-                Color c = animRenderer.color;
-                animRenderer.color = new Color(c.r, c.g, c.b, 1f);
-            }
-            symbolImage.DOKill();
-            symbolImage.DOFade(0f, 0.2f);
-        });
-
-        if (winLineBoxToAnimationDelay > 0)
-        {
-            seq.AppendInterval(winLineBoxToAnimationDelay);
-        }
-
-        seq.AppendCallback(() => {
-            imageAnim.StartAnimation();
-        });
-
-        int loopCount = (gameManager != null && (gameManager.isInFreeSpins || gameManager.isAutoPlaying)) ? 1 : winSymbolLoopCount;
-        seq.AppendInterval(winSymbolLoopDuration * loopCount);
-
-        seq.AppendCallback(() => {
-            Image animRenderer = imageAnim != null ? imageAnim.rendererDelegate : null;
-
-            if (animRenderer != null)
-            {
-                animRenderer.DOKill();
-                Color c = animRenderer.color;
-                animRenderer.color = new Color(c.r, c.g, c.b, 1f);
-            }
-
-            if (imageAnim != null) imageAnim.StopAnimation();
-            if (animGO != null) animGO.SetActive(false);
-
-            if (symbolImage != null)
-            {
-                symbolImage.DOKill();
-                symbolImage.DOFade(originalColor.a, 0.2f);
-            }
-        });
-
-        winTweens.Add(seq);
-    }
-
-    private void KillWinTweens(bool stopCoroutine = true)
-    {
-        foreach (var tween in winTweens)
-        {
-            tween?.Kill();
-        }
-        winTweens.Clear();
-
-        if (stopCoroutine && winAnimationCoroutine != null)
-        {
-            StopCoroutine(winAnimationCoroutine);
-            winAnimationCoroutine = null;
-        }
-
-        // Stop all win animations and disable animation GameObjects
-        if (winAnimationColumns != null)
-        {
-            foreach (var col in winAnimationColumns)
-            {
-                if (col?.rows != null)
-                {
-                    foreach (var animGO in col.rows)
-                    {
-                        if (animGO != null)
-                        {
-                            ImageAnimation imageAnim = animGO.GetComponent<ImageAnimation>();
-                            if (imageAnim != null)
-                            {
-                                imageAnim.onLoopComplete = null;
-                                if (imageAnim.rendererDelegate != null)
-                                {
-                                    imageAnim.rendererDelegate.DOKill();
-                                    Color ac = imageAnim.rendererDelegate.color;
-                                    imageAnim.rendererDelegate.color = new Color(ac.r, ac.g, ac.b, 1f);
-                                }
-                                imageAnim.StopAnimation();
-                            }
-                            if (animGO.activeSelf)
-                            {
-                                animGO.SetActive(false);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        DisableColumns(winBoxColumns);
-        HideAllWinLineTexts();
-        HidePhase1TotalWinText();
-
-        // Restore all symbol image alphas to full opacity
-        foreach (var reel in reelImagesList)
-        {
-            if (reel.images != null)
-            {
-                foreach (var image in reel.images)
-                {
-                    if (image != null)
-                    {
-                        image.DOKill();
-                        image.transform.localScale = Vector3.one;
-                        Color c = image.color;
-                        image.color = new Color(c.r, c.g, c.b, 1f);
-                    }
-                }
-            }
-        }
-    }
-
-    #endregion
-
-
-    
     internal List<List<int>> GetCurrentDisplayMatrix()
     {
-        return currentDisplayMatrix;
+        return CloneMatrix(currentDisplayMatrix);
     }
 
     internal bool IsSpinning()
@@ -1425,38 +514,475 @@ public class SlotView : MonoBehaviour
         return isSpinning;
     }
 
+    internal void HideSymbolInfoCard()
+    {
+        symbolInfoCard?.HideCard();
+    }
+
+    internal void OnBetChanged()
+    {
+        HideSymbolInfoCard();
+    }
+
+    internal void OnSymbolClicked(int column, int row, RectTransform symbolRect)
+    {
+        if (isSpinning)
+        {
+            HideSymbolInfoCard();
+            return;
+        }
+
+        if (currentDisplayMatrix == null || column < 0 || column >= currentDisplayMatrix.Count ||
+            currentDisplayMatrix[column] == null || row < 0 || row >= currentDisplayMatrix[column].Count)
+        {
+            return;
+        }
+
+        symbolInfoCard?.ShowCard(currentDisplayMatrix[column][row], column, row, symbolRect, gameManager);
+    }
+
+    #endregion
+
+    #region Reel motion
+
+    private IEnumerator StartReelsSequentially()
+    {
+        SpinSpeed speed = GetSpinSpeed();
+        for (int reelIndex = 0; reelIndex < reels.Count && isSpinning; reelIndex++)
+        {
+            StartReelMotion(reelIndex);
+
+            if (speed == SpinSpeed.Normal && reelIndex < reels.Count - 1 && reelStartStagger > 0f)
+            {
+                float remaining = reelStartStagger;
+                while (remaining > 0f && isSpinning)
+                {
+                    remaining -= Time.unscaledDeltaTime;
+                    yield return null;
+                }
+            }
+        }
+
+        reelStartRoutine = null;
+    }
+
+    private void StartReelMotion(int reelIndex)
+    {
+        ReelRuntime reel = reels[reelIndex];
+        reel.motionTween?.Kill();
+        reel.stopTween?.Kill();
+        reel.stopTween = null;
+        reel.transform.anchoredPosition = reel.restingPosition;
+        reel.isAnticipating = false;
+        reel.completedCycles = 0;
+
+        int travelSymbols = GetTravelSymbolCount(reelIndex);
+        float travelDistance = reel.symbolPitch * travelSymbols;
+        float pixelsPerSecond = GetSpinSpeed() == SpinSpeed.Normal ? normalReelSpeed : fastReelSpeed;
+        float duration = Mathf.Max(0.08f, travelDistance / pixelsPerSecond);
+        reel.motionBasePixelsPerSecond = pixelsPerSecond;
+
+        reel.motionTween = reel.transform
+            .DOAnchorPosY(reel.restingPosition.y - travelDistance, duration)
+            .SetEase(Ease.Linear)
+            .SetLoops(-1, LoopType.Restart)
+            .OnStepComplete(() => reel.completedCycles++)
+            .SetUpdate(true);
+
+        activeTweens.Add(reel.motionTween);
+    }
+
+    private void BeginStop(List<List<int>> resultMatrix, bool quickStop, Action onComplete)
+    {
+        if (!isSpinning || reelStopRoutine != null) return;
+
+        if (!IsValidMatrix(resultMatrix))
+        {
+            Debug.LogError("[SlotView] Server result matrix does not match the visible reels.", this);
+            KillReelTweens(true);
+            isSpinning = false;
+            onComplete?.Invoke();
+            return;
+        }
+
+        quickStopRequested = quickStop;
+        if (reelStartRoutine != null)
+        {
+            StopCoroutine(reelStartRoutine);
+            reelStartRoutine = null;
+        }
+
+        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
+        {
+            ReelRuntime reel = reels[reelIndex];
+            if (reel.motionTween == null || !reel.motionTween.IsActive()) StartReelMotion(reelIndex);
+        }
+
+        reelStopRoutine = StartCoroutine(StopReelsAndApplyMatrix(resultMatrix, quickStop, onComplete));
+    }
+
+    private IEnumerator StopReelsAndApplyMatrix(
+        List<List<int>> resultMatrix,
+        bool forceQuickStop,
+        Action onComplete)
+    {
+        SpinSpeed requestedSpeed = GetSpinSpeed();
+        bool quickStop = forceQuickStop || requestedSpeed == SpinSpeed.QuickSpin;
+
+        if (!quickStop && requestedSpeed == SpinSpeed.Normal)
+        {
+            while (reels.Any(reel => reel.completedCycles < minSpinCyclesBeforeStop))
+            {
+                yield return null;
+            }
+        }
+
+        currentDisplayMatrix = CloneMatrix(resultMatrix);
+
+        SpinSpeed scheduledSpeed = quickStop
+            ? SpinSpeed.QuickSpin
+            : requestedSpeed == SpinSpeed.Turbo ? SpinSpeed.Turbo : SpinSpeed.Normal;
+        float timingScale = GetStopTimingScale(scheduledSpeed);
+        float stopInterval = GetReelStopInterval(scheduledSpeed);
+        float overshoot = stopOvershootDistance * timingScale;
+        float overshootDuration = stopOvershootDuration * timingScale;
+        float settleDuration = stopSettleDuration * timingScale;
+
+        int completedStops = 0;
+        int stoppedFreeGameScatters = 0;
+        float nextReelDelay = 0f;
+        int anticipationThreshold = Mathf.Max(1, GetFreeGameMinTrigger() - 1);
+
+        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
+        {
+            if (reelIndex > 0) nextReelDelay += stopInterval;
+
+            bool shouldAnticipate = !quickStop && stoppedFreeGameScatters == anticipationThreshold;
+            float anticipation = shouldAnticipate
+                ? scatterAnticipationDuration * (scheduledSpeed == SpinSpeed.Turbo ? timingScale : 1f)
+                : 0f;
+
+            int capturedReelIndex = reelIndex;
+            StartCoroutine(StopSingleReel(
+                capturedReelIndex,
+                resultMatrix[capturedReelIndex],
+                nextReelDelay,
+                scheduledSpeed,
+                anticipation,
+                quickStop,
+                overshoot,
+                overshootDuration,
+                settleDuration,
+                () => completedStops++));
+
+            nextReelDelay += anticipation;
+            stoppedFreeGameScatters += CountFreeGameScatters(resultMatrix[reelIndex]);
+        }
+
+        while (completedStops < reels.Count) yield return null;
+
+        foreach (ReelRuntime reel in reels)
+        {
+            reel.transform.anchoredPosition = reel.restingPosition;
+        }
+
+        activeTweens.RemoveAll(tween => tween == null || !tween.IsActive());
+        isSpinning = false;
+        quickStopRequested = false;
+        reelStopRoutine = null;
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator StopSingleReel(
+        int reelIndex,
+        List<int> resultColumn,
+        float delay,
+        SpinSpeed scheduledSpeed,
+        float anticipationDuration,
+        bool quickStop,
+        float overshoot,
+        float overshootDuration,
+        float settleDuration,
+        Action onComplete)
+    {
+        if (delay > 0f) yield return WaitForSpeedAdjustedStopDelay(delay, scheduledSpeed);
+
+        ReelRuntime reel = reels[reelIndex];
+        if (anticipationDuration > 0f)
+        {
+            yield return PlayScatterAnticipation(reelIndex, anticipationDuration, scheduledSpeed);
+        }
+
+        reel.isAnticipating = false;
+        reel.motionTween?.Kill();
+        reel.motionTween = null;
+
+        float landingDistance = Mathf.Max(
+            stopAnticipationDistance,
+            reel.symbolPitch * (quickStop ? 0.75f : 2f));
+        reel.transform.anchoredPosition = reel.restingPosition + Vector2.up * landingDistance;
+        ApplyMatrixColumn(reelIndex, resultColumn);
+
+        Sequence stopSequence = DOTween.Sequence().SetUpdate(true);
+        stopSequence.Append(
+            reel.transform
+                .DOAnchorPosY(reel.restingPosition.y - overshoot, overshootDuration)
+                .SetEase(Ease.OutQuad));
+        stopSequence.Append(
+            reel.transform
+                .DOAnchorPos(reel.restingPosition, settleDuration)
+                .SetEase(Ease.InOutQuad));
+
+        reel.stopTween = stopSequence;
+        activeTweens.Add(stopSequence);
+        yield return stopSequence.WaitForCompletion();
+        reel.stopTween = null;
+
+        AudioManager.Instance?.PlayReelStop();
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator WaitForSpeedAdjustedStopDelay(float delay, SpinSpeed scheduledSpeed)
+    {
+        float remainingDelay = Mathf.Max(0f, delay);
+        float scheduledInterval = GetReelStopInterval(scheduledSpeed);
+
+        while (remainingDelay > 0f)
+        {
+            SpinSpeed effectiveSpeed = quickStopRequested ? SpinSpeed.QuickSpin : GetSpinSpeed();
+            float currentInterval = GetReelStopInterval(effectiveSpeed);
+            if (currentInterval <= 0f) yield break;
+
+            float progressMultiplier = scheduledInterval > 0f
+                ? scheduledInterval / currentInterval
+                : GetStopTimingScale(scheduledSpeed) / GetStopTimingScale(effectiveSpeed);
+            remainingDelay -= Time.unscaledDeltaTime * Mathf.Max(0.01f, progressMultiplier);
+            yield return null;
+        }
+    }
+
+    private void ApplyReelMotionSpeed(ReelRuntime reel)
+    {
+        if (reel?.motionTween == null || !reel.motionTween.IsActive() ||
+            reel.motionBasePixelsPerSecond <= 0f)
+        {
+            return;
+        }
+
+        float targetSpeed = GetSpinSpeed() == SpinSpeed.Normal ? normalReelSpeed : fastReelSpeed;
+        float anticipationMultiplier = reel.isAnticipating
+            ? Mathf.Max(1f, scatterAnticipationSpeedMultiplier)
+            : 1f;
+        reel.motionTween.timeScale = Mathf.Max(
+            0.01f,
+            targetSpeed / reel.motionBasePixelsPerSecond * anticipationMultiplier);
+    }
+
+    private SpinSpeed GetSpinSpeed()
+    {
+        return gameManager != null ? gameManager.currentSpinSpeed : SpinSpeed.Normal;
+    }
+
+    private static float GetStopTimingScale(SpinSpeed speed)
+    {
+        switch (speed)
+        {
+            case SpinSpeed.QuickSpin: return 0.35f;
+            case SpinSpeed.Turbo: return 0.55f;
+            default: return 1f;
+        }
+    }
+
+    private float GetReelStopInterval(SpinSpeed speed)
+    {
+        switch (speed)
+        {
+            case SpinSpeed.QuickSpin: return quickReelStopInterval;
+            case SpinSpeed.Turbo: return turboReelStopInterval;
+            default: return normalReelStopInterval;
+        }
+    }
+
+    #endregion
+
+    #region Free-game scatter anticipation
+
+    private int CountFreeGameScatters(IReadOnlyList<int> resultColumn)
+    {
+        if (resultColumn == null) return 0;
+
+        int count = 0;
+        int rows = Mathf.Min(GetRowCount(), resultColumn.Count);
+        int scatterId = GetFreeGameScatterId();
+        for (int row = 0; row < rows; row++)
+        {
+            if (resultColumn[row] == scatterId) count++;
+        }
+
+        return count;
+    }
+
+    private IEnumerator PlayScatterAnticipation(
+        int reelIndex,
+        float duration,
+        SpinSpeed scheduledSpeed)
+    {
+        if (duration <= 0f || reelIndex <= 0 || reelIndex >= reels.Count) yield break;
+
+        ReelRuntime reel = reels[reelIndex];
+        reel.isAnticipating = true;
+        ApplyReelMotionSpeed(reel);
+
+        float remaining = duration;
+        float initialScale = GetStopTimingScale(scheduledSpeed);
+        while (remaining > 0f && !quickStopRequested)
+        {
+            SpinSpeed effective = GetSpinSpeed();
+            float currentScale = GetStopTimingScale(effective);
+            remaining -= Time.unscaledDeltaTime * Mathf.Max(0.01f, initialScale / currentScale);
+            yield return null;
+        }
+
+        reel.isAnticipating = false;
+        ApplyReelMotionSpeed(reel);
+    }
+
+    #endregion
+
+    #region Matrix application
+
+    private void ApplyMatrix(List<List<int>> matrix)
+    {
+        if (!IsValidMatrix(matrix)) return;
+
+        currentDisplayMatrix = CloneMatrix(matrix);
+        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
+        {
+            ApplyMatrixColumn(reelIndex, matrix[reelIndex]);
+            reels[reelIndex].transform.anchoredPosition = reels[reelIndex].restingPosition;
+        }
+    }
+
+    private void ApplyMatrixColumn(int reelIndex, List<int> column)
+    {
+        int rowCount = Mathf.Min(GetRowCount(), column.Count);
+
+        for (int row = 0; row < rowCount; row++)
+        {
+            Image resultImage = GetResultSlotImage(reelIndex, row);
+            if (resultImage == null) continue;
+
+            Sprite sprite = GetSymbolSprite(column[row]);
+            if (sprite != null) resultImage.sprite = sprite;
+        }
+    }
+
+    private bool IsValidMatrix(List<List<int>> matrix)
+    {
+        if (matrix == null || matrix.Count < reels.Count || reels.Count == 0) return false;
+
+        int rowCount = GetRowCount();
+        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
+        {
+            if (matrix[reelIndex] == null || matrix[reelIndex].Count < rowCount) return false;
+        }
+
+        return true;
+    }
+
+    private static List<List<int>> CloneMatrix(List<List<int>> matrix)
+    {
+        return matrix?.Select(column => column != null
+            ? new List<int>(column)
+            : new List<int>()).ToList();
+    }
+
+    #endregion
+
+    #region Helpers and cleanup
+
+    private int GetRowCount()
+    {
+        return gameManager?.gameConfig != null && gameManager.gameConfig.rowCount > 0
+            ? gameManager.gameConfig.rowCount
+            : DefaultRowCount;
+    }
+
+    private int GetFreeGameScatterId()
+    {
+        return gameManager?.gameConfig != null ? gameManager.gameConfig.scatterSymbolId : 10;
+    }
+
+    private int GetFreeGameMinTrigger()
+    {
+        return gameManager?.gameConfig != null ? gameManager.gameConfig.freeGameMinTrigger : 3;
+    }
+
+    private void KillReelTweens(bool restorePositions)
+    {
+        foreach (ReelRuntime reel in reels)
+        {
+            reel.motionTween?.Kill();
+            reel.motionTween = null;
+            reel.stopTween?.Kill();
+            reel.stopTween = null;
+            reel.isAnticipating = false;
+
+            if (restorePositions && reel.transform != null)
+            {
+                reel.transform.anchoredPosition = reel.restingPosition;
+            }
+        }
+    }
 
     private void KillAllTweens()
     {
-        foreach (var tween in spinTweens)
-        {
-            tween?.Kill();
-        }
-        spinTweens.Clear();
-
-        KillWinTweens();
+        KillReelTweens(true);
+        foreach (Tween tween in activeTweens) tween?.Kill();
+        activeTweens.Clear();
     }
 
-    #region Cleanup
-
-    private void OnDestroy()
+    private void StopViewCoroutines()
     {
-        KillAllTweens();
+        StopAllCoroutines();
+        reelStartRoutine = null;
+        reelStopRoutine = null;
+    }
+
+    private static Transform FindSceneTransform(string objectName)
+    {
+        return Resources.FindObjectsOfTypeAll<Transform>()
+            .FirstOrDefault(candidate =>
+                candidate != null &&
+                candidate.gameObject.scene.IsValid() &&
+                candidate.name == objectName);
+    }
+
+    private static T FindSceneComponent<T>() where T : Component
+    {
+        return Resources.FindObjectsOfTypeAll<T>()
+            .FirstOrDefault(candidate =>
+                candidate != null && candidate.gameObject.scene.IsValid());
     }
 
     #endregion
 }
 
-[System.Serializable]
-public class ReelImages
+[Serializable]
+public class ReelResultSlots
 {
-    public List<Image> images = new List<Image>(16);
-}
+    [SerializeField] private Image top;
+    [SerializeField] private Image middle;
+    [SerializeField] private Image bottom;
 
-
-[System.Serializable]
-public class ColumnOverlays
-{
-    [Tooltip("Row 0 = top, Row 1, Row 2 = bottom")]
-    public GameObject[] rows = new GameObject[3];
+    public Image Get(int row)
+    {
+        switch (row)
+        {
+            case 0: return top;
+            case 1: return middle;
+            case 2: return bottom;
+            default: return null;
+        }
+    }
 }

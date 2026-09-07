@@ -51,21 +51,12 @@ public class ServerGameData
 [Serializable]
 public class ServerFeatures
 {
-    public USpinFeature uSpin;
-    public MoneyBagFeature moneyBag;
     public FreeGamesFeature freeGames;
+    public GoldBurstRespinFeature goldBurstRespin;
+    public GoldMineJourneyFeature goldMineJourney;
     public int betMultiplier;
     public int maxWinMultiplier;
     public int minWinMultiplier;
-}
-
-[Serializable]
-public class USpinFeature
-{
-    public bool enabled;
-    public int minTrigger;
-    public int symbolId;
-    public List<USpinSegment> segments;
 }
 
 [Serializable]
@@ -78,20 +69,32 @@ public class USpinSegment
 }
 
 [Serializable]
-public class MoneyBagFeature
+public class FreeGamesFeature
 {
     public bool enabled;
     public int minTrigger;
     public int symbolId;
-    public int bagCount;
+    public int initialFreeGames;
+    public double payMultiplier;
+    public int maxTotalFreeGames;
+    public List<int> reel3AllowedSymbols;
 }
 
 [Serializable]
-public class FreeGamesFeature
+public class GoldBurstRespinFeature
 {
     public bool enabled;
-    public double payMultiplier;
-    public int maxTotalFreeGames;
+    public int minTrigger;
+    public List<int> triggerSymbols;
+}
+
+[Serializable]
+public class GoldMineJourneyFeature
+{
+    public bool enabled;
+    public int symbolId;
+    public int requiredCollect;
+    public int currentCollect;
 }
 
 [Serializable]
@@ -120,6 +123,7 @@ public class ServerSymbolInfo
 {
     public int id;
     public string name;
+    public string group;
     public List<double> multiplier; // Keep for fallback compatibility
     public List<double> payout;
     public string description;
@@ -277,17 +281,30 @@ public class GameConfig
 {
     public int reelCount = 5;
     public int rowCount = 3;
-    public int symbolCount = 13;
-    public int paylineCount = 243;
+    public int symbolCount = 15;
+    public int paylineCount = 50;
     public List<List<int>> paylines;
     public List<double> availableBets;
     public List<SymbolInfo> symbols;
 
     // Wild configuration
-    public int wildSymbolId = 10;      // Base wild (10)
+    public int wildSymbolId = 9;
 
     // Scatter configuration
-    public int scatterSymbolId = 11;   // USpin is ID 11
+    public bool freeGamesEnabled;
+    public int scatterSymbolId = 10;
+    public int freeGameMinTrigger = 3;
+    public int maxTotalFreeSpins = 300;
+    public List<int> freeGameReel3AllowedSymbols = new List<int>();
+
+    // Gold Mine Mania feature configuration supplied by game:init.
+    public bool goldBurstRespinEnabled;
+    public int goldBurstMinTrigger = 6;
+    public List<int> goldBurstTriggerSymbolIds = new List<int>();
+    public bool goldMineJourneyEnabled;
+    public int goldMineJourneySymbolId = 14;
+    public int goldMineJourneyRequiredCollect = 10;
+    public int goldMineJourneyCurrentCollect;
 
     public int betMultiplier = 1;      // CNY is cash-bet based, multiplier default is 1
     public double creditDivisor = 25;  // Credit divisor sent in initData
@@ -296,8 +313,6 @@ public class GameConfig
     public int initialFreeSpins = 12;
     public ExtraSpinsData extraSpinsData; // Keep to avoid compilation error in UI
 
-    // uSpin
-    public List<USpinSegment> uSpinSegments;
 }
 
 [Serializable]
@@ -491,10 +506,10 @@ public static class InitDataConverter
                 id = serverSymbol.id,
                 name = serverSymbol.name,
                 multipliers = new List<double>(),
-                isWild = serverSymbol.name.ToLower().Contains("wild"),
-                isScatter = serverSymbol.name.ToLower().Contains("scatter") || 
-                            serverSymbol.name.ToLower().Contains("uspin") || 
-                            serverSymbol.name.ToLower().Contains("moneybag"),
+                isWild = ContainsToken(serverSymbol.name, "wild") ||
+                         ContainsToken(serverSymbol.group, "wild"),
+                isScatter = ContainsToken(serverSymbol.name, "scatter") ||
+                            ContainsToken(serverSymbol.group, "scatter"),
                 minMatch = serverSymbol.minMatch
             };
 
@@ -512,7 +527,9 @@ public static class InitDataConverter
             {
                 config.wildSymbolId = symbolInfo.id;
             }
-            if (symbolInfo.isScatter && symbolInfo.name.ToLower().Contains("uspin"))
+            if (symbolInfo.isScatter &&
+                (ContainsToken(symbolInfo.name, "freegame") ||
+                 ContainsToken(serverSymbol.group, "freegame")))
             {
                 config.scatterSymbolId = symbolInfo.id;
             }
@@ -526,16 +543,48 @@ public static class InitDataConverter
 
             if (serverData.features.freeGames != null)
             {
-                config.initialFreeSpins = serverData.features.freeGames.maxTotalFreeGames;
+                FreeGamesFeature freeGames = serverData.features.freeGames;
+                config.freeGamesEnabled = freeGames.enabled;
+                config.scatterSymbolId = freeGames.symbolId;
+                config.freeGameMinTrigger = freeGames.minTrigger > 0 ? freeGames.minTrigger : 3;
+                config.maxTotalFreeSpins = freeGames.maxTotalFreeGames > 0
+                    ? freeGames.maxTotalFreeGames
+                    : config.maxTotalFreeSpins;
+                config.initialFreeSpins = freeGames.initialFreeGames > 0
+                    ? freeGames.initialFreeGames
+                    : config.initialFreeSpins;
+                config.freeGameReel3AllowedSymbols = freeGames.reel3AllowedSymbols != null
+                    ? new List<int>(freeGames.reel3AllowedSymbols)
+                    : new List<int>();
             }
 
-            if (serverData.features.uSpin != null && serverData.features.uSpin.segments != null)
+            if (serverData.features.goldBurstRespin != null)
             {
-                config.uSpinSegments = serverData.features.uSpin.segments;
+                GoldBurstRespinFeature goldBurst = serverData.features.goldBurstRespin;
+                config.goldBurstRespinEnabled = goldBurst.enabled;
+                config.goldBurstMinTrigger = goldBurst.minTrigger > 0 ? goldBurst.minTrigger : 6;
+                config.goldBurstTriggerSymbolIds = goldBurst.triggerSymbols != null
+                    ? new List<int>(goldBurst.triggerSymbols)
+                    : new List<int>();
+            }
+
+            if (serverData.features.goldMineJourney != null)
+            {
+                GoldMineJourneyFeature journey = serverData.features.goldMineJourney;
+                config.goldMineJourneyEnabled = journey.enabled;
+                config.goldMineJourneySymbolId = journey.symbolId;
+                config.goldMineJourneyRequiredCollect = journey.requiredCollect;
+                config.goldMineJourneyCurrentCollect = journey.currentCollect;
             }
         }
 
         return config;
+    }
+
+    private static bool ContainsToken(string value, string token)
+    {
+        return !string.IsNullOrEmpty(value) &&
+               value.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     internal static PlayerData ConvertToPlayerData(ServerPlayer serverPlayer, int defaultBetIndex = 0)
