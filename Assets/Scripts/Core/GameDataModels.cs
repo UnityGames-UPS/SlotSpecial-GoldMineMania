@@ -236,7 +236,8 @@ public class ServerFreeGamesResult
 {
     public bool triggered;
     public int totalAwarded;
-    public int played;
+    public int? played;
+    public int? remaining;
     public double totalFreeGamesWin;
 }
 
@@ -310,7 +311,7 @@ public class GameConfig
     public double creditDivisor = 25;  // Credit divisor sent in initData
     public int maxWinMultiplier = 10000;
     public int minWinMultiplier = 10;
-    public int initialFreeSpins = 12;
+    public int initialFreeSpins = 10;
     public ExtraSpinsData extraSpinsData; // Keep to avoid compilation error in UI
 
 }
@@ -613,11 +614,23 @@ public static class InitDataConverter
 
         if (serverResponse.payload.freeGames != null)
         {
-            spinsRemaining = serverResponse.payload.freeGames.totalAwarded - serverResponse.payload.freeGames.played;
-            spinsUsed = serverResponse.payload.freeGames.played;
-            totalSpins = serverResponse.payload.freeGames.totalAwarded;
-            totalRoundWin = serverResponse.payload.freeGames.totalFreeGamesWin;
-            isRoundOver = serverResponse.payload.freeGames.played >= serverResponse.payload.freeGames.totalAwarded && serverResponse.payload.freeGames.totalAwarded > 0;
+            ServerFreeGamesResult freeGames = serverResponse.payload.freeGames;
+            totalSpins = freeGames.totalAwarded > 0
+                ? freeGames.totalAwarded
+                : (gameConfig != null && gameConfig.initialFreeSpins > 0 ? gameConfig.initialFreeSpins : 10);
+
+            // The server's explicit remaining value is authoritative. The calculation is
+            // retained only for compatibility with older responses that omitted it.
+            int reportedPlayed = freeGames.played ?? -1;
+            int fallbackRemaining = Math.Max(0, totalSpins - Math.Max(0, reportedPlayed));
+            spinsRemaining = Math.Max(0, freeGames.remaining ?? fallbackRemaining);
+            spinsUsed = reportedPlayed >= 0
+                ? reportedPlayed
+                : Math.Max(0, totalSpins - spinsRemaining);
+            totalSpins = Math.Max(totalSpins, spinsUsed + spinsRemaining);
+            totalRoundWin = freeGames.totalFreeGamesWin;
+            isRoundOver = serverResponse.payload.isRoundOver ||
+                          (spinsRemaining <= 0 && totalSpins > 0);
         }
         else
         {
@@ -646,8 +659,10 @@ public static class InitDataConverter
                 ? new FreeSpinData
                 {
                     isTriggered = true,
-                    spinsAwarded = serverResponse.payload.freeGames.totalAwarded,
-                    remainingSpins = serverResponse.payload.freeGames.totalAwarded - serverResponse.payload.freeGames.played,
+                    spinsAwarded = serverResponse.payload.freeGames.totalAwarded > 0
+                        ? serverResponse.payload.freeGames.totalAwarded
+                        : totalSpins,
+                    remainingSpins = spinsRemaining,
                     isBought = false
                 }
                 : null,

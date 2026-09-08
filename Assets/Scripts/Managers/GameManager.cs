@@ -271,6 +271,15 @@ public class GameManager : MonoBehaviour
                 balance = lastResult.playerData != null ? lastResult.playerData.balance : 0,
                 currentBetIndex = lastResult.playerData != null ? lastResult.playerData.currentBetIndex : currentBetIndex
             };
+
+            // Keep the previous count visible while the reels are spinning. Apply the
+            // server-authoritative count only after every reel has finished stopping.
+            if (isInFreeSpins && lastResult.serverSpinsRemaining >= 0)
+            {
+                freeSpinsRemaining = lastResult.serverSpinsRemaining;
+                freeSpinsUsed = lastResult.serverSpinsUsed;
+                uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
+            }
         }
 
         if (lastResult != null && lastResult.winAmount > 0 && lastResult.winLines != null && lastResult.winLines.Count > 0)
@@ -405,17 +414,6 @@ public class GameManager : MonoBehaviour
     {
         lastResult = result;
 
-        // CRITICAL FIX: Update free spin counter IMMEDIATELY when server response arrives
-        // This ensures the display shows the exact server-authoritative played count without lag
-        if (isInFreeSpins && result.serverSpinsRemaining >= 0)
-        {
-            freeSpinsRemaining = result.serverSpinsRemaining;
-            freeSpinsUsed = result.serverSpinsUsed;
-            int displayTotalSpins = result.serverTotalSpins;
-
-            uiManager.UpdateFreeSpinCount(freeSpinsUsed, displayTotalSpins);
-        }
-
         if (result.winLines != null)
         {
             for (int i = 0; i < result.winLines.Count; i++)
@@ -438,8 +436,8 @@ public class GameManager : MonoBehaviour
         double serverTotalRoundWin = lastResult.serverTotalRoundWin;
         bool isRoundOver = lastResult.isRoundOver;
 
-        // Note: freeSpinsRemaining already updated in OnSpinResultReceived
-        // Keeping this for safety in case OnSpinResultReceived wasn't called
+        // The count is normally applied in OnReelsStoppedComplete. Keep this state-only
+        // fallback in case a result is processed through another path.
         if (isInFreeSpins && freeSpinsRemaining != serverSpinsRemaining)
         {
             freeSpinsRemaining = serverSpinsRemaining;
