@@ -175,6 +175,7 @@ public class ServerPayload
     public ServerUSpinResult uSpin;
     public ServerMoneyBagResult moneyBag;
     public ServerFreeGamesResult freeGames;
+    public ServerGoldBurstResult goldBurst;
 }
 
 [Serializable]
@@ -239,6 +240,14 @@ public class ServerFreeGamesResult
     public int? played;
     public int? remaining;
     public double totalFreeGamesWin;
+}
+
+[Serializable]
+public class ServerGoldBurstResult
+{
+    public bool triggered;
+    public bool inRespin;
+    public int remainingRespins;
 }
 
 // ============================================================================
@@ -362,6 +371,7 @@ public class SpinResult
     // Server-authoritative wheel data
     public USpinResultData uSpinData;
     public MoneyBagResultData moneyBagData;
+    public GoldBurstData goldBurstData;
 
     public double GetMoneyBagWin()
     {
@@ -433,6 +443,14 @@ public class MoneyBagResultData
     public List<int> revealed;
     public int creditsAwarded;
     public double winInCash;
+}
+
+[Serializable]
+public class GoldBurstData
+{
+    public bool triggered;
+    public bool inRespin;
+    public int remainingRespins;
 }
 
 #endregion
@@ -705,6 +723,15 @@ public static class InitDataConverter
                     revealed = serverResponse.payload.moneyBag.result.revealed,
                     creditsAwarded = serverResponse.payload.moneyBag.result.creditsAwarded,
                     winInCash = serverResponse.payload.moneyBag.result.winInCash
+                }
+                : null,
+
+            goldBurstData = serverResponse.payload.goldBurst != null
+                ? new GoldBurstData
+                {
+                    triggered = serverResponse.payload.goldBurst.triggered,
+                    inRespin = serverResponse.payload.goldBurst.inRespin,
+                    remainingRespins = serverResponse.payload.goldBurst.remainingRespins
                 }
                 : null
         };

@@ -524,9 +524,10 @@ public class UIManager : MonoBehaviour
     {
         AudioManager.Instance?.PlaySpinStart();
 
-        if (gameManager.isInFreeSpins)
+        if (gameManager.isInFreeSpins || gameManager.isInGoldBurstRespins)
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: false);
+            SetBetControlsEnabled(false);
         }
         else
         {
@@ -547,7 +548,7 @@ public class UIManager : MonoBehaviour
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: true);
         }
-        else if (gameManager.isInFreeSpins)
+        else if (gameManager.isInFreeSpins || gameManager.isInGoldBurstRespins)
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: false);
         }
@@ -580,7 +581,7 @@ public class UIManager : MonoBehaviour
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: true);
         }
-        else if (gameManager.isInFreeSpins)
+        else if (gameManager.isInFreeSpins || gameManager.isInGoldBurstRespins)
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: false);
         }
@@ -613,7 +614,7 @@ public class UIManager : MonoBehaviour
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: true);
         }
-        else if (gameManager.isInFreeSpins)
+        else if (gameManager.isInFreeSpins || gameManager.isInGoldBurstRespins)
         {
             SetSpinStopButtonStates(isSpinningState: true, isInteractable: false);
         }
@@ -814,7 +815,7 @@ public class UIManager : MonoBehaviour
 
         bool isRoundActive = gameManager.IsSpinning() || gameManager.lastResult != null;
 
-        if (!isRoundActive && !gameManager.isInFreeSpins)
+        if (!isRoundActive && !gameManager.isInFreeSpins && !gameManager.isInGoldBurstRespins)
         {
             SetSpinStopButtonStates(isSpinningState: false, isInteractable: true);
             SetBetControlsEnabled(true);
@@ -1147,6 +1148,11 @@ public class UIManager : MonoBehaviour
         {
             remainingFreeSpinsText.text = remainingSpins.ToString();
         }
+    }
+
+    internal void HideFeatureSpinCount()
+    {
+        if (freeSpinCountContainer) freeSpinCountContainer.SetActive(false);
     }
 
     #endregion

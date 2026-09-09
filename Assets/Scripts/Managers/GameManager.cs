@@ -41,6 +41,9 @@ public class GameManager : MonoBehaviour
     internal int freeSpinsUsed;
     internal bool waitingForFreeSpinStart;
 
+    internal bool isInGoldBurstRespins;
+    private int pendingFreeSpins;
+
     internal bool isInitialized;
     internal bool initializationFailed;
 
@@ -131,6 +134,8 @@ public class GameManager : MonoBehaviour
 
     internal void SetBetIndex(int index)
     {
+        if (isInGoldBurstRespins) return;
+
         currentBetIndex = index;
         UpdateBetAmount();
         uiManager.UpdateBetDisplay();
@@ -154,7 +159,7 @@ public class GameManager : MonoBehaviour
         if (!socketManager.isConnected) return;
 
         double totalPay = GetTotalPay();
-        if (!isInFreeSpins && playerData.balance < totalPay)
+        if (!isInFreeSpins && !isInGoldBurstRespins && playerData.balance < totalPay)
         {
             if (popupManager != null)
             {
@@ -174,7 +179,7 @@ public class GameManager : MonoBehaviour
             {
                 StopAutoPlay();
             }
-            else if (!isInFreeSpins)
+            else if (!isInFreeSpins && !isInGoldBurstRespins)
             {
                 stopRequested = true;
                 uiManager.DisableSpinButtonDuringStop();
@@ -194,7 +199,7 @@ public class GameManager : MonoBehaviour
         stopRequested = false;
 
         // Deduct total pay from balance on spin start (except in free spins)
-        if (!isInFreeSpins)
+        if (!isInFreeSpins && !isInGoldBurstRespins)
         {
             playerData.balance -= GetTotalPay();
             if (playerData.balance < 0) playerData.balance = 0;
@@ -204,10 +209,17 @@ public class GameManager : MonoBehaviour
 
         if (slotView != null)
         {
-            slotView.StartSpin();
+            if (isInGoldBurstRespins)
+            {
+                slotView.StartGoldBurstRespin();
+            }
+            else
+            {
+                slotView.StartSpin();
+            }
         }
 
-        socketManager.SendSpinRequest(currentBetIndex, isInFreeSpins);
+        socketManager.SendSpinRequest(currentBetIndex, isInFreeSpins || isInGoldBurstRespins);
 
         if (spinCoroutine != null)
             StopCoroutine(spinCoroutine);
@@ -241,7 +253,11 @@ public class GameManager : MonoBehaviour
 
         if (slotView != null && lastResult.resultMatrix != null)
         {
-            if (currentSpinSpeed == SpinSpeed.QuickSpin || stopRequested)
+            if (isInGoldBurstRespins)
+            {
+                slotView.StopGoldBurstRespin(lastResult.resultMatrix, OnReelsStoppedComplete);
+            }
+            else if (currentSpinSpeed == SpinSpeed.QuickSpin || stopRequested)
             {
                 slotView.QuickStop(lastResult.resultMatrix);
 
@@ -279,6 +295,12 @@ public class GameManager : MonoBehaviour
                 freeSpinsRemaining = lastResult.serverSpinsRemaining;
                 freeSpinsUsed = lastResult.serverSpinsUsed;
                 uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
+            }
+
+            if (isInGoldBurstRespins && lastResult.goldBurstData != null)
+            {
+                uiManager.UpdateFreeSpinCount(
+                    Mathf.Max(0, lastResult.goldBurstData.remainingRespins));
             }
         }
 
@@ -426,6 +448,8 @@ public class GameManager : MonoBehaviour
 
     private void ProcessSpinResult()
     {
+        if (lastResult == null) return;
+
         playerData = lastResult.playerData;
 
         uiManager.OnSpinCompleted(lastResult);
@@ -435,6 +459,41 @@ public class GameManager : MonoBehaviour
         int serverSpinsUsed = lastResult.serverSpinsUsed;
         double serverTotalRoundWin = lastResult.serverTotalRoundWin;
         bool isRoundOver = lastResult.isRoundOver;
+
+        GoldBurstData goldBurst = lastResult.goldBurstData;
+        if (!isInGoldBurstRespins && goldBurst != null && goldBurst.triggered &&
+            goldBurst.inRespin && goldBurst.remainingRespins > 0)
+        {
+            if (!isInFreeSpins && lastResult.freeSpinData != null && lastResult.freeSpinData.isTriggered)
+            {
+                pendingFreeSpins = lastResult.freeSpinData.spinsAwarded;
+            }
+
+            StartGoldBurstRespins(goldBurst.remainingRespins);
+            lastResult = null;
+            return;
+        }
+
+        if (isInGoldBurstRespins)
+        {
+            bool hasAnotherRespin = goldBurst != null &&
+                                    goldBurst.inRespin &&
+                                    goldBurst.remainingRespins > 0;
+
+            lastResult = null;
+
+            if (hasAnotherRespin)
+            {
+                currentState = GameState.Idle;
+                StartCoroutine(DelayBeforeNextGoldBurstRespin());
+            }
+            else
+            {
+                EndGoldBurstRespins(serverTotalRoundWin, serverSpinsUsed, isRoundOver);
+            }
+
+            return;
+        }
 
         // The count is normally applied in OnReelsStoppedComplete. Keep this state-only
         // fallback in case a result is processed through another path.
@@ -586,6 +645,75 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Free Spins
+
+    private void StartGoldBurstRespins(int remainingRespins)
+    {
+        isInGoldBurstRespins = true;
+        uiManager.UpdateFreeSpinCount(Mathf.Max(0, remainingRespins));
+
+        int previousTotal = autoPlayTotalRounds;
+        int previousRemaining = autoPlayRemainingRounds;
+        if (isAutoPlaying)
+        {
+            StopAutoPlay();
+            wasAutoPlayingBeforeFreeSpins = true;
+            savedAutoPlayTotalRounds = previousTotal;
+            savedAutoPlayRemainingRounds = previousTotal != -1 ? previousRemaining - 1 : -1;
+        }
+
+        currentState = GameState.Idle;
+        StartCoroutine(DelayBeforeNextGoldBurstRespin());
+    }
+
+    private IEnumerator DelayBeforeNextGoldBurstRespin()
+    {
+        yield return new WaitForSeconds(0.3f);
+
+        while (waitingForSpecialWin || uiManager.IsSpecialWinActive)
+        {
+            yield return null;
+        }
+
+        RequestSpin();
+    }
+
+    private void EndGoldBurstRespins(double totalRoundWin, int totalSpinsUsed, bool isRoundOver)
+    {
+        isInGoldBurstRespins = false;
+        currentState = GameState.Idle;
+
+        if (isInFreeSpins)
+        {
+            uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
+
+            if (isRoundOver || freeSpinsRemaining <= 0)
+            {
+                EndFreeSpins(totalRoundWin, totalSpinsUsed);
+            }
+            else
+            {
+                StartCoroutine(DelayBeforeNextFreeSpin());
+            }
+            return;
+        }
+
+        uiManager.HideFeatureSpinCount();
+
+        if (pendingFreeSpins > 0)
+        {
+            int spins = pendingFreeSpins;
+            pendingFreeSpins = 0;
+            StartFreeSpins(spins);
+        }
+        else if (ShouldResumeAutoPlay())
+        {
+            ResumeAutoPlay();
+        }
+        else
+        {
+            uiManager.EnableControlsAfterWinAnimation();
+        }
+    }
 
     private void StartFreeSpins(int spins)
     {
