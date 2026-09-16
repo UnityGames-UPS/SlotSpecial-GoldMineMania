@@ -1,0 +1,1066 @@
+fileFormatVersion: 2
+guid: 8b0e8a52d38493d40b3e9525e166c0e9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 745440555634440727
+    second: pres play_0
+  - first:
+      213: -21739151535119293
+    second: pres play_1
+  - first:
+      213: 1831743546632106556
+    second: pres play_2
+  - first:
+      213: 8053921858750851309
+    second: pres play_3
+  - first:
+      213: 8041905508405157069
+    second: pres play_4
+  - first:
+      213: 5662823717134178255
+    second: pres play_5
+  - first:
+      213: 515212005125851483
+    second: pres play_6
+  - first:
+      213: -3893814243688829748
+    second: pres play_7
+  - first:
+      213: 2895952146335564815
+    second: pres play_8
+  - first:
+      213: -4492718611969070584
+    second: pres play_9
+  - first:
+      213: 2275996882310676996
+    second: pres play_10
+  - first:
+      213: -2715941979781017325
+    second: pres play_11
+  - first:
+      213: -795654055179252612
+    second: pres play_12
+  - first:
+      213: -339939838517539169
+    second: pres play_13
+  - first:
+      213: -5779260546932593555
+    second: pres play_14
+  - first:
+      213: 5099979472876268845
+    second: pres play_15
+  - first:
+      213: -8851766680585171494
+    second: pres play_16
+  - first:
+      213: 3249146867125479012
+    second: pres play_17
+  - first:
+      213: 4011456879916740508
+    second: pres play_18
+  - first:
+      213: -1592754760355035240
+    second: pres play_19
+  - first:
+      213: 1671850292418473752
+    second: pres play_20
+  - first:
+      213: -3206508587187103127
+    second: pres play_21
+  - first:
+      213: -3228517181669734344
+    second: pres play_22
+  - first:
+      213: 7117054907368186524
+    second: pres play_23
+  - first:
+      213: 1858511159896147619
+    second: pres play_24
+  - first:
+      213: -4472459025901545763
+    second: pres play_25
+  - first:
+      213: -195597593231476736
+    second: pres play_26
+  - first:
+      213: 519583684512340634
+    second: pres play_27
+  - first:
+      213: 2452428731869521966
+    second: pres play_28
+  - first:
+      213: 5546434058776404041
+    second: pres play_29
+  - first:
+      213: 1330632953920572120
+    second: pres play_30
+  - first:
+      213: -633191287490818263
+    second: pres play_31
+  - first:
+      213: 1432014536862410419
+    second: pres play_32
+  - first:
+      213: 7342219692779238876
+    second: pres play_33
+  - first:
+      213: -8098138391033709336
+    second: pres play_34
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: pres play_0
+      rect:
+        serializedVersion: 2
+        x: 2057
+        y: 2719
+        width: 212
+        height: 195
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71ab2cf5c36585a00800000000000000
+      internalID: 745440555634440727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_1
+      rect:
+        serializedVersion: 2
+        x: 2366
+        y: 2820
+        width: 126
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 344e70b5b54c2bff0800000000000000
+      internalID: -21739151535119293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_2
+      rect:
+        serializedVersion: 2
+        x: 2430
+        y: 2898
+        width: 19
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c32fe98fc09ab6910800000000000000
+      internalID: 1831743546632106556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_3
+      rect:
+        serializedVersion: 2
+        x: 2577
+        y: 2673
+        width: 270
+        height: 270
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de8299f424745cf60800000000000000
+      internalID: 8053921858750851309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_4
+      rect:
+        serializedVersion: 2
+        x: 1850
+        y: 2867
+        width: 83
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcc1fb9b3769a9f60800000000000000
+      internalID: 8041905508405157069
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_5
+      rect:
+        serializedVersion: 2
+        x: 975
+        y: 2762
+        width: 282
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc79075fa24669e40800000000000000
+      internalID: 5662823717134178255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_6
+      rect:
+        serializedVersion: 2
+        x: 1877
+        y: 2809
+        width: 45
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b590b85c696662700800000000000000
+      internalID: 515212005125851483
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_7
+      rect:
+        serializedVersion: 2
+        x: 2269
+        y: 2735
+        width: 62
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccc229f539466f9c0800000000000000
+      internalID: -3893814243688829748
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_8
+      rect:
+        serializedVersion: 2
+        x: 2461
+        y: 2704
+        width: 31
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f048cd8322d703820800000000000000
+      internalID: 2895952146335564815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_9
+      rect:
+        serializedVersion: 2
+        x: 2488
+        y: 2770
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80a2cc1d938a6a1c0800000000000000
+      internalID: -4492718611969070584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_10
+      rect:
+        serializedVersion: 2
+        x: 2488
+        y: 2766
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40246001b17f59f10800000000000000
+      internalID: 2275996882310676996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_11
+      rect:
+        serializedVersion: 2
+        x: 1664
+        y: 2700
+        width: 207
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 311d498b8290f4ad0800000000000000
+      internalID: -2715941979781017325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_12
+      rect:
+        serializedVersion: 2
+        x: 1865
+        y: 2731
+        width: 22
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7c01f43ad445f4f0800000000000000
+      internalID: -795654055179252612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_13
+      rect:
+        serializedVersion: 2
+        x: 1877
+        y: 2743
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9e8828948a484bf0800000000000000
+      internalID: -339939838517539169
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_14
+      rect:
+        serializedVersion: 2
+        x: 2273
+        y: 2739
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6c27a30721fbcfa0800000000000000
+      internalID: -5779260546932593555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_15
+      rect:
+        serializedVersion: 2
+        x: 1929
+        y: 2642
+        width: 74
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2de29a4f44c6c640800000000000000
+      internalID: 5099979472876268845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_16
+      rect:
+        serializedVersion: 2
+        x: 2147
+        y: 2704
+        width: 13
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: add05194a15382580800000000000000
+      internalID: -8851766680585171494
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_17
+      rect:
+        serializedVersion: 2
+        x: 754
+        y: 616
+        width: 2504
+        height: 2078
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46666166cd9471d20800000000000000
+      internalID: 3249146867125479012
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_18
+      rect:
+        serializedVersion: 2
+        x: 2897
+        y: 2636
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9feb3757ce8ba730800000000000000
+      internalID: 4011456879916740508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_19
+      rect:
+        serializedVersion: 2
+        x: 2239
+        y: 2607
+        width: 7
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 897c9b6fbf565e9e0800000000000000
+      internalID: -1592754760355035240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_20
+      rect:
+        serializedVersion: 2
+        x: 2245
+        y: 2613
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81f6c3dabfa933710800000000000000
+      internalID: 1671850292418473752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_21
+      rect:
+        serializedVersion: 2
+        x: 2026
+        y: 2596
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96a1973cd613083d0800000000000000
+      internalID: -3206508587187103127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_22
+      rect:
+        serializedVersion: 2
+        x: 1995
+        y: 2559
+        width: 8
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 838845b8ab00233d0800000000000000
+      internalID: -3228517181669734344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_23
+      rect:
+        serializedVersion: 2
+        x: 2627
+        y: 2574
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c92a1a00bbbd4c260800000000000000
+      internalID: 7117054907368186524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_24
+      rect:
+        serializedVersion: 2
+        x: 1130
+        y: 2562
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a685b89d02cac910800000000000000
+      internalID: 1858511159896147619
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_25
+      rect:
+        serializedVersion: 2
+        x: 2631
+        y: 2562
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd616a84632aee1c0800000000000000
+      internalID: -4472459025901545763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_26
+      rect:
+        serializedVersion: 2
+        x: 2893
+        y: 2543
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00834887609194df0800000000000000
+      internalID: -195597593231476736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_27
+      rect:
+        serializedVersion: 2
+        x: 1615
+        y: 2508
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9a5272bb9ee53700800000000000000
+      internalID: 519583684512340634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_28
+      rect:
+        serializedVersion: 2
+        x: 1615
+        y: 2496
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e286b0820f6c80220800000000000000
+      internalID: 2452428731869521966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_29
+      rect:
+        serializedVersion: 2
+        x: 1596
+        y: 2477
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 940ee73e364e8fc40800000000000000
+      internalID: 5546434058776404041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_30
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 2465
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8da4dd02f9b577210800000000000000
+      internalID: 1330632953920572120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_31
+      rect:
+        serializedVersion: 2
+        x: 1584
+        y: 815
+        width: 25
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92fcc3af0e37637f0800000000000000
+      internalID: -633191287490818263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_32
+      rect:
+        serializedVersion: 2
+        x: 1373
+        y: 751
+        width: 33
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b621e652a98fd310800000000000000
+      internalID: 1432014536862410419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_33
+      rect:
+        serializedVersion: 2
+        x: 1365
+        y: 743
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd5fbfae8edc4e560800000000000000
+      internalID: 7342219692779238876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pres play_34
+      rect:
+        serializedVersion: 2
+        x: 2604
+        y: 652
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ec7b740a02ad9f80800000000000000
+      internalID: -8098138391033709336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      pres play_0: 745440555634440727
+      pres play_1: -21739151535119293
+      pres play_10: 2275996882310676996
+      pres play_11: -2715941979781017325
+      pres play_12: -795654055179252612
+      pres play_13: -339939838517539169
+      pres play_14: -5779260546932593555
+      pres play_15: 5099979472876268845
+      pres play_16: -8851766680585171494
+      pres play_17: 3249146867125479012
+      pres play_18: 4011456879916740508
+      pres play_19: -1592754760355035240
+      pres play_2: 1831743546632106556
+      pres play_20: 1671850292418473752
+      pres play_21: -3206508587187103127
+      pres play_22: -3228517181669734344
+      pres play_23: 7117054907368186524
+      pres play_24: 1858511159896147619
+      pres play_25: -4472459025901545763
+      pres play_26: -195597593231476736
+      pres play_27: 519583684512340634
+      pres play_28: 2452428731869521966
+      pres play_29: 5546434058776404041
+      pres play_3: 8053921858750851309
+      pres play_30: 1330632953920572120
+      pres play_31: -633191287490818263
+      pres play_32: 1432014536862410419
+      pres play_33: 7342219692779238876
+      pres play_34: -8098138391033709336
+      pres play_4: 8041905508405157069
+      pres play_5: 5662823717134178255
+      pres play_6: 515212005125851483
+      pres play_7: -3893814243688829748
+      pres play_8: 2895952146335564815
+      pres play_9: -4492718611969070584
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
