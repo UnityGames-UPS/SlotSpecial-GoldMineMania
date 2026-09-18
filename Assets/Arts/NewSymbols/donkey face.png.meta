@@ -142,10 +142,10 @@ TextureImporter:
       name: donkey face_0
       rect:
         serializedVersion: 2
-        x: 16
-        y: 40
-        width: 378
-        height: 316
+        x: 9
+        y: 33
+        width: 383
+        height: 329
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

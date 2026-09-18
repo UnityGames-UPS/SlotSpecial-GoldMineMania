@@ -16,7 +16,8 @@ public class SlotView : MonoBehaviour
 {
     private const int DefaultReelCount = 5;
     private const int DefaultRowCount = 3;
-    private const int GoldBurstLockedSymbolId = 11;
+    private const int FirstGoldBurstLockedSymbolId = 11;
+    private const int LastGoldBurstLockedSymbolId = 13;
 
     [Header("References")]
     [SerializeField] private GameManager gameManager;
@@ -62,7 +63,7 @@ public class SlotView : MonoBehaviour
     [SerializeField, Min(100f)] private float fastReelSpeed = 6000f;
     [FormerlySerializedAs("anticipationUpDistance")]
     [SerializeField, Min(0f)] private float stopAnticipationDistance = 20f;
-    [SerializeField, Min(0f)] private float stopOvershootDistance = 118f;
+    [SerializeField, Min(0f)] private float stopOvershootDistance = 1f;
     [SerializeField, Min(0.01f)] private float stopOvershootDuration = 0.2f;
     [SerializeField, Min(0.01f)] private float stopSettleDuration = 0.3f;
 
@@ -105,6 +106,8 @@ public class SlotView : MonoBehaviour
         internal Image symbolImage;
         internal Mask mask;
         internal RectTransform spinner;
+        internal Image firstSpinnerImage;
+        internal Image lastSpinnerImage;
         internal Vector2 restingPosition;
         internal Tween motionTween;
     }
@@ -305,12 +308,19 @@ public class SlotView : MonoBehaviour
                 Image symbolImage = GetResultSlotImage(reelIndex, row);
                 if (symbolImage == null) continue;
 
-                RectTransform spinner = symbolImage.transform.Find("SpinningSlot") as RectTransform;
-                if (spinner == null) continue;
+                Transform maskTransform = symbolImage.transform.Find("Mask");
+                RectTransform spinner = maskTransform?.Find("SpinningSlot") as RectTransform;
+                if (maskTransform == null || spinner == null || spinner.childCount == 0) continue;
 
-                Mask mask = symbolImage.GetComponent<Mask>();
+                Mask mask = maskTransform.GetComponent<Mask>();
+                Image firstSpinnerImage = spinner.GetChild(0).GetComponent<Image>() ??
+                                          spinner.GetChild(0).GetComponentInChildren<Image>(true);
+                Image lastSpinnerImage = spinner.GetChild(spinner.childCount - 1).GetComponent<Image>() ??
+                                         spinner.GetChild(spinner.childCount - 1).GetComponentInChildren<Image>(true);
+                if (mask == null || firstSpinnerImage == null || lastSpinnerImage == null) continue;
+
                 symbolImage.enabled = true;
-                if (mask != null) mask.showMaskGraphic = true;
+                mask.gameObject.SetActive(false);
                 spinner.gameObject.SetActive(false);
                 goldBurstCells.Add(new GoldBurstCellRuntime
                 {
@@ -319,6 +329,8 @@ public class SlotView : MonoBehaviour
                     symbolImage = symbolImage,
                     mask = mask,
                     spinner = spinner,
+                    firstSpinnerImage = firstSpinnerImage,
+                    lastSpinnerImage = lastSpinnerImage,
                     restingPosition = spinner.anchoredPosition
                 });
             }
@@ -551,39 +563,81 @@ public class SlotView : MonoBehaviour
                             cell.reelIndex < currentDisplayMatrix.Count &&
                             currentDisplayMatrix[cell.reelIndex] != null &&
                             cell.row < currentDisplayMatrix[cell.reelIndex].Count &&
-                            currentDisplayMatrix[cell.reelIndex][cell.row] == GoldBurstLockedSymbolId;
+                            currentDisplayMatrix[cell.reelIndex][cell.row] >= FirstGoldBurstLockedSymbolId &&
+                            currentDisplayMatrix[cell.reelIndex][cell.row] <= LastGoldBurstLockedSymbolId;
 
             if (isLocked)
             {
                 cell.symbolImage.enabled = true;
-                if (cell.mask != null) cell.mask.showMaskGraphic = true;
+                cell.mask.gameObject.SetActive(false);
                 cell.spinner.gameObject.SetActive(false);
                 continue;
             }
 
+            cell.firstSpinnerImage.sprite = cell.symbolImage.sprite;
+            cell.lastSpinnerImage.sprite = cell.symbolImage.sprite;
+            cell.mask.gameObject.SetActive(true);
+            cell.spinner.gameObject.SetActive(true);
             cell.symbolImage.enabled = false;
-            if (cell.mask != null) cell.mask.showMaskGraphic = false;
             StartGoldBurstCellMotion(cell);
         }
     }
 
     internal void StopGoldBurstRespin(List<List<int>> resultMatrix, Action onComplete)
     {
-        KillGoldBurstCellTweens(false);
-
-        if (IsValidMatrix(resultMatrix))
-        {
-            ApplyMatrix(resultMatrix);
-        }
-        else
+        if (!IsValidMatrix(resultMatrix))
         {
             Debug.LogError("[SlotView] Gold Burst result matrix does not match the visible slots.", this);
+            KillGoldBurstCellTweens(true);
+            CompleteGoldBurstRespin(onComplete);
+            return;
         }
+
+        ApplyMatrix(resultMatrix);
+
+        Sequence settleSequence = DOTween.Sequence().SetUpdate(true);
+        bool hasSpinningCells = false;
 
         foreach (GoldBurstCellRuntime cell in goldBurstCells)
         {
+            cell.motionTween?.Kill();
+            cell.motionTween = null;
+
+            if (!cell.mask.gameObject.activeSelf || !cell.spinner.gameObject.activeSelf) continue;
+
+            hasSpinningCells = true;
+            cell.firstSpinnerImage.sprite = cell.symbolImage.sprite;
+            cell.lastSpinnerImage.sprite = cell.symbolImage.sprite;
+
+            float travelDistance = CalculateSymbolPitch(cell.spinner) *
+                                   Mathf.Max(1, cell.spinner.childCount - 1);
+            float targetY = cell.restingPosition.y;
+            float remainingDistance = Mathf.Max(0f, cell.spinner.anchoredPosition.y - targetY);
+            float settleDuration = Mathf.Max(0.08f, remainingDistance / normalReelSpeed);
+
+            settleSequence.Join(cell.spinner
+                .DOAnchorPosY(targetY, settleDuration)
+                .SetEase(Ease.OutCubic));
+        }
+
+        if (!hasSpinningCells)
+        {
+            settleSequence.Kill();
+            CompleteGoldBurstRespin(onComplete);
+            return;
+        }
+
+        settleSequence.OnComplete(() => CompleteGoldBurstRespin(onComplete));
+        activeTweens.Add(settleSequence);
+    }
+
+    private void CompleteGoldBurstRespin(Action onComplete)
+    {
+        foreach (GoldBurstCellRuntime cell in goldBurstCells)
+        {
+            cell.spinner.anchoredPosition = cell.restingPosition;
             cell.symbolImage.enabled = true;
-            if (cell.mask != null) cell.mask.showMaskGraphic = true;
+            cell.mask.gameObject.SetActive(false);
             cell.spinner.gameObject.SetActive(false);
         }
 
@@ -653,18 +707,14 @@ public class SlotView : MonoBehaviour
     private void StartGoldBurstCellMotion(GoldBurstCellRuntime cell)
     {
         cell.motionTween?.Kill();
-        cell.spinner.gameObject.SetActive(true);
 
         float symbolPitch = CalculateSymbolPitch(cell.spinner);
         float travelDistance = symbolPitch * Mathf.Max(1, cell.spinner.childCount - 1);
-        float pixelsPerSecond = GetSpinSpeed() == SpinSpeed.Normal ? normalReelSpeed : fastReelSpeed;
-        float duration = Mathf.Max(0.08f, travelDistance / pixelsPerSecond);
+        float duration = Mathf.Max(0.08f, travelDistance / normalReelSpeed);
 
-        // The cell strip is built downward, so begin on its last image and move
-        // downward to the first image using the same loop style as the main reels.
         cell.spinner.anchoredPosition = cell.restingPosition + Vector2.up * travelDistance;
         cell.motionTween = cell.spinner
-            .DOAnchorPos(cell.restingPosition, duration)
+            .DOAnchorPosY(cell.restingPosition.y, duration)
             .SetEase(Ease.Linear)
             .SetLoops(-1, LoopType.Restart)
             .SetUpdate(true);
@@ -1075,10 +1125,14 @@ public class SlotView : MonoBehaviour
                 cell.spinner.gameObject.SetActive(false);
             }
 
+            if (cell.mask != null)
+            {
+                cell.mask.gameObject.SetActive(false);
+            }
+
             if (restoreVisuals && cell.symbolImage != null)
             {
                 cell.symbolImage.enabled = true;
-                if (cell.mask != null) cell.mask.showMaskGraphic = true;
             }
         }
     }

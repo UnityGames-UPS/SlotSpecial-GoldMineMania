@@ -142,10 +142,10 @@ TextureImporter:
       name: red elongated double slot black bg_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 1
-        width: 259
-        height: 601
+        x: 0
+        y: 101
+        width: 300
+        height: 711
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

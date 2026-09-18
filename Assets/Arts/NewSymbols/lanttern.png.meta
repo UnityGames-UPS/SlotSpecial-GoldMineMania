@@ -142,10 +142,10 @@ TextureImporter:
       name: lanttern_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 13
-        width: 393
-        height: 359
+        x: 25
+        y: 39
+        width: 349
+        height: 319
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

@@ -142,10 +142,10 @@ TextureImporter:
       name: helmet_0
       rect:
         serializedVersion: 2
-        x: 14
-        y: 34
-        width: 372
-        height: 332
+        x: 26
+        y: 47
+        width: 348
+        height: 310
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

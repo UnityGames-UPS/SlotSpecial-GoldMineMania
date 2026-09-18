@@ -145,10 +145,10 @@ TextureImporter:
       name: gt_0
       rect:
         serializedVersion: 2
-        x: 173
-        y: 361
-        width: 55
-        height: 31
+        x: 180
+        y: 359
+        width: 50
+        height: 28
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -167,10 +167,10 @@ TextureImporter:
       name: gt_1
       rect:
         serializedVersion: 2
-        x: 16
-        y: 17
-        width: 361
-        height: 342
+        x: 38
+        y: 48
+        width: 326
+        height: 309
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

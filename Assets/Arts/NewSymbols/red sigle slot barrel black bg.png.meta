@@ -142,10 +142,10 @@ TextureImporter:
       name: red sigle slot barrel black bg_0
       rect:
         serializedVersion: 2
-        x: 6
-        y: 41
-        width: 288
-        height: 241
+        x: 5
+        y: 46
+        width: 390
+        height: 326
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

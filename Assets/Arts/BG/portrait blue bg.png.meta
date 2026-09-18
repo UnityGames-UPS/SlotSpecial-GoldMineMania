@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: dc149c60506b2724684d4f75429e07d9
+guid: 2cebf2d6fd9087f46abcff275a5bf32a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5762363943959268380
-    second: gt2_0
-  - first:
-      213: -5955802276220852058
-    second: gt2_1
+      213: 2167725361663265265
+    second: portrait blue bg_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -142,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gt2_0
+      name: portrait blue bg_0
       rect:
         serializedVersion: 2
-        x: 195
-        y: 328
-        width: 38
-        height: 22
+        x: 0
+        y: 0
+        width: 941
+        height: 1672
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -157,30 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e3f9c5f588f700b0800000000000000
-      internalID: -5762363943959268380
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: gt2_1
-      rect:
-        serializedVersion: 2
-        x: 21
-        y: 41
-        width: 371
-        height: 286
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6a8a46d826db85da0800000000000000
-      internalID: -5955802276220852058
+      spriteID: 1f94b883bbe451e10800000000000000
+      internalID: 2167725361663265265
       vertices: []
       indices: 
       edges: []
@@ -189,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -199,8 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      gt2_0: -5762363943959268380
-      gt2_1: -5955802276220852058
+      portrait blue bg_0: 2167725361663265265
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

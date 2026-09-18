@@ -142,10 +142,10 @@ TextureImporter:
       name: wild_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 53
-        width: 333
-        height: 287
+        x: 6
+        y: 37
+        width: 389
+        height: 335
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

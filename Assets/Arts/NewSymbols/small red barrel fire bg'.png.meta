@@ -5,6 +5,12 @@ TextureImporter:
   - first:
       213: 7926941300123995029
     second: small red barrel fire bg'_0
+  - first:
+      213: -1369263178063644315
+    second: small red barrel fire bg'_1
+  - first:
+      213: 7018294795537034007
+    second: small red barrel fire bg'_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -142,10 +148,10 @@ TextureImporter:
       name: small red barrel fire bg'_0
       rect:
         serializedVersion: 2
-        x: 13
-        y: 49
-        width: 287
-        height: 237
+        x: 7
+        y: 47
+        width: 393
+        height: 323
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -156,6 +162,50 @@ TextureImporter:
       bones: []
       spriteID: 59b834d1d17220e60800000000000000
       internalID: 7926941300123995029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small red barrel fire bg'_1
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 364
+        width: 16
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5697e7be4666ffce0800000000000000
+      internalID: -1369263178063644315
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: small red barrel fire bg'_2
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 357
+        width: 29
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71b25f89eedf56160800000000000000
+      internalID: 7018294795537034007
       vertices: []
       indices: 
       edges: []
@@ -175,6 +225,8 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       small red barrel fire bg'_0: 7926941300123995029
+      small red barrel fire bg'_1: -1369263178063644315
+      small red barrel fire bg'_2: 7018294795537034007
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

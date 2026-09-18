@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 83a385c766c700c4a89587e5d4b550d7
+guid: 37e6173dfed2ef7498f8f71e94450c8d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1737774867349080326
-    second: red round double slot black bg_0
+      213: -2013366780697746525
+    second: bg 1 landscape._0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -139,13 +139,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: red round double slot black bg_0
+      name: bg 1 landscape._0
       rect:
         serializedVersion: 2
         x: 0
-        y: 16
-        width: 300
-        height: 576
+        y: 0
+        width: 1920
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 60981f3e801dd1810800000000000000
-      internalID: 1737774867349080326
+      spriteID: 3a360f984951f04e0800000000000000
+      internalID: -2013366780697746525
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      red round double slot black bg_0: 1737774867349080326
+      bg 1 landscape._0: -2013366780697746525
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

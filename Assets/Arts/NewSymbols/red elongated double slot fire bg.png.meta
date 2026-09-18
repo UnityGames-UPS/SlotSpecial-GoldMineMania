@@ -142,10 +142,10 @@ TextureImporter:
       name: red elongated double slot fire bg_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 0
-        width: 277
-        height: 610
+        x: 0
+        y: 99
+        width: 300
+        height: 722
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

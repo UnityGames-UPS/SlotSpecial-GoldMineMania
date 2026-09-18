@@ -145,10 +145,10 @@ TextureImporter:
       name: man face_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 55
-        width: 391
-        height: 345
+        x: 8
+        y: 36
+        width: 380
+        height: 337
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -167,8 +167,8 @@ TextureImporter:
       name: man face_1
       rect:
         serializedVersion: 2
-        x: 81
-        y: 58
+        x: 84
+        y: 39
         width: 7
         height: 7
       alignment: 0
