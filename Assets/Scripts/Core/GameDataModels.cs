@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 #region Server Communication Models
 
@@ -149,6 +150,9 @@ public class ServerSpinResponse
     public List<List<string>> matrix; // Root level matrix sent by server
     public ServerPlayerBalance player;
     public ServerPayload payload;
+
+    [JsonExtensionData]
+    public IDictionary<string, JToken> additionalData;
 }
 
 [Serializable]
@@ -176,6 +180,9 @@ public class ServerPayload
     public ServerMoneyBagResult moneyBag;
     public ServerFreeGamesResult freeGames;
     public ServerGoldBurstResult goldBurst;
+
+    [JsonExtensionData]
+    public IDictionary<string, JToken> additionalData;
 }
 
 [Serializable]
@@ -248,6 +255,9 @@ public class ServerGoldBurstResult
     public bool triggered;
     public bool inRespin;
     public int remainingRespins;
+
+    [JsonExtensionData]
+    public IDictionary<string, JToken> additionalData;
 }
 
 // ============================================================================
@@ -372,6 +382,9 @@ public class SpinResult
     public USpinResultData uSpinData;
     public MoneyBagResultData moneyBagData;
     public GoldBurstData goldBurstData;
+    public List<TwoSlotBarrelPlacement> twoSlotBarrels;
+    public List<ThreeSlotBarrelPlacement> threeSlotBarrels;
+    public List<TrainPlacement> trains;
 
     public double GetMoneyBagWin()
     {
@@ -451,6 +464,38 @@ public class GoldBurstData
     public bool triggered;
     public bool inRespin;
     public int remainingRespins;
+}
+
+[Serializable]
+public class TwoSlotBarrelPlacement
+{
+    public int reelIndex;
+    public int startRow;
+}
+
+[Serializable]
+public class ThreeSlotBarrelPlacement
+{
+    public int reelIndex;
+}
+
+public enum TrainVisualType
+{
+    Green,
+    Red,
+    HorizontalPurple,
+    VerticalPurple,
+    Golden
+}
+
+[Serializable]
+public class TrainPlacement
+{
+    public TrainVisualType type;
+    public int startRow;
+    public int startCol;
+    public int rowCount;
+    public int columnCount;
 }
 
 #endregion
@@ -660,6 +705,12 @@ public static class InitDataConverter
             ? serverResponse.payload.grandTotalWin 
             : (winAmountVal + (serverResponse.payload.moneyBag != null && serverResponse.payload.moneyBag.result != null ? serverResponse.payload.moneyBag.result.winInCash : 0) + (serverResponse.payload.uSpin != null && serverResponse.payload.uSpin.result != null ? serverResponse.payload.uSpin.result.winInCash : 0));
 
+        ConvertBarrelPlacements(
+            serverResponse,
+            out List<TwoSlotBarrelPlacement> twoSlotBarrels,
+            out List<ThreeSlotBarrelPlacement> threeSlotBarrels,
+            out List<TrainPlacement> trains);
+
         var result = new SpinResult
         {
             resultMatrix = ConvertReelsToMatrix(serverResponse.payload.reels, serverResponse.matrix, serverResponse.payload.waysWins, gameConfig),
@@ -733,10 +784,220 @@ public static class InitDataConverter
                     inRespin = serverResponse.payload.goldBurst.inRespin,
                     remainingRespins = serverResponse.payload.goldBurst.remainingRespins
                 }
-                : null
+                : null,
+
+            twoSlotBarrels = twoSlotBarrels,
+            threeSlotBarrels = threeSlotBarrels,
+            trains = trains
         };
 
         return result;
+    }
+
+    private static void ConvertBarrelPlacements(
+        ServerSpinResponse serverResponse,
+        out List<TwoSlotBarrelPlacement> twoSlotBarrels,
+        out List<ThreeSlotBarrelPlacement> threeSlotBarrels,
+        out List<TrainPlacement> trains)
+    {
+        var twoSlotPlacementsByReel = new Dictionary<int, TwoSlotBarrelPlacement>();
+        var threeSlotPlacementsByReel = new Dictionary<int, ThreeSlotBarrelPlacement>();
+        var trainPlacements = new List<TrainPlacement>();
+
+        CollectBarrelPlacements(
+            serverResponse?.additionalData,
+            twoSlotPlacementsByReel,
+            threeSlotPlacementsByReel,
+            trainPlacements);
+        CollectBarrelPlacements(
+            serverResponse?.payload?.additionalData,
+            twoSlotPlacementsByReel,
+            threeSlotPlacementsByReel,
+            trainPlacements);
+        CollectBarrelPlacements(
+            serverResponse?.payload?.goldBurst?.additionalData,
+            twoSlotPlacementsByReel,
+            threeSlotPlacementsByReel,
+            trainPlacements);
+
+        foreach (TrainPlacement train in trainPlacements)
+        {
+            for (int reelIndex = train.startCol;
+                 reelIndex < train.startCol + train.columnCount;
+                 reelIndex++)
+            {
+                twoSlotPlacementsByReel.Remove(reelIndex);
+                threeSlotPlacementsByReel.Remove(reelIndex);
+            }
+        }
+
+        twoSlotBarrels = twoSlotPlacementsByReel.Values
+            .OrderBy(placement => placement.reelIndex)
+            .ToList();
+        threeSlotBarrels = threeSlotPlacementsByReel.Values
+            .OrderBy(placement => placement.reelIndex)
+            .ToList();
+        trains = trainPlacements
+            .OrderBy(placement => placement.startCol)
+            .ThenBy(placement => placement.startRow)
+            .ToList();
+    }
+
+    private static void CollectBarrelPlacements(
+        IDictionary<string, JToken> additionalData,
+        Dictionary<int, TwoSlotBarrelPlacement> twoSlotPlacementsByReel,
+        Dictionary<int, ThreeSlotBarrelPlacement> threeSlotPlacementsByReel,
+        List<TrainPlacement> trainPlacements)
+    {
+        if (additionalData == null) return;
+
+        foreach (KeyValuePair<string, JToken> entry in additionalData)
+        {
+            CollectBarrelPlacements(
+                entry.Key,
+                entry.Value,
+                twoSlotPlacementsByReel,
+                threeSlotPlacementsByReel,
+                trainPlacements);
+        }
+    }
+
+    private static void CollectBarrelPlacements(
+        string propertyName,
+        JToken token,
+        Dictionary<int, TwoSlotBarrelPlacement> twoSlotPlacementsByReel,
+        Dictionary<int, ThreeSlotBarrelPlacement> threeSlotPlacementsByReel,
+        List<TrainPlacement> trainPlacements)
+    {
+        if (token == null) return;
+
+        if ((string.Equals(propertyName, "coveredPositions", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(propertyName, "coveredSlots", StringComparison.OrdinalIgnoreCase)) &&
+            token is JArray coveredPositions)
+        {
+            AddFeaturePlacement(
+                coveredPositions,
+                twoSlotPlacementsByReel,
+                threeSlotPlacementsByReel,
+                trainPlacements);
+        }
+
+        if (token is JObject objectToken)
+        {
+            foreach (JProperty property in objectToken.Properties())
+            {
+                CollectBarrelPlacements(
+                    property.Name,
+                    property.Value,
+                    twoSlotPlacementsByReel,
+                    threeSlotPlacementsByReel,
+                    trainPlacements);
+            }
+        }
+        else if (token is JArray arrayToken)
+        {
+            foreach (JToken child in arrayToken)
+            {
+                CollectBarrelPlacements(
+                    string.Empty,
+                    child,
+                    twoSlotPlacementsByReel,
+                    threeSlotPlacementsByReel,
+                    trainPlacements);
+            }
+        }
+    }
+
+    private static void AddFeaturePlacement(
+        JArray coveredPositions,
+        Dictionary<int, TwoSlotBarrelPlacement> twoSlotPlacementsByReel,
+        Dictionary<int, ThreeSlotBarrelPlacement> threeSlotPlacementsByReel,
+        List<TrainPlacement> trainPlacements)
+    {
+        var positions = coveredPositions
+            .OfType<JObject>()
+            .Select(position => new
+            {
+                Row = position.Value<int?>("row"),
+                Col = position.Value<int?>("col")
+            })
+            .Where(position => position.Row.HasValue && position.Col.HasValue)
+            .ToList();
+
+        List<int> rows = positions
+            .Select(position => position.Row.Value)
+            .Distinct()
+            .OrderBy(row => row)
+            .ToList();
+        List<int> columns = positions
+            .Select(position => position.Col.Value)
+            .Distinct()
+            .OrderBy(column => column)
+            .ToList();
+
+        if (rows.Count == 0 || columns.Count == 0 ||
+            rows[0] < 0 || rows[rows.Count - 1] >= 3 ||
+            columns[0] < 0 || columns[columns.Count - 1] >= 5 ||
+            positions.Count != rows.Count * columns.Count ||
+            !AreConsecutive(rows) || !AreConsecutive(columns))
+        {
+            return;
+        }
+
+        int startRow = rows[0];
+        int startCol = columns[0];
+
+        if (rows.Count == 2 && columns.Count == 1)
+        {
+            twoSlotPlacementsByReel[startCol] = new TwoSlotBarrelPlacement
+            {
+                reelIndex = startCol,
+                startRow = startRow
+            };
+            return;
+        }
+
+        if (rows.Count == 3 && columns.Count == 1)
+        {
+            threeSlotPlacementsByReel[startCol] = new ThreeSlotBarrelPlacement
+            {
+                reelIndex = startCol
+            };
+            return;
+        }
+
+        TrainVisualType? trainType = GetTrainVisualType(rows.Count, columns.Count);
+        if (!trainType.HasValue) return;
+
+        trainPlacements.Add(new TrainPlacement
+        {
+            type = trainType.Value,
+            startRow = startRow,
+            startCol = startCol,
+            rowCount = rows.Count,
+            columnCount = columns.Count
+        });
+    }
+
+    private static TrainVisualType? GetTrainVisualType(int rowCount, int columnCount)
+    {
+        if (rowCount == 2 && columnCount == 2) return TrainVisualType.Green;
+        if (rowCount == 2 && columnCount == 3) return TrainVisualType.HorizontalPurple;
+        if (rowCount == 2 && columnCount == 4) return TrainVisualType.Red;
+        if (rowCount == 3 && columnCount == 2) return TrainVisualType.VerticalPurple;
+        if (rowCount == 3 && columnCount == 4) return TrainVisualType.Golden;
+
+        return null;
+    }
+
+    private static bool AreConsecutive(List<int> values)
+    {
+        for (int index = 1; index < values.Count; index++)
+        {
+            if (values[index] != values[index - 1] + 1) return false;
+        }
+
+        return true;
     }
 
     private static List<List<int>> ConvertReelsToMatrix(List<List<string>> serverReels, List<List<string>> serverMatrix, List<ServerWaysWin> waysWins, GameConfig gameConfig)

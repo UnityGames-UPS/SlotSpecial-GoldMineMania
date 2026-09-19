@@ -435,6 +435,9 @@ public class GameManager : MonoBehaviour
     internal void OnSpinResultReceived(SpinResult result)
     {
         lastResult = result;
+        slotView?.PrepareTwoSlotBarrels(result.twoSlotBarrels);
+        slotView?.PrepareThreeSlotBarrels(result.threeSlotBarrels);
+        slotView?.PrepareTrains(result.trains);
 
         if (result.winLines != null)
         {

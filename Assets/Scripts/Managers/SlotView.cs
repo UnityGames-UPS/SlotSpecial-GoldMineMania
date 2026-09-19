@@ -22,6 +22,7 @@ public class SlotView : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameManager gameManager;
     [SerializeField] private SymbolInfoCard symbolInfoCard;
+    [SerializeField] private SlotFeatureVisualController featureVisualController;
 
     [Header("Symbol Sprites - Assign by Init Name")]
     [SerializeField] private Sprite spriteMiner;                       // 0
@@ -120,6 +121,17 @@ public class SlotView : MonoBehaviour
             : FindSceneComponent<SymbolInfoCard>();
 
         BuildReelCache();
+
+        featureVisualController = featureVisualController != null
+            ? featureVisualController
+            : GetComponent<SlotFeatureVisualController>();
+        if (featureVisualController == null)
+        {
+            featureVisualController = gameObject.AddComponent<SlotFeatureVisualController>();
+        }
+
+        Transform featureSearchRoot = reelRoot != null ? reelRoot.parent : null;
+        featureVisualController.Initialize(featureSearchRoot);
         symbolInfoCard?.HideCard();
     }
 
@@ -132,6 +144,7 @@ public class SlotView : MonoBehaviour
     {
         StopViewCoroutines();
         KillAllTweens();
+        featureVisualController?.ResetFeatures();
         isSpinning = false;
     }
 
@@ -533,6 +546,21 @@ public class SlotView : MonoBehaviour
         ApplyMatrix(matrix);
     }
 
+    internal void PrepareTwoSlotBarrels(IReadOnlyList<TwoSlotBarrelPlacement> placements)
+    {
+        featureVisualController?.PrepareTwoSlotBarrels(placements);
+    }
+
+    internal void PrepareThreeSlotBarrels(IReadOnlyList<ThreeSlotBarrelPlacement> placements)
+    {
+        featureVisualController?.PrepareThreeSlotBarrels(placements);
+    }
+
+    internal void PrepareTrains(IReadOnlyList<TrainPlacement> placements)
+    {
+        featureVisualController?.PrepareTrains(placements);
+    }
+
     internal void StartSpin()
     {
         if (isSpinning || reels.Count == 0) return;
@@ -540,6 +568,7 @@ public class SlotView : MonoBehaviour
         EnsureConfiguration();
         HideSymbolInfoCard();
         KillReelTweens(true);
+        featureVisualController?.ResetFeatures();
 
         quickStopRequested = false;
         isSpinning = true;
@@ -643,6 +672,7 @@ public class SlotView : MonoBehaviour
 
         activeTweens.RemoveAll(tween => tween == null || !tween.IsActive());
         isSpinning = false;
+        featureVisualController?.RevealAllFeatures();
         AudioManager.Instance?.PlayReelStop();
         onComplete?.Invoke();
     }
@@ -867,6 +897,7 @@ public class SlotView : MonoBehaviour
         isSpinning = false;
         quickStopRequested = false;
         reelStopRoutine = null;
+        featureVisualController?.RevealAllFeatures();
         onComplete?.Invoke();
     }
 
