@@ -1,0 +1,23 @@
+Shoes.png
+size:608,598
+filter:Linear,Linear
+pma:true
+BG
+bounds:2,258,380,338
+offsets:1,1,382,340
+Shoes_Glow
+bounds:384,313,222,283
+big shoe
+bounds:384,44,220,267
+offsets:0,1,222,283
+big show shadow
+bounds:204,10,246,131
+offsets:4,4,255,140
+rotate:90
+small
+bounds:2,92,164,200
+offsets:0,1,166,211
+rotate:90
+small shoe shadow
+bounds:2,2,189,88
+offsets:4,3,199,97

@@ -1,0 +1,97 @@
+K.png
+size:1875,840
+filter:Linear,Linear
+pma:true
+Glow_Fx/metal stroke_00000
+bounds:61,4,1,1
+Glow_Fx/metal stroke_00024
+bounds:61,4,1,1
+Glow_Fx/metal stroke_00001
+bounds:259,3,40,33
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00002
+bounds:61,7,82,64
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00003
+bounds:341,3,124,96
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00004
+bounds:808,6,148,128
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00005
+bounds:1082,2,207,159
+offsets:1,1,339,376
+Glow_Fx/metal stroke_00006
+bounds:1582,193,249,191
+offsets:1,1,339,376
+Glow_Fx/metal stroke_00007
+bounds:1582,615,291,223
+offsets:1,1,339,376
+Glow_Fx/metal stroke_00008
+bounds:1294,511,327,254
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00009
+bounds:1010,163,336,286
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00010
+bounds:974,501,337,318
+offsets:1,1,339,376
+rotate:90
+Glow_Fx/metal stroke_00011
+bounds:341,129,337,349
+offsets:1,1,339,376
+Glow_Fx/metal stroke_00012
+bounds:2,91,337,371
+offsets:1,1,339,376
+Glow_Fx/metal stroke_00013
+bounds:341,480,337,358
+offsets:1,17,339,376
+Glow_Fx/metal stroke_00014
+bounds:680,156,337,328
+offsets:1,47,339,376
+rotate:90
+Glow_Fx/metal stroke_00015
+bounds:1298,193,316,282
+offsets:1,93,339,376
+rotate:90
+Glow_Fx/metal stroke_00016
+bounds:1582,386,290,227
+offsets:3,148,339,376
+Glow_Fx/metal stroke_00017
+bounds:1543,20,281,171
+offsets:26,204,339,376
+Glow_Fx/metal stroke_00018
+bounds:1291,19,250,142
+offsets:68,233,339,376
+Glow_Fx/metal stroke_00019
+bounds:439,6,212,121
+offsets:110,254,339,376
+Glow_Fx/metal stroke_00020
+bounds:653,28,153,99
+offsets:170,276,339,376
+Glow_Fx/metal stroke_00021
+bounds:127,11,130,78
+offsets:193,297,339,376
+Glow_Fx/metal stroke_00022
+bounds:2,2,87,57
+offsets:236,318,339,376
+rotate:90
+Glow_Fx/metal stroke_00023
+bounds:259,45,44,30
+offsets:278,345,339,376
+rotate:90
+K
+bounds:680,495,292,343
+offsets:1,8,294,357
+metal stroke
+bounds:2,464,337,374
+offsets:1,1,339,376
+star
+bounds:938,11,142,143
+offsets:9,8,159,159

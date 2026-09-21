@@ -1,0 +1,1352 @@
+fileFormatVersion: 2
+guid: c7cd63a89b9c37f43b8f84c9bc8281df
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1528084254725921744
+    second: Trolley_Man_8_0
+  - first:
+      213: -2291652723921425431
+    second: Trolley_Man_8_1
+  - first:
+      213: 5903432574476750832
+    second: Trolley_Man_8_2
+  - first:
+      213: -6080730042799644444
+    second: Trolley_Man_8_3
+  - first:
+      213: 1012740122870340838
+    second: Trolley_Man_8_4
+  - first:
+      213: 1010881946436366191
+    second: Trolley_Man_8_5
+  - first:
+      213: 2211280347214557876
+    second: Trolley_Man_8_6
+  - first:
+      213: -3885623908381521883
+    second: Trolley_Man_8_7
+  - first:
+      213: -1185441084625475167
+    second: Trolley_Man_8_8
+  - first:
+      213: -5650388742760690697
+    second: Trolley_Man_8_9
+  - first:
+      213: 3015497796894474575
+    second: Trolley_Man_8_10
+  - first:
+      213: -1131380406485953304
+    second: Trolley_Man_8_11
+  - first:
+      213: 3616972792077786524
+    second: Trolley_Man_8_12
+  - first:
+      213: -8370076010887553698
+    second: Trolley_Man_8_13
+  - first:
+      213: -7727189737619158606
+    second: Trolley_Man_8_14
+  - first:
+      213: 8584020056386212116
+    second: Trolley_Man_8_15
+  - first:
+      213: -6954940290035437222
+    second: Trolley_Man_8_16
+  - first:
+      213: -5933184533839637509
+    second: Trolley_Man_8_17
+  - first:
+      213: 8903035541517876867
+    second: Trolley_Man_8_18
+  - first:
+      213: 5226134247086693783
+    second: Trolley_Man_8_19
+  - first:
+      213: -816628762019623417
+    second: Trolley_Man_8_20
+  - first:
+      213: -4160971484821884584
+    second: Trolley_Man_8_21
+  - first:
+      213: -8365607781299883511
+    second: Trolley_Man_8_22
+  - first:
+      213: 2448418841748300723
+    second: Trolley_Man_8_23
+  - first:
+      213: 2724708939389008930
+    second: Trolley_Man_8_24
+  - first:
+      213: 5108717940614344627
+    second: Trolley_Man_8_25
+  - first:
+      213: -904097537616838139
+    second: Trolley_Man_8_26
+  - first:
+      213: 2148682512039445847
+    second: Trolley_Man_8_27
+  - first:
+      213: -8147641447232574879
+    second: Trolley_Man_8_28
+  - first:
+      213: 4027870978668892392
+    second: Trolley_Man_8_29
+  - first:
+      213: 5283887791706979653
+    second: Trolley_Man_8_30
+  - first:
+      213: 9072638309232623738
+    second: Trolley_Man_8_31
+  - first:
+      213: 5964646753906426132
+    second: Trolley_Man_8_32
+  - first:
+      213: 8034672843420279163
+    second: Trolley_Man_8_33
+  - first:
+      213: -3445897732379037284
+    second: Trolley_Man_8_34
+  - first:
+      213: 5731908364212982678
+    second: Trolley_Man_8_35
+  - first:
+      213: 2682924800280919629
+    second: Trolley_Man_8_36
+  - first:
+      213: 3489198397329668679
+    second: Trolley_Man_8_37
+  - first:
+      213: 8400640053395570411
+    second: Trolley_Man_8_38
+  - first:
+      213: -6278086984366472591
+    second: Trolley_Man_8_39
+  - first:
+      213: -4921104457515491812
+    second: Trolley_Man_8_40
+  - first:
+      213: -7858845248353192105
+    second: Trolley_Man_8_41
+  - first:
+      213: -7978855471953510556
+    second: Trolley_Man_8_42
+  - first:
+      213: -311652965721551961
+    second: Trolley_Man_8_43
+  - first:
+      213: 9172063727362437236
+    second: Trolley_Man_8_44
+  - first:
+      213: -8326262264255515857
+    second: Trolley_Man_8_45
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Trolley_Man_8_0
+      rect:
+        serializedVersion: 2
+        x: 74
+        y: 322
+        width: 68
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 034a13a67772bcae0800000000000000
+      internalID: -1528084254725921744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_1
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 366
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9eb6b124df96230e0800000000000000
+      internalID: -2291652723921425431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_2
+      rect:
+        serializedVersion: 2
+        x: 151
+        y: 328
+        width: 131
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ff082516a43de150800000000000000
+      internalID: 5903432574476750832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_3
+      rect:
+        serializedVersion: 2
+        x: 414
+        y: 1
+        width: 404
+        height: 418
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e0a1ef3e38ec9ba0800000000000000
+      internalID: -6080730042799644444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_4
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 1
+        width: 403
+        height: 419
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ecd879a6c9fd0e00800000000000000
+      internalID: 1012740122870340838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_5
+      rect:
+        serializedVersion: 2
+        x: 136
+        y: 348
+        width: 16
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6fe13f36cf570e00800000000000000
+      internalID: 1010881946436366191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_6
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 349
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b2b68a82cb00be10800000000000000
+      internalID: 2211280347214557876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_7
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 340
+        width: 16
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 528872a64ad731ac0800000000000000
+      internalID: -3885623908381521883
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_8
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 338
+        width: 20
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a9aeb04d977c8fe0800000000000000
+      internalID: -1185441084625475167
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_9
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 330
+        width: 30
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fb02e02069c591b0800000000000000
+      internalID: -5650388742760690697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_10
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 288
+        width: 60
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f414edcf44339d920800000000000000
+      internalID: 3015497796894474575
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_11
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 329
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e4519db3878c40f0800000000000000
+      internalID: -1131380406485953304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_12
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 337
+        width: 11
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9d9c024791123230800000000000000
+      internalID: 3616972792077786524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_13
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 188
+        width: 81
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5d5704f63487db80800000000000000
+      internalID: -8370076010887553698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_14
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 298
+        width: 20
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b98a21cfd183c490800000000000000
+      internalID: -7727189737619158606
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_15
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 315
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4119abdd2c0902770800000000000000
+      internalID: 8584020056386212116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_16
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 289
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a51b262b7a61b7f90800000000000000
+      internalID: -6954940290035437222
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_17
+      rect:
+        serializedVersion: 2
+        x: 336
+        y: 284
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf395a11a1819ada0800000000000000
+      internalID: -5933184533839637509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_18
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 162
+        width: 75
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38eb9da97afed8b70800000000000000
+      internalID: 8903035541517876867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_19
+      rect:
+        serializedVersion: 2
+        x: 363
+        y: 271
+        width: 19
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79d1b129865f68840800000000000000
+      internalID: 5226134247086693783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_20
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 234
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 70e0476b770caa4f0800000000000000
+      internalID: -816628762019623417
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_21
+      rect:
+        serializedVersion: 2
+        x: 321
+        y: 222
+        width: 15
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85179a6fa724146c0800000000000000
+      internalID: -4160971484821884584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_22
+      rect:
+        serializedVersion: 2
+        x: 67
+        y: 183
+        width: 34
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9027069bb0467eb80800000000000000
+      internalID: -8365607781299883511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_23
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 206
+        width: 25
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b3e7cbd6f78af120800000000000000
+      internalID: 2448418841748300723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_24
+      rect:
+        serializedVersion: 2
+        x: 245
+        y: 218
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22cfc90285c10d520800000000000000
+      internalID: 2724708939389008930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_25
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 221
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bfabfb56efc5e640800000000000000
+      internalID: 5108717940614344627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_26
+      rect:
+        serializedVersion: 2
+        x: 253
+        y: 193
+        width: 20
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5020b0464100473f0800000000000000
+      internalID: -904097537616838139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_27
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 186
+        width: 16
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 75584394c57a1dd10800000000000000
+      internalID: 2148682512039445847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_28
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 109
+        width: 64
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16ae3749543cdee80800000000000000
+      internalID: -8147641447232574879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_29
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 152
+        width: 25
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e01aa4805fd5e730800000000000000
+      internalID: 4027870978668892392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_30
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 162
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54db7b983f3245940800000000000000
+      internalID: 5283887791706979653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_31
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 139
+        width: 42
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a70496d297c78ed70800000000000000
+      internalID: 9072638309232623738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_32
+      rect:
+        serializedVersion: 2
+        x: 242
+        y: 123
+        width: 23
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4118741ee9ea6c250800000000000000
+      internalID: 5964646753906426132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_33
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 119
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b712b8ea164e08f60800000000000000
+      internalID: 8034672843420279163
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_34
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 121
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9139310546bd20d0800000000000000
+      internalID: -3445897732379037284
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_35
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 91
+        height: 112
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 693510ec944db8f40800000000000000
+      internalID: 5731908364212982678
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_36
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 79
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4e74df14e9ab3520800000000000000
+      internalID: 2682924800280919629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_37
+      rect:
+        serializedVersion: 2
+        x: 354
+        y: 66
+        width: 45
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74a72bfa47f1c6030800000000000000
+      internalID: 3489198397329668679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_38
+      rect:
+        serializedVersion: 2
+        x: 398
+        y: 89
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: beebf8cbe91159470800000000000000
+      internalID: 8400640053395570411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_39
+      rect:
+        serializedVersion: 2
+        x: 302
+        y: 17
+        width: 102
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17245d38621cfd8a0800000000000000
+      internalID: -6278086984366472591
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_40
+      rect:
+        serializedVersion: 2
+        x: 321
+        y: 79
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1e923ba199b4bbb0800000000000000
+      internalID: -4921104457515491812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_41
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 1
+        width: 106
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 757342372e5cfe290800000000000000
+      internalID: -7858845248353192105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_42
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 25
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46f7708d839654190800000000000000
+      internalID: -7978855471953510556
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_43
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 1
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ab48f46749ccabf0800000000000000
+      internalID: -311652965721551961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_44
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 13
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 470fea64d57b94f70800000000000000
+      internalID: 9172063727362437236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Trolley_Man_8_45
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 7
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f237f48c59c237c80800000000000000
+      internalID: -8326262264255515857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Trolley_Man_8_0: -1528084254725921744
+      Trolley_Man_8_1: -2291652723921425431
+      Trolley_Man_8_10: 3015497796894474575
+      Trolley_Man_8_11: -1131380406485953304
+      Trolley_Man_8_12: 3616972792077786524
+      Trolley_Man_8_13: -8370076010887553698
+      Trolley_Man_8_14: -7727189737619158606
+      Trolley_Man_8_15: 8584020056386212116
+      Trolley_Man_8_16: -6954940290035437222
+      Trolley_Man_8_17: -5933184533839637509
+      Trolley_Man_8_18: 8903035541517876867
+      Trolley_Man_8_19: 5226134247086693783
+      Trolley_Man_8_2: 5903432574476750832
+      Trolley_Man_8_20: -816628762019623417
+      Trolley_Man_8_21: -4160971484821884584
+      Trolley_Man_8_22: -8365607781299883511
+      Trolley_Man_8_23: 2448418841748300723
+      Trolley_Man_8_24: 2724708939389008930
+      Trolley_Man_8_25: 5108717940614344627
+      Trolley_Man_8_26: -904097537616838139
+      Trolley_Man_8_27: 2148682512039445847
+      Trolley_Man_8_28: -8147641447232574879
+      Trolley_Man_8_29: 4027870978668892392
+      Trolley_Man_8_3: -6080730042799644444
+      Trolley_Man_8_30: 5283887791706979653
+      Trolley_Man_8_31: 9072638309232623738
+      Trolley_Man_8_32: 5964646753906426132
+      Trolley_Man_8_33: 8034672843420279163
+      Trolley_Man_8_34: -3445897732379037284
+      Trolley_Man_8_35: 5731908364212982678
+      Trolley_Man_8_36: 2682924800280919629
+      Trolley_Man_8_37: 3489198397329668679
+      Trolley_Man_8_38: 8400640053395570411
+      Trolley_Man_8_39: -6278086984366472591
+      Trolley_Man_8_4: 1012740122870340838
+      Trolley_Man_8_40: -4921104457515491812
+      Trolley_Man_8_41: -7858845248353192105
+      Trolley_Man_8_42: -7978855471953510556
+      Trolley_Man_8_43: -311652965721551961
+      Trolley_Man_8_44: 9172063727362437236
+      Trolley_Man_8_45: -8326262264255515857
+      Trolley_Man_8_5: 1010881946436366191
+      Trolley_Man_8_6: 2211280347214557876
+      Trolley_Man_8_7: -3885623908381521883
+      Trolley_Man_8_8: -1185441084625475167
+      Trolley_Man_8_9: -5650388742760690697
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

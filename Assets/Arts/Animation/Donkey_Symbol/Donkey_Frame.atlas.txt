@@ -1,0 +1,43 @@
+Donkey_Frame.png
+size:1525,305
+filter:Linear,Linear
+pma:true
+L_ear
+bounds:1470,19,53,101
+L_eyebrow
+bounds:1484,212,28,22
+R_ear
+bounds:1257,176,75,127
+R_eyebrow
+bounds:1484,264,39,39
+offsets:0,0,39,48
+bell
+bounds:1484,236,26,35
+offsets:1,1,28,37
+rotate:90
+bg
+bounds:743,21,355,282
+offsets:1,1,357,284
+body
+bounds:1370,122,181,112
+offsets:0,0,182,112
+rotate:90
+face
+bounds:1100,104,155,199
+offsets:1,2,165,223
+glow_new
+bounds:1370,22,98,98
+offsets:1,1,100,103
+hairs
+bounds:1257,111,109,63
+lower frame
+bounds:2,2,368,301
+offsets:1,1,370,303
+lower jaw
+bounds:1100,13,133,89
+offsets:12,0,145,89
+upper fframe
+bounds:372,6,369,297
+offsets:1,16,371,314
+upper jaw
+bounds:1235,14,133,88

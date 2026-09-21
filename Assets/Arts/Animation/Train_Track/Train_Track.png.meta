@@ -1,0 +1,1690 @@
+fileFormatVersion: 2
+guid: d3d4b96d76cd9544082122b9d8a68d7f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4194037591279186914
+    second: Train_Track_0
+  - first:
+      213: -4832308017161378072
+    second: Train_Track_1
+  - first:
+      213: 3602793993120877153
+    second: Train_Track_2
+  - first:
+      213: 5174713887790241432
+    second: Train_Track_3
+  - first:
+      213: 2709589035741476410
+    second: Train_Track_4
+  - first:
+      213: 1050761695989574140
+    second: Train_Track_5
+  - first:
+      213: -3392492206467723841
+    second: Train_Track_6
+  - first:
+      213: -2390438490630134234
+    second: Train_Track_7
+  - first:
+      213: -1207835032813950495
+    second: Train_Track_8
+  - first:
+      213: 2404014298319258816
+    second: Train_Track_9
+  - first:
+      213: 4885000496618050507
+    second: Train_Track_10
+  - first:
+      213: -533785893130254819
+    second: Train_Track_11
+  - first:
+      213: 8711052954922399910
+    second: Train_Track_12
+  - first:
+      213: -6570664081074310028
+    second: Train_Track_13
+  - first:
+      213: -8854434720415391903
+    second: Train_Track_14
+  - first:
+      213: -4040930034321104218
+    second: Train_Track_15
+  - first:
+      213: 4048178483888335268
+    second: Train_Track_16
+  - first:
+      213: -2021702653725774223
+    second: Train_Track_17
+  - first:
+      213: -2765093174932177899
+    second: Train_Track_18
+  - first:
+      213: 5968728733504716963
+    second: Train_Track_19
+  - first:
+      213: -1130902266965705435
+    second: Train_Track_20
+  - first:
+      213: 3294238913016473547
+    second: Train_Track_21
+  - first:
+      213: -6319272727092670654
+    second: Train_Track_22
+  - first:
+      213: -4387414820902086200
+    second: Train_Track_23
+  - first:
+      213: 6117473102295222654
+    second: Train_Track_24
+  - first:
+      213: -7873449155324916558
+    second: Train_Track_25
+  - first:
+      213: 2234121189611164634
+    second: Train_Track_26
+  - first:
+      213: -187982388909381230
+    second: Train_Track_27
+  - first:
+      213: -2280270832143312831
+    second: Train_Track_28
+  - first:
+      213: -1221257573667956651
+    second: Train_Track_29
+  - first:
+      213: -4276041006811165668
+    second: Train_Track_30
+  - first:
+      213: -4244695869038421105
+    second: Train_Track_31
+  - first:
+      213: -8745161072371878988
+    second: Train_Track_32
+  - first:
+      213: 8843486025870572377
+    second: Train_Track_33
+  - first:
+      213: -695163742577933704
+    second: Train_Track_34
+  - first:
+      213: -87137123241111854
+    second: Train_Track_35
+  - first:
+      213: 7223007632663246395
+    second: Train_Track_36
+  - first:
+      213: 8160717124591896722
+    second: Train_Track_37
+  - first:
+      213: 2758902917005426213
+    second: Train_Track_38
+  - first:
+      213: 5395933542141863950
+    second: Train_Track_39
+  - first:
+      213: -7171199332201320978
+    second: Train_Track_40
+  - first:
+      213: 7888738639839704584
+    second: Train_Track_41
+  - first:
+      213: 2506606806715462724
+    second: Train_Track_42
+  - first:
+      213: 30766224524200729
+    second: Train_Track_43
+  - first:
+      213: 3566986637190704770
+    second: Train_Track_44
+  - first:
+      213: 5892469130884568636
+    second: Train_Track_45
+  - first:
+      213: 5462116741492781118
+    second: Train_Track_46
+  - first:
+      213: 6221002305659601870
+    second: Train_Track_47
+  - first:
+      213: -5609180264073186733
+    second: Train_Track_48
+  - first:
+      213: -3493026877891546340
+    second: Train_Track_49
+  - first:
+      213: 2658110623096646913
+    second: Train_Track_50
+  - first:
+      213: -4612930521301834769
+    second: Train_Track_51
+  - first:
+      213: -6470311080846049377
+    second: Train_Track_52
+  - first:
+      213: 6517213234034222201
+    second: Train_Track_53
+  - first:
+      213: 8408121057998228133
+    second: Train_Track_54
+  - first:
+      213: -5434766326490884412
+    second: Train_Track_55
+  - first:
+      213: 6201750854260848038
+    second: Train_Track_56
+  - first:
+      213: 4469257962648821097
+    second: Train_Track_57
+  - first:
+      213: -3539239601746643455
+    second: Train_Track_58
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Train_Track_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1594
+        width: 356
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1c4b2d1809cbc5c0800000000000000
+      internalID: -4194037591279186914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_1
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 1598
+        width: 357
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e6e2d7067130fcb0800000000000000
+      internalID: -4832308017161378072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_2
+      rect:
+        serializedVersion: 2
+        x: 714
+        y: 1605
+        width: 358
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16a81ee5c02bff130800000000000000
+      internalID: 3602793993120877153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_3
+      rect:
+        serializedVersion: 2
+        x: 1072
+        y: 1740
+        width: 359
+        height: 270
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89694083dd640d740800000000000000
+      internalID: 5174713887790241432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_4
+      rect:
+        serializedVersion: 2
+        x: 1295
+        y: 1517
+        width: 355
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a36f9aa3fd46a9520800000000000000
+      internalID: 2709589035741476410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_5
+      rect:
+        serializedVersion: 2
+        x: 1650
+        y: 1517
+        width: 356
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf9ab01023e059e00800000000000000
+      internalID: 1050761695989574140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_6
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1373
+        width: 358
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbdc53aff427be0d0800000000000000
+      internalID: -3392492206467723841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_7
+      rect:
+        serializedVersion: 2
+        x: 359
+        y: 1377
+        width: 359
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 626e19c9bd473ded0800000000000000
+      internalID: -2390438490630134234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_8
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 1382
+        width: 354
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e92ad1ef68ec3fe0800000000000000
+      internalID: -1207835032813950495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_9
+      rect:
+        serializedVersion: 2
+        x: 1051
+        y: 1163
+        width: 352
+        height: 219
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c4874e6446cc5120800000000000000
+      internalID: 2404014298319258816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_10
+      rect:
+        serializedVersion: 2
+        x: 1072
+        y: 1382
+        width: 223
+        height: 355
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc39680e1120bc340800000000000000
+      internalID: 4885000496618050507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_11
+      rect:
+        serializedVersion: 2
+        x: 1403
+        y: 1163
+        width: 220
+        height: 353
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d164bddee8c9798f0800000000000000
+      internalID: -533785893130254819
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_12
+      rect:
+        serializedVersion: 2
+        x: 1623
+        y: 1297
+        width: 354
+        height: 220
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a834c56280e3e870800000000000000
+      internalID: 8711052954922399910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_13
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1152
+        width: 349
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 474b525c4df40d4a0800000000000000
+      internalID: -6570664081074310028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_14
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 1156
+        width: 350
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16f51cad88abe1580800000000000000
+      internalID: -8854434720415391903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_15
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 1160
+        width: 351
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a265162b8bbbe7c0800000000000000
+      internalID: -4040930034321104218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_16
+      rect:
+        serializedVersion: 2
+        x: 1031
+        y: 947
+        width: 346
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a92b8702e40e2830800000000000000
+      internalID: 4048178483888335268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_17
+      rect:
+        serializedVersion: 2
+        x: 1377
+        y: 949
+        width: 347
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17ee53bd52871f3e0800000000000000
+      internalID: -2021702653725774223
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_18
+      rect:
+        serializedVersion: 2
+        x: 1724
+        y: 949
+        width: 216
+        height: 348
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51c7f41586a60a9d0800000000000000
+      internalID: -2765093174932177899
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_19
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 929
+        width: 342
+        height: 211
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a04731d82f25d250800000000000000
+      internalID: 5968728733504716963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_20
+      rect:
+        serializedVersion: 2
+        x: 343
+        y: 940
+        width: 343
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52d33d5416a3e40f0800000000000000
+      internalID: -1130902266965705435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_21
+      rect:
+        serializedVersion: 2
+        x: 686
+        y: 943
+        width: 345
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc7ad9776dc77bd20800000000000000
+      internalID: 3294238913016473547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_22
+      rect:
+        serializedVersion: 2
+        x: 1015
+        y: 738
+        width: 339
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24fc3d68fee6d48a0800000000000000
+      internalID: -6319272727092670654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_23
+      rect:
+        serializedVersion: 2
+        x: 1354
+        y: 740
+        width: 340
+        height: 207
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c9d8d54775cc13c0800000000000000
+      internalID: -4387414820902086200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_24
+      rect:
+        serializedVersion: 2
+        x: 1694
+        y: 740
+        width: 341
+        height: 209
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e794051ff51a5e450800000000000000
+      internalID: 6117473102295222654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_25
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 719
+        width: 337
+        height: 202
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bc42c365b3ebb290800000000000000
+      internalID: -7873449155324916558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_26
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 726
+        width: 338
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad352f39261310f10800000000000000
+      internalID: 2234121189611164634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_27
+      rect:
+        serializedVersion: 2
+        x: 676
+        y: 735
+        width: 339
+        height: 205
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 299e6056307246df0800000000000000
+      internalID: -187982388909381230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_28
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 538
+        width: 335
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 148d96272c9da50e0800000000000000
+      internalID: -2280270832143312831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_29
+      rect:
+        serializedVersion: 2
+        x: 1335
+        y: 540
+        width: 336
+        height: 198
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 558144e05b83d0fe0800000000000000
+      internalID: -1221257573667956651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_30
+      rect:
+        serializedVersion: 2
+        x: 1671
+        y: 540
+        width: 336
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1c44081c5378a4c0800000000000000
+      internalID: -4276041006811165668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_31
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 520
+        width: 332
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8b9562b89fc715c0800000000000000
+      internalID: -4244695869038421105
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_32
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 526
+        width: 333
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b333b9a652f2a680800000000000000
+      internalID: -8745161072371878988
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_33
+      rect:
+        serializedVersion: 2
+        x: 666
+        y: 530
+        width: 334
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95b752c8faf5aba70800000000000000
+      internalID: 8843486025870572377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_34
+      rect:
+        serializedVersion: 2
+        x: 985
+        y: 344
+        width: 330
+        height: 186
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87249ee52484a56f0800000000000000
+      internalID: -695163742577933704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_35
+      rect:
+        serializedVersion: 2
+        x: 1315
+        y: 348
+        width: 331
+        height: 190
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dec6728f3d6acef0800000000000000
+      internalID: -87137123241111854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_36
+      rect:
+        serializedVersion: 2
+        x: 1646
+        y: 348
+        width: 332
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b36f3da3c274d3460800000000000000
+      internalID: 7223007632663246395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_37
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 290
+        width: 327
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2984fbbccf0b04170800000000000000
+      internalID: 8160717124591896722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_38
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 337
+        width: 328
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52eb5e1f597994620800000000000000
+      internalID: 2758902917005426213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_39
+      rect:
+        serializedVersion: 2
+        x: 656
+        y: 341
+        width: 329
+        height: 185
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e082bfab7f432ea40800000000000000
+      internalID: 5395933542141863950
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_40
+      rect:
+        serializedVersion: 2
+        x: 970
+        y: 165
+        width: 325
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eed2f96b338ca7c90800000000000000
+      internalID: -7171199332201320978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_41
+      rect:
+        serializedVersion: 2
+        x: 1295
+        y: 168
+        width: 325
+        height: 176
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8063b812ffd6a7d60800000000000000
+      internalID: 7888738639839704584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_42
+      rect:
+        serializedVersion: 2
+        x: 1620
+        y: 169
+        width: 326
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 444f9d13c9149c220800000000000000
+      internalID: 2506606806715462724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_43
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 59
+        width: 322
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91b48dbd7bd4d6000800000000000000
+      internalID: 30766224524200729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_44
+      rect:
+        serializedVersion: 2
+        x: 323
+        y: 120
+        width: 323
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28e2154a27b708130800000000000000
+      internalID: 3566986637190704770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_45
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 164
+        width: 324
+        height: 173
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c365454747146c150800000000000000
+      internalID: 5892469130884568636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_46
+      rect:
+        serializedVersion: 2
+        x: 706
+        y: 1
+        width: 317
+        height: 163
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e303462ac365dcb40800000000000000
+      internalID: 5462116741492781118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_47
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 1
+        width: 318
+        height: 164
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec30abff2a0755650800000000000000
+      internalID: 6221002305659601870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_48
+      rect:
+        serializedVersion: 2
+        x: 1341
+        y: 1
+        width: 319
+        height: 167
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35239ceb4403822b0800000000000000
+      internalID: -5609180264073186733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_49
+      rect:
+        serializedVersion: 2
+        x: 1660
+        y: 1
+        width: 321
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c13f168bf86468fc0800000000000000
+      internalID: -3493026877891546340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_50
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 17
+        width: 26
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10d2e57478183e420800000000000000
+      internalID: 2658110623096646913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_51
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 1
+        width: 26
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fe32f3891249bffb0800000000000000
+      internalID: -4612930521301834769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_52
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 3
+        width: 27
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9fb5e76a56d436a0800000000000000
+      internalID: -6470311080846049377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_53
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 1
+        width: 103
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 974a51c18eac17a50800000000000000
+      internalID: 6517213234034222201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_54
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 1
+        width: 185
+        height: 101
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5aa477add85afa470800000000000000
+      internalID: 8408121057998228133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_55
+      rect:
+        serializedVersion: 2
+        x: 549
+        y: 1
+        width: 157
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c6914812d4d394b0800000000000000
+      internalID: -5434766326490884412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_56
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 3
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a571bd2b8b011650800000000000000
+      internalID: 6201750854260848038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_57
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 1
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96dd449107ef50e30800000000000000
+      internalID: 4469257962648821097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Train_Track_58
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 1
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10675ea755812eec0800000000000000
+      internalID: -3539239601746643455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Train_Track_0: -4194037591279186914
+      Train_Track_1: -4832308017161378072
+      Train_Track_10: 4885000496618050507
+      Train_Track_11: -533785893130254819
+      Train_Track_12: 8711052954922399910
+      Train_Track_13: -6570664081074310028
+      Train_Track_14: -8854434720415391903
+      Train_Track_15: -4040930034321104218
+      Train_Track_16: 4048178483888335268
+      Train_Track_17: -2021702653725774223
+      Train_Track_18: -2765093174932177899
+      Train_Track_19: 5968728733504716963
+      Train_Track_2: 3602793993120877153
+      Train_Track_20: -1130902266965705435
+      Train_Track_21: 3294238913016473547
+      Train_Track_22: -6319272727092670654
+      Train_Track_23: -4387414820902086200
+      Train_Track_24: 6117473102295222654
+      Train_Track_25: -7873449155324916558
+      Train_Track_26: 2234121189611164634
+      Train_Track_27: -187982388909381230
+      Train_Track_28: -2280270832143312831
+      Train_Track_29: -1221257573667956651
+      Train_Track_3: 5174713887790241432
+      Train_Track_30: -4276041006811165668
+      Train_Track_31: -4244695869038421105
+      Train_Track_32: -8745161072371878988
+      Train_Track_33: 8843486025870572377
+      Train_Track_34: -695163742577933704
+      Train_Track_35: -87137123241111854
+      Train_Track_36: 7223007632663246395
+      Train_Track_37: 8160717124591896722
+      Train_Track_38: 2758902917005426213
+      Train_Track_39: 5395933542141863950
+      Train_Track_4: 2709589035741476410
+      Train_Track_40: -7171199332201320978
+      Train_Track_41: 7888738639839704584
+      Train_Track_42: 2506606806715462724
+      Train_Track_43: 30766224524200729
+      Train_Track_44: 3566986637190704770
+      Train_Track_45: 5892469130884568636
+      Train_Track_46: 5462116741492781118
+      Train_Track_47: 6221002305659601870
+      Train_Track_48: -5609180264073186733
+      Train_Track_49: -3493026877891546340
+      Train_Track_5: 1050761695989574140
+      Train_Track_50: 2658110623096646913
+      Train_Track_51: -4612930521301834769
+      Train_Track_52: -6470311080846049377
+      Train_Track_53: 6517213234034222201
+      Train_Track_54: 8408121057998228133
+      Train_Track_55: -5434766326490884412
+      Train_Track_56: 6201750854260848038
+      Train_Track_57: 4469257962648821097
+      Train_Track_58: -3539239601746643455
+      Train_Track_6: -3392492206467723841
+      Train_Track_7: -2390438490630134234
+      Train_Track_8: -1207835032813950495
+      Train_Track_9: 2404014298319258816
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

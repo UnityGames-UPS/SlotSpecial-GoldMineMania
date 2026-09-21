@@ -1,0 +1,702 @@
+fileFormatVersion: 2
+guid: cf0d13cfedc04384493850e293af59be
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1498735017976769781
+    second: Donkey_0
+  - first:
+      213: -3724691099150163213
+    second: Donkey_1
+  - first:
+      213: 2089036941770472852
+    second: Donkey_2
+  - first:
+      213: -4134142905143432322
+    second: Donkey_3
+  - first:
+      213: -3144000653958925602
+    second: Donkey_4
+  - first:
+      213: -5181606860114428749
+    second: Donkey_5
+  - first:
+      213: -5979805318536366312
+    second: Donkey_6
+  - first:
+      213: -8451436617103280900
+    second: Donkey_7
+  - first:
+      213: 498250079559916281
+    second: Donkey_8
+  - first:
+      213: 2083968164785450698
+    second: Donkey_9
+  - first:
+      213: 7837366461363677796
+    second: Donkey_10
+  - first:
+      213: -6719760925273914923
+    second: Donkey_11
+  - first:
+      213: -9121262900431378596
+    second: Donkey_12
+  - first:
+      213: 4498571802599990710
+    second: Donkey_13
+  - first:
+      213: -8462800063019128697
+    second: Donkey_14
+  - first:
+      213: 4674006586495889055
+    second: Donkey_15
+  - first:
+      213: -6523136272145723734
+    second: Donkey_16
+  - first:
+      213: 5091062418158038848
+    second: Donkey_17
+  - first:
+      213: 707113195969532043
+    second: Donkey_18
+  - first:
+      213: 8663901809138841263
+    second: Donkey_19
+  - first:
+      213: 527419790033215537
+    second: Donkey_20
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Donkey_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 437
+        height: 438
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fca1f6ee839cc410800000000000000
+      internalID: 1498735017976769781
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_1
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 228
+        width: 119
+        height: 197
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f26819fd2d3f4cc0800000000000000
+      internalID: -3724691099150163213
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_2
+      rect:
+        serializedVersion: 2
+        x: 558
+        y: 227
+        width: 83
+        height: 199
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 49db5e4c700cdfc10800000000000000
+      internalID: 2089036941770472852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_3
+      rect:
+        serializedVersion: 2
+        x: 641
+        y: 219
+        width: 90
+        height: 193
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7b69307ee290a6c0800000000000000
+      internalID: -4134142905143432322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_4
+      rect:
+        serializedVersion: 2
+        x: 731
+        y: 210
+        width: 72
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed2be2710144e54d0800000000000000
+      internalID: -3144000653958925602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_5
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 322
+        width: 20
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bcf629930c3718b0800000000000000
+      internalID: -5181606860114428749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_6
+      rect:
+        serializedVersion: 2
+        x: 803
+        y: 353
+        width: 159
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 817f5a2ceb6730da0800000000000000
+      internalID: -5979805318536366312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_7
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 336
+        width: 128
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf474d3ac2776ba80800000000000000
+      internalID: -8451436617103280900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_8
+      rect:
+        serializedVersion: 2
+        x: 420
+        y: 306
+        width: 18
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9fa9a79bec32ae600800000000000000
+      internalID: 498250079559916281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_9
+      rect:
+        serializedVersion: 2
+        x: 803
+        y: 178
+        width: 75
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ace6249210ebbec10800000000000000
+      internalID: 2083968164785450698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_10
+      rect:
+        serializedVersion: 2
+        x: 879
+        y: 170
+        width: 87
+        height: 166
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46a6420c54be3cc60800000000000000
+      internalID: 7837366461363677796
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_11
+      rect:
+        serializedVersion: 2
+        x: 417
+        y: 244
+        width: 21
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d18f719a0d9eb2a0800000000000000
+      internalID: -6719760925273914923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_12
+      rect:
+        serializedVersion: 2
+        x: 967
+        y: 206
+        width: 134
+        height: 69
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c57a6d4f7b3ca6180800000000000000
+      internalID: -9121262900431378596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_13
+      rect:
+        serializedVersion: 2
+        x: 438
+        y: 1
+        width: 192
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b5af8258332e6e30800000000000000
+      internalID: 4498571802599990710
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_14
+      rect:
+        serializedVersion: 2
+        x: 630
+        y: 196
+        width: 34
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78867963e281e8a80800000000000000
+      internalID: -8462800063019128697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_15
+      rect:
+        serializedVersion: 2
+        x: 630
+        y: 2
+        width: 86
+        height: 194
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9e6ce9f9386dd040800000000000000
+      internalID: 4674006586495889055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_16
+      rect:
+        serializedVersion: 2
+        x: 717
+        y: 178
+        width: 43
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aaec94d1f1a2975a0800000000000000
+      internalID: -6523136272145723734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_17
+      rect:
+        serializedVersion: 2
+        x: 967
+        y: 122
+        width: 142
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04fa6a3bb4617a640800000000000000
+      internalID: 5091062418158038848
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_18
+      rect:
+        serializedVersion: 2
+        x: 718
+        y: 2
+        width: 117
+        height: 175
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8051cd84bb20d900800000000000000
+      internalID: 707113195969532043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_19
+      rect:
+        serializedVersion: 2
+        x: 836
+        y: 2
+        width: 98
+        height: 167
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa6b596cacc5c3870800000000000000
+      internalID: 8663901809138841263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Donkey_20
+      rect:
+        serializedVersion: 2
+        x: 966
+        y: 1
+        width: 149
+        height: 120
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 130e0703185c15700800000000000000
+      internalID: 527419790033215537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Donkey_0: 1498735017976769781
+      Donkey_1: -3724691099150163213
+      Donkey_10: 7837366461363677796
+      Donkey_11: -6719760925273914923
+      Donkey_12: -9121262900431378596
+      Donkey_13: 4498571802599990710
+      Donkey_14: -8462800063019128697
+      Donkey_15: 4674006586495889055
+      Donkey_16: -6523136272145723734
+      Donkey_17: 5091062418158038848
+      Donkey_18: 707113195969532043
+      Donkey_19: 8663901809138841263
+      Donkey_2: 2089036941770472852
+      Donkey_20: 527419790033215537
+      Donkey_3: -4134142905143432322
+      Donkey_4: -3144000653958925602
+      Donkey_5: -5181606860114428749
+      Donkey_6: -5979805318536366312
+      Donkey_7: -8451436617103280900
+      Donkey_8: 498250079559916281
+      Donkey_9: 2083968164785450698
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

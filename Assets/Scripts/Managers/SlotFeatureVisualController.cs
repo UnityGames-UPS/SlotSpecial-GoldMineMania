@@ -4,14 +4,19 @@ using UnityEngine;
 
 /// <summary>
 /// Owns feature visuals that sit on top of the reel presentation.
-/// Currently this handles the reusable 2x1 and 3x1 barrel visuals.
+/// Handles reusable 2x1 and 3x1 barrels and pooled train visuals.
 /// </summary>
 public class SlotFeatureVisualController : MonoBehaviour
 {
     private const int ReelCount = 5;
     private const int RowCount = 3;
+    private const int MaxGreenTrains = 2;
+    private const int MaxRedTrains = 1;
+    private const int MaxHorizontalPurpleTrains = 1;
+    private const int MaxVerticalPurpleTrains = 2;
+    private const int MaxGoldenTrains = 1;
 
-    [Header("Barrel References")]
+    [Header("Feature References")]
     [SerializeField] private RectTransform animationRoot;
     [SerializeField] private RectTransform twoSlotBarrelRoot;
     [SerializeField] private RectTransform threeSlotBarrelRoot;
@@ -24,6 +29,30 @@ public class SlotFeatureVisualController : MonoBehaviour
     [Header("2x1 Barrel Positions")]
     [SerializeField] private float topAndMiddleY = 110f;
     [SerializeField] private float middleAndBottomY = -110f;
+
+    [Header("Reusable Train Positions")]
+    [Tooltip("Anchored X positions for a 2x2 Green Train, indexed by its starting column.")]
+    [SerializeField] private float[] greenTrainXByStartColumn = { -390f, -119f, 153f, 428f };
+    [SerializeField] private float greenTrainTopY = 109f;
+    [SerializeField] private float greenTrainBottomY = -112f;
+
+    [Tooltip("Anchored X positions for a 2x4 Red Train, indexed by its starting column.")]
+    [SerializeField] private float[] redTrainXByStartColumn = { -116f, 154f };
+    [SerializeField] private float redTrainTopY = 105f;
+    [SerializeField] private float redTrainBottomY = -114f;
+
+    [Tooltip("Anchored X positions for a 2x3 Horizontal Purple Train, indexed by its starting column.")]
+    [SerializeField] private float[] horizontalPurpleTrainXByStartColumn = { -256f, 18f, 288f };
+    [SerializeField] private float horizontalPurpleTrainTopY = 106f;
+    [SerializeField] private float horizontalPurpleTrainBottomY = -115f;
+
+    [Tooltip("Anchored X positions for a 3x2 Vertical Purple Train, indexed by its starting column.")]
+    [SerializeField] private float[] verticalPurpleTrainXByStartColumn = { -395f, -122f, 147f, 421f };
+    [SerializeField] private float verticalPurpleTrainY;
+
+    [Tooltip("Anchored X positions for a 3x4 Golden Train, indexed by its starting column.")]
+    [SerializeField] private float[] goldenTrainXByStartColumn = { -133f, 142f };
+    [SerializeField] private float goldenTrainY;
 
     private readonly List<RectTransform> twoSlotBarrels = new List<RectTransform>();
     private readonly List<RectTransform> threeSlotBarrels = new List<RectTransform>();
@@ -100,7 +129,13 @@ public class SlotFeatureVisualController : MonoBehaviour
             if (placement == null ||
                 placement.startRow < 0 || placement.startCol < 0 ||
                 placement.startRow + placement.rowCount > RowCount ||
-                placement.startCol + placement.columnCount > ReelCount)
+                placement.startCol + placement.columnCount > ReelCount ||
+                pendingTrains.Any(existing =>
+                    existing.type == placement.type &&
+                    existing.startRow == placement.startRow &&
+                    existing.startCol == placement.startCol &&
+                    existing.rowCount == placement.rowCount &&
+                    existing.columnCount == placement.columnCount))
             {
                 continue;
             }
@@ -158,12 +193,15 @@ public class SlotFeatureVisualController : MonoBehaviour
 
     private void RevealTrain(TrainPlacement train)
     {
-        RectTransform trainVisual = FindTrainVisual(train);
         RectTransform trainRoot = GetTrainRoot(train.type);
-        if (trainVisual == null || trainRoot == null)
+        RectTransform trainVisual = GetAvailableTrainVisual(train.type);
+        if (trainVisual == null || trainRoot == null ||
+            !TryGetTrainPosition(train, out Vector2 position) ||
+            !HasCompleteAnimationGrid())
         {
             ReportConfigurationWarning(
-                $"No {train.type} train visual is available for row {train.startRow}, column {train.startCol}.");
+                $"No reusable {train.type} train visual or position is available for " +
+                $"row {train.startRow}, column {train.startCol}.");
             return;
         }
 
@@ -174,6 +212,7 @@ public class SlotFeatureVisualController : MonoBehaviour
             HideAnimationCells(reelIndex, train.startRow, train.rowCount);
         }
 
+        trainVisual.anchoredPosition = position;
         trainRoot.gameObject.SetActive(true);
         trainVisual.gameObject.SetActive(true);
         revealedTrains.Add(train);
@@ -375,6 +414,12 @@ public class SlotFeatureVisualController : MonoBehaviour
         CacheTrainVisuals(TrainVisualType.HorizontalPurple, horizontalPurpleTrainRoot);
         CacheTrainVisuals(TrainVisualType.VerticalPurple, verticalPurpleTrainRoot);
         CacheTrainVisuals(TrainVisualType.Golden, goldenTrainRoot);
+
+        ValidateTrainVisualPool(TrainVisualType.Green);
+        ValidateTrainVisualPool(TrainVisualType.Red);
+        ValidateTrainVisualPool(TrainVisualType.HorizontalPurple);
+        ValidateTrainVisualPool(TrainVisualType.VerticalPurple);
+        ValidateTrainVisualPool(TrainVisualType.Golden);
     }
 
     private void CacheTrainVisuals(TrainVisualType type, RectTransform root)
@@ -396,44 +441,111 @@ public class SlotFeatureVisualController : MonoBehaviour
         trainVisuals[type] = visuals;
     }
 
-    private RectTransform FindTrainVisual(TrainPlacement train)
+    private RectTransform GetAvailableTrainVisual(TrainVisualType type)
     {
-        if (!trainVisuals.TryGetValue(train.type, out List<RectTransform> visuals) ||
-            visuals.Count == 0 || animationColumns.Count != ReelCount)
+        if (!trainVisuals.TryGetValue(type, out List<RectTransform> visuals))
         {
             return null;
         }
 
-        float targetX = 0f;
-        for (int column = train.startCol;
-             column < train.startCol + train.columnCount;
-             column++)
+        int reusableCount = Mathf.Min(GetMaximumVisibleTrainCount(type), visuals.Count);
+        for (int index = 0; index < reusableCount; index++)
         {
-            targetX += animationColumns[column].anchoredPosition.x;
-        }
-        targetX /= train.columnCount;
-
-        float targetY = train.rowCount == RowCount
-            ? 0f
-            : train.startRow == 0 ? topAndMiddleY : middleAndBottomY;
-        Vector2 targetPosition = new Vector2(targetX, targetY);
-
-        RectTransform closestVisual = null;
-        float closestDistance = float.MaxValue;
-        RectTransform root = GetTrainRoot(train.type);
-        Vector2 rootOffset = root != null ? root.anchoredPosition : Vector2.zero;
-
-        foreach (RectTransform visual in visuals)
-        {
-            float distance = (visual.anchoredPosition + rootOffset - targetPosition).sqrMagnitude;
-            if (distance < closestDistance)
+            RectTransform visual = visuals[index];
+            if (visual != null && !visual.gameObject.activeSelf)
             {
-                closestDistance = distance;
-                closestVisual = visual;
+                return visual;
             }
         }
 
-        return closestDistance <= 60f * 60f ? closestVisual : null;
+        return null;
+    }
+
+    private bool TryGetTrainPosition(TrainPlacement train, out Vector2 position)
+    {
+        position = default;
+        float[] xPositions;
+        float y;
+
+        switch (train.type)
+        {
+            case TrainVisualType.Green:
+                if (train.rowCount != 2 || train.columnCount != 2) return false;
+                xPositions = greenTrainXByStartColumn;
+                y = train.startRow == 0 ? greenTrainTopY : greenTrainBottomY;
+                break;
+
+            case TrainVisualType.Red:
+                if (train.rowCount != 2 || train.columnCount != 4) return false;
+                xPositions = redTrainXByStartColumn;
+                y = train.startRow == 0 ? redTrainTopY : redTrainBottomY;
+                break;
+
+            case TrainVisualType.HorizontalPurple:
+                if (train.rowCount != 2 || train.columnCount != 3) return false;
+                xPositions = horizontalPurpleTrainXByStartColumn;
+                y = train.startRow == 0
+                    ? horizontalPurpleTrainTopY
+                    : horizontalPurpleTrainBottomY;
+                break;
+
+            case TrainVisualType.VerticalPurple:
+                if (train.rowCount != 3 || train.columnCount != 2 || train.startRow != 0) return false;
+                xPositions = verticalPurpleTrainXByStartColumn;
+                y = verticalPurpleTrainY;
+                break;
+
+            case TrainVisualType.Golden:
+                if (train.rowCount != 3 || train.columnCount != 4 || train.startRow != 0) return false;
+                xPositions = goldenTrainXByStartColumn;
+                y = goldenTrainY;
+                break;
+
+            default:
+                return false;
+        }
+
+        if (xPositions == null ||
+            train.startCol < 0 || train.startCol >= xPositions.Length)
+        {
+            return false;
+        }
+
+        position = new Vector2(xPositions[train.startCol], y);
+        return true;
+    }
+
+    private void ValidateTrainVisualPool(TrainVisualType type)
+    {
+        int availableCount = trainVisuals.TryGetValue(type, out List<RectTransform> visuals)
+            ? visuals.Count
+            : 0;
+        int requiredCount = GetMaximumVisibleTrainCount(type);
+        if (availableCount < requiredCount)
+        {
+            ReportConfigurationWarning(
+                $"The {type} train setup requires {requiredCount} reusable visual" +
+                $"{(requiredCount == 1 ? string.Empty : "s")}, but only {availableCount} were found.");
+        }
+    }
+
+    private static int GetMaximumVisibleTrainCount(TrainVisualType type)
+    {
+        switch (type)
+        {
+            case TrainVisualType.Green:
+                return MaxGreenTrains;
+            case TrainVisualType.Red:
+                return MaxRedTrains;
+            case TrainVisualType.HorizontalPurple:
+                return MaxHorizontalPurpleTrains;
+            case TrainVisualType.VerticalPurple:
+                return MaxVerticalPurpleTrains;
+            case TrainVisualType.Golden:
+                return MaxGoldenTrains;
+            default:
+                return 0;
+        }
     }
 
     private RectTransform GetTrainRoot(TrainVisualType type)
