@@ -1,0 +1,1222 @@
+fileFormatVersion: 2
+guid: 132614c9f75558c468020836a379f462
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4475128904726039817
+    second: D_Y_barrel blast_0
+  - first:
+      213: 4593300438970911732
+    second: D_Y_barrel blast_1
+  - first:
+      213: 7132546457084313524
+    second: D_Y_barrel blast_2
+  - first:
+      213: 5339387443287843007
+    second: D_Y_barrel blast_3
+  - first:
+      213: 6360456325602586964
+    second: D_Y_barrel blast_4
+  - first:
+      213: -5488688715060872779
+    second: D_Y_barrel blast_5
+  - first:
+      213: -5192077962626988696
+    second: D_Y_barrel blast_6
+  - first:
+      213: 1395801812870603844
+    second: D_Y_barrel blast_7
+  - first:
+      213: 4666665592845955594
+    second: D_Y_barrel blast_8
+  - first:
+      213: 2506155799206575127
+    second: D_Y_barrel blast_9
+  - first:
+      213: 5151963928162431361
+    second: D_Y_barrel blast_10
+  - first:
+      213: -9009951888292646291
+    second: D_Y_barrel blast_11
+  - first:
+      213: 7388365075214324218
+    second: D_Y_barrel blast_12
+  - first:
+      213: -8125352982105037605
+    second: D_Y_barrel blast_13
+  - first:
+      213: 5274042949794362561
+    second: D_Y_barrel blast_14
+  - first:
+      213: -1331224276462992024
+    second: D_Y_barrel blast_15
+  - first:
+      213: 3376200183708825228
+    second: D_Y_barrel blast_16
+  - first:
+      213: -3832733470854370646
+    second: D_Y_barrel blast_17
+  - first:
+      213: -7407228914285421358
+    second: D_Y_barrel blast_18
+  - first:
+      213: -4614694618732490277
+    second: D_Y_barrel blast_19
+  - first:
+      213: 317131029153526026
+    second: D_Y_barrel blast_20
+  - first:
+      213: -7612095211658448349
+    second: D_Y_barrel blast_21
+  - first:
+      213: 2400532975574125206
+    second: D_Y_barrel blast_22
+  - first:
+      213: 6156016331362965558
+    second: D_Y_barrel blast_23
+  - first:
+      213: -1544317455999809056
+    second: D_Y_barrel blast_24
+  - first:
+      213: 6770212263954796138
+    second: D_Y_barrel blast_25
+  - first:
+      213: -3146773112099426828
+    second: D_Y_barrel blast_26
+  - first:
+      213: -3165206182647016049
+    second: D_Y_barrel blast_27
+  - first:
+      213: 5155832039311240304
+    second: D_Y_barrel blast_28
+  - first:
+      213: -569132620176531376
+    second: D_Y_barrel blast_29
+  - first:
+      213: 2059253227356957171
+    second: D_Y_barrel blast_30
+  - first:
+      213: -2078922322236496259
+    second: D_Y_barrel blast_31
+  - first:
+      213: -1499880014618548866
+    second: D_Y_barrel blast_32
+  - first:
+      213: -8049206626245977051
+    second: D_Y_barrel blast_33
+  - first:
+      213: -9163144640231758709
+    second: D_Y_barrel blast_34
+  - first:
+      213: -4516212031930262977
+    second: D_Y_barrel blast_35
+  - first:
+      213: -886642797034753687
+    second: D_Y_barrel blast_36
+  - first:
+      213: 727662342877423237
+    second: D_Y_barrel blast_37
+  - first:
+      213: -9014626856780173268
+    second: D_Y_barrel blast_38
+  - first:
+      213: -4821471892374776566
+    second: D_Y_barrel blast_39
+  - first:
+      213: -3337154528155205907
+    second: D_Y_barrel blast_40
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 0
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: D_Y_barrel blast_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1296
+        width: 205
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90d4742570ada1e30800000000000000
+      internalID: 4475128904726039817
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_1
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 1315
+        width: 252
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fbc183b96eaebf30800000000000000
+      internalID: 4593300438970911732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_2
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 1302
+        width: 218
+        height: 252
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bf3b7e7635ebf260800000000000000
+      internalID: 7132546457084313524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_3
+      rect:
+        serializedVersion: 2
+        x: 755
+        y: 1300
+        width: 252
+        height: 219
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb06a532790591a40800000000000000
+      internalID: 5339387443287843007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_4
+      rect:
+        serializedVersion: 2
+        x: 1007
+        y: 1316
+        width: 218
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 451bde83451e44850800000000000000
+      internalID: 6360456325602586964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_5
+      rect:
+        serializedVersion: 2
+        x: 1225
+        y: 1359
+        width: 241
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b9f918a1b244d3b0800000000000000
+      internalID: -5488688715060872779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_6
+      rect:
+        serializedVersion: 2
+        x: 1278
+        y: 1141
+        width: 249
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8650c7f0a9802f7b0800000000000000
+      internalID: -5192077962626988696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_7
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1028
+        width: 211
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 444aff08a52ee5310800000000000000
+      internalID: 1395801812870603844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_8
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 1097
+        width: 255
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a02fe13b1a353c040800000000000000
+      internalID: 4666665592845955594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_9
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 1094
+        width: 268
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71c3e73db67a7c220800000000000000
+      internalID: 2506155799206575127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_10
+      rect:
+        serializedVersion: 2
+        x: 755
+        y: 1092
+        width: 268
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1817fb975e37f7740800000000000000
+      internalID: 5151963928162431361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_11
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 1098
+        width: 255
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d62f4fe8e7836f280800000000000000
+      internalID: -9009951888292646291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_12
+      rect:
+        serializedVersion: 2
+        x: 1027
+        y: 880
+        width: 257
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af15d0304eeb88660800000000000000
+      internalID: 7388365075214324218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_13
+      rect:
+        serializedVersion: 2
+        x: 1284
+        y: 923
+        width: 255
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd4e7f24382fc3f80800000000000000
+      internalID: -8125352982105037605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_14
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 764
+        width: 218
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c475a8ae1a213940800000000000000
+      internalID: 5274042949794362561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_15
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 885
+        width: 268
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8650c0dd29a868de0800000000000000
+      internalID: -1331224276462992024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_16
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 668
+        width: 268
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c86b290ed2caade20800000000000000
+      internalID: 3376200183708825228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_17
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 881
+        width: 268
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aaaa9f607356fcac0800000000000000
+      internalID: -3832733470854370646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_18
+      rect:
+        serializedVersion: 2
+        x: 759
+        y: 878
+        width: 268
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2dcd3023c8c343990800000000000000
+      internalID: -7407228914285421358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_19
+      rect:
+        serializedVersion: 2
+        x: 1303
+        y: 705
+        width: 268
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd11b87a1bf45ffb0800000000000000
+      internalID: -4614694618732490277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_20
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 497
+        width: 218
+        height: 267
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0133f3adfca66400800000000000000
+      internalID: 317131029153526026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_21
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 449
+        width: 266
+        height: 219
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32275a05cb76c5690800000000000000
+      internalID: -7612095211658448349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_22
+      rect:
+        serializedVersion: 2
+        x: 492
+        y: 663
+        width: 267
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69a05b0d508605120800000000000000
+      internalID: 2400532975574125206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_23
+      rect:
+        serializedVersion: 2
+        x: 759
+        y: 664
+        width: 268
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6389466cc309e6550800000000000000
+      internalID: 6156016331362965558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_24
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 446
+        width: 268
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e942b6b47b719ae0800000000000000
+      internalID: -1544317455999809056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_25
+      rect:
+        serializedVersion: 2
+        x: 1035
+        y: 662
+        width: 268
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6ec4071f20a4fd50800000000000000
+      internalID: 6770212263954796138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_26
+      rect:
+        serializedVersion: 2
+        x: 1309
+        y: 487
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fd2090e68a6454d0800000000000000
+      internalID: -3146773112099426828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_27
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 226
+        width: 225
+        height: 271
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8554723fbde214d0800000000000000
+      internalID: -3165206182647016049
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_28
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 226
+        width: 270
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07c69b84ce13d8740800000000000000
+      internalID: 5155832039311240304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_29
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 447
+        width: 270
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0506a48b5e80a18f0800000000000000
+      internalID: -569132620176531376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_30
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 226
+        width: 271
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f9203f56efe39c10800000000000000
+      internalID: 2059253227356957171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_31
+      rect:
+        serializedVersion: 2
+        x: 1038
+        y: 444
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d76a67b992f2623e0800000000000000
+      internalID: -2078922322236496259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_32
+      rect:
+        serializedVersion: 2
+        x: 1309
+        y: 269
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7524fac21b5f2be0800000000000000
+      internalID: -1499880014618548866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_33
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 277
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52c53ee48397b4090800000000000000
+      internalID: -8049206626245977051
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_34
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 1
+        width: 277
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8426758f78f5d080800000000000000
+      internalID: -9163144640231758709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_35
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 1
+        width: 274
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3a937ab5113351c0800000000000000
+      internalID: -4516212031930262977
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_36
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 226
+        width: 271
+        height: 220
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 961b510e21302b3f0800000000000000
+      internalID: -886642797034753687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_37
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 1
+        width: 274
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58623a7ab0d291a00800000000000000
+      internalID: 727662342877423237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_38
+      rect:
+        serializedVersion: 2
+        x: 1038
+        y: 226
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c20fbe2a2ac95e280800000000000000
+      internalID: -9014626856780173268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_39
+      rect:
+        serializedVersion: 2
+        x: 1103
+        y: 1
+        width: 274
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a059870fbd0b61db0800000000000000
+      internalID: -4821471892374776566
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: D_Y_barrel blast_40
+      rect:
+        serializedVersion: 2
+        x: 1377
+        y: 1
+        width: 202
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: deef8bc33ab00b1d0800000000000000
+      internalID: -3337154528155205907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      D_Y_barrel blast_0: 4475128904726039817
+      D_Y_barrel blast_1: 4593300438970911732
+      D_Y_barrel blast_10: 5151963928162431361
+      D_Y_barrel blast_11: -9009951888292646291
+      D_Y_barrel blast_12: 7388365075214324218
+      D_Y_barrel blast_13: -8125352982105037605
+      D_Y_barrel blast_14: 5274042949794362561
+      D_Y_barrel blast_15: -1331224276462992024
+      D_Y_barrel blast_16: 3376200183708825228
+      D_Y_barrel blast_17: -3832733470854370646
+      D_Y_barrel blast_18: -7407228914285421358
+      D_Y_barrel blast_19: -4614694618732490277
+      D_Y_barrel blast_2: 7132546457084313524
+      D_Y_barrel blast_20: 317131029153526026
+      D_Y_barrel blast_21: -7612095211658448349
+      D_Y_barrel blast_22: 2400532975574125206
+      D_Y_barrel blast_23: 6156016331362965558
+      D_Y_barrel blast_24: -1544317455999809056
+      D_Y_barrel blast_25: 6770212263954796138
+      D_Y_barrel blast_26: -3146773112099426828
+      D_Y_barrel blast_27: -3165206182647016049
+      D_Y_barrel blast_28: 5155832039311240304
+      D_Y_barrel blast_29: -569132620176531376
+      D_Y_barrel blast_3: 5339387443287843007
+      D_Y_barrel blast_30: 2059253227356957171
+      D_Y_barrel blast_31: -2078922322236496259
+      D_Y_barrel blast_32: -1499880014618548866
+      D_Y_barrel blast_33: -8049206626245977051
+      D_Y_barrel blast_34: -9163144640231758709
+      D_Y_barrel blast_35: -4516212031930262977
+      D_Y_barrel blast_36: -886642797034753687
+      D_Y_barrel blast_37: 727662342877423237
+      D_Y_barrel blast_38: -9014626856780173268
+      D_Y_barrel blast_39: -4821471892374776566
+      D_Y_barrel blast_4: 6360456325602586964
+      D_Y_barrel blast_40: -3337154528155205907
+      D_Y_barrel blast_5: -5488688715060872779
+      D_Y_barrel blast_6: -5192077962626988696
+      D_Y_barrel blast_7: 1395801812870603844
+      D_Y_barrel blast_8: 4666665592845955594
+      D_Y_barrel blast_9: 2506155799206575127
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

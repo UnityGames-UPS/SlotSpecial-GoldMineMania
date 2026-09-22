@@ -1,0 +1,135 @@
+Yellow barrel blast.png
+size:1581,1578
+filter:Linear,Linear
+pma:true
+Y_B_blast/2 yellow barrel blast_00000
+bounds:2,283,266,209
+offsets:3,36,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00001
+bounds:756,279,266,206
+offsets:3,35,275,275
+Y_B_blast/2 yellow barrel blast_00002
+bounds:220,482,266,210
+offsets:3,35,275,275
+Y_B_blast/2 yellow barrel blast_00003
+bounds:488,485,266,211
+offsets:3,35,275,275
+Y_B_blast/2 yellow barrel blast_00004
+bounds:497,1132,269,219
+offsets:0,27,275,275
+Y_B_blast/2 yellow barrel blast_00005
+bounds:768,915,266,216
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00006
+bounds:2,815,265,216
+offsets:3,30,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00007
+bounds:227,911,264,217
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00008
+bounds:1028,481,255,216
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00009
+bounds:213,264,253,216
+offsets:4,30,275,275
+Y_B_blast/2 yellow barrel blast_00010
+bounds:756,60,250,217
+offsets:7,30,275,275
+Y_B_blast/2 yellow barrel blast_00011
+bounds:468,25,250,216
+offsets:7,30,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00012
+bounds:1279,220,247,216
+offsets:9,30,275,275
+Y_B_blast/2 yellow barrel blast_00013
+bounds:207,46,250,216
+offsets:6,30,275,275
+Y_B_blast/2 yellow barrel blast_00014
+bounds:1285,438,253,216
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00015
+bounds:2,551,262,216
+offsets:3,30,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00016
+bounds:493,698,265,216
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00017
+bounds:1036,699,266,216
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00018
+bounds:220,694,266,215
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00019
+bounds:760,701,266,212
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00020
+bounds:2,15,266,203
+offsets:3,30,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00021
+bounds:1378,1310,266,200
+offsets:3,33,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00022
+bounds:2,1353,275,223
+offsets:0,26,275,275
+Y_B_blast/2 yellow barrel blast_00023
+bounds:279,1353,275,223
+offsets:0,26,275,275
+Y_B_blast/2 yellow barrel blast_00024
+bounds:760,487,266,212
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00025
+bounds:1304,656,266,216
+offsets:3,30,275,275
+Y_B_blast/2 yellow barrel blast_00026
+bounds:768,1133,269,218
+offsets:0,28,275,275
+Y_B_blast/2 yellow barrel blast_00027
+bounds:227,1130,268,221
+offsets:1,26,275,275
+Y_B_blast/2 yellow barrel blast_00028
+bounds:2,1082,269,223
+offsets:0,26,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00029
+bounds:556,1353,272,223
+offsets:0,26,275,275
+Y_B_blast/2 yellow barrel blast_00030
+bounds:830,1353,272,223
+offsets:0,26,275,275
+Y_B_blast/2 yellow barrel blast_00031
+bounds:1104,1353,272,223
+offsets:0,26,275,275
+Y_B_blast/2 yellow barrel blast_00032
+bounds:1226,2,239,216
+offsets:17,30,275,275
+Y_B_blast/2 yellow barrel blast_00033
+bounds:1008,15,246,216
+offsets:17,30,275,275
+rotate:90
+Y_B_blast/2 yellow barrel blast_00034
+bounds:1024,263,253,216
+offsets:15,30,275,275
+Y_B_blast/2 yellow barrel blast_00035
+bounds:1039,1135,269,216
+offsets:0,30,275,275
+Y_B_blast/2 yellow barrel blast_00036
+bounds:1310,1092,269,216
+offsets:0,30,275,275
+Y_B_blast/2 yellow barrel blast_00037
+bounds:1039,917,269,216
+offsets:0,30,275,275
+Y_B_blast/2 yellow barrel blast_00038
+bounds:1310,874,269,216
+offsets:0,30,275,275
+Y_B_blast/2 yellow barrel blast_00039
+bounds:497,916,268,214
+offsets:1,32,275,275
+Y_B_blast/2 yellow barrel blast_00040
+bounds:488,277,266,206
+offsets:3,40,275,275

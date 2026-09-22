@@ -1,0 +1,1222 @@
+fileFormatVersion: 2
+guid: aad4d5b6a7cf1df42aac3a9562ccc1fc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6087616982235393465
+    second: Yellow barrel blast_0
+  - first:
+      213: 4938117908628308729
+    second: Yellow barrel blast_1
+  - first:
+      213: -1501635889578980189
+    second: Yellow barrel blast_2
+  - first:
+      213: 1308701147364614031
+    second: Yellow barrel blast_3
+  - first:
+      213: -7593382206672266877
+    second: Yellow barrel blast_4
+  - first:
+      213: 6681646941352264462
+    second: Yellow barrel blast_5
+  - first:
+      213: 1445863862801678765
+    second: Yellow barrel blast_6
+  - first:
+      213: -1131500971213075635
+    second: Yellow barrel blast_7
+  - first:
+      213: -6836439150231558438
+    second: Yellow barrel blast_8
+  - first:
+      213: -6948694729290780234
+    second: Yellow barrel blast_9
+  - first:
+      213: -2638105391279660156
+    second: Yellow barrel blast_10
+  - first:
+      213: -2955105784928672088
+    second: Yellow barrel blast_11
+  - first:
+      213: -3902655310910074770
+    second: Yellow barrel blast_12
+  - first:
+      213: -7458379829147312672
+    second: Yellow barrel blast_13
+  - first:
+      213: 7586379991550740412
+    second: Yellow barrel blast_14
+  - first:
+      213: 5570193667750448125
+    second: Yellow barrel blast_15
+  - first:
+      213: -1786215362487709603
+    second: Yellow barrel blast_16
+  - first:
+      213: -1091498137621070534
+    second: Yellow barrel blast_17
+  - first:
+      213: -6579726583448567855
+    second: Yellow barrel blast_18
+  - first:
+      213: -6905841877325862455
+    second: Yellow barrel blast_19
+  - first:
+      213: -4707648695824665724
+    second: Yellow barrel blast_20
+  - first:
+      213: -8050322783938452992
+    second: Yellow barrel blast_21
+  - first:
+      213: -5512501541157781801
+    second: Yellow barrel blast_22
+  - first:
+      213: -8344575881525833912
+    second: Yellow barrel blast_23
+  - first:
+      213: 5428173512901726206
+    second: Yellow barrel blast_24
+  - first:
+      213: 2539723603173894608
+    second: Yellow barrel blast_25
+  - first:
+      213: 656793859575222904
+    second: Yellow barrel blast_26
+  - first:
+      213: -8622487979499272438
+    second: Yellow barrel blast_27
+  - first:
+      213: 6701336719945332041
+    second: Yellow barrel blast_28
+  - first:
+      213: -2684981362315824757
+    second: Yellow barrel blast_29
+  - first:
+      213: -6776672874147160158
+    second: Yellow barrel blast_30
+  - first:
+      213: 305485072853873528
+    second: Yellow barrel blast_31
+  - first:
+      213: -8925367845315205453
+    second: Yellow barrel blast_32
+  - first:
+      213: 8374782726283584146
+    second: Yellow barrel blast_33
+  - first:
+      213: 7627909785062771015
+    second: Yellow barrel blast_34
+  - first:
+      213: -4536013232366128067
+    second: Yellow barrel blast_35
+  - first:
+      213: 8981472190798401363
+    second: Yellow barrel blast_36
+  - first:
+      213: -7417984211137861833
+    second: Yellow barrel blast_37
+  - first:
+      213: 5511975849955705161
+    second: Yellow barrel blast_38
+  - first:
+      213: 7641917297288245610
+    second: Yellow barrel blast_39
+  - first:
+      213: 9177529640897869154
+    second: Yellow barrel blast_40
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 0
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Yellow barrel blast_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1296
+        width: 205
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7425935bb90748ba0800000000000000
+      internalID: -6087616982235393465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_1
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 1315
+        width: 252
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f209ca1318b78440800000000000000
+      internalID: 4938117908628308729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_2
+      rect:
+        serializedVersion: 2
+        x: 467
+        y: 1302
+        width: 218
+        height: 252
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3accaab4d1e192be0800000000000000
+      internalID: -1501635889578980189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_3
+      rect:
+        serializedVersion: 2
+        x: 755
+        y: 1300
+        width: 252
+        height: 219
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8f50dd72c0792210800000000000000
+      internalID: 1308701147364614031
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_4
+      rect:
+        serializedVersion: 2
+        x: 1007
+        y: 1316
+        width: 218
+        height: 248
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 389178f4d13ee9690800000000000000
+      internalID: -7593382206672266877
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_5
+      rect:
+        serializedVersion: 2
+        x: 1225
+        y: 1359
+        width: 241
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0380e50e7af9bc50800000000000000
+      internalID: 6681646941352264462
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_6
+      rect:
+        serializedVersion: 2
+        x: 1278
+        y: 1141
+        width: 249
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da14edfc58db01410800000000000000
+      internalID: 1445863862801678765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_7
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1028
+        width: 211
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4bc5d39cd91c40f0800000000000000
+      internalID: -1131500971213075635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_8
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 1097
+        width: 255
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad6efd950d61021a0800000000000000
+      internalID: -6836439150231558438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_9
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 1094
+        width: 268
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b17eff95f6419f90800000000000000
+      internalID: -6948694729290780234
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_10
+      rect:
+        serializedVersion: 2
+        x: 755
+        y: 1092
+        width: 268
+        height: 208
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 483abb8bf11936bd0800000000000000
+      internalID: -2638105391279660156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_11
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 1098
+        width: 255
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a6ef9702fa5df6d0800000000000000
+      internalID: -2955105784928672088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_12
+      rect:
+        serializedVersion: 2
+        x: 1027
+        y: 880
+        width: 257
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e60d9600cabf6d9c0800000000000000
+      internalID: -3902655310910074770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_13
+      rect:
+        serializedVersion: 2
+        x: 1284
+        y: 923
+        width: 255
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ed5cb3cf038e7890800000000000000
+      internalID: -7458379829147312672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_14
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 764
+        width: 218
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb7438f686c384960800000000000000
+      internalID: 7586379991550740412
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_15
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 885
+        width: 268
+        height: 212
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfb4560f0ad4d4d40800000000000000
+      internalID: 5570193667750448125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_16
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 668
+        width: 268
+        height: 217
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d50139277961637e0800000000000000
+      internalID: -1786215362487709603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_17
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 881
+        width: 268
+        height: 213
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3d78121a383ad0f0800000000000000
+      internalID: -1091498137621070534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_18
+      rect:
+        serializedVersion: 2
+        x: 759
+        y: 878
+        width: 268
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1df7a52888d10b4a0800000000000000
+      internalID: -6579726583448567855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_19
+      rect:
+        serializedVersion: 2
+        x: 1303
+        y: 705
+        width: 268
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c9a9fab6658920a0800000000000000
+      internalID: -6905841877325862455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_20
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 497
+        width: 218
+        height: 267
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4833a0e04721baeb0800000000000000
+      internalID: -4707648695824665724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_21
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 449
+        width: 266
+        height: 219
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0026d189412874090800000000000000
+      internalID: -8050322783938452992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_22
+      rect:
+        serializedVersion: 2
+        x: 492
+        y: 663
+        width: 267
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7de3f770e09af73b0800000000000000
+      internalID: -5512501541157781801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_23
+      rect:
+        serializedVersion: 2
+        x: 759
+        y: 664
+        width: 268
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84f4c5c727c123c80800000000000000
+      internalID: -8344575881525833912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_24
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 446
+        width: 268
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eff01bfdc0fb45b40800000000000000
+      internalID: 5428173512901726206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_25
+      rect:
+        serializedVersion: 2
+        x: 1035
+        y: 662
+        width: 268
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d9eada3929ee3320800000000000000
+      internalID: 2539723603173894608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_26
+      rect:
+        serializedVersion: 2
+        x: 1309
+        y: 487
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87293a219866d1900800000000000000
+      internalID: 656793859575222904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_27
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 226
+        width: 225
+        height: 271
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a07ced5ddd4c65880800000000000000
+      internalID: -8622487979499272438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_28
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 226
+        width: 270
+        height: 223
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9457f98dd3eeffc50800000000000000
+      internalID: 6701336719945332041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_29
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 447
+        width: 270
+        height: 216
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b81fe963da70dbad0800000000000000
+      internalID: -2684981362315824757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_30
+      rect:
+        serializedVersion: 2
+        x: 496
+        y: 226
+        width: 271
+        height: 221
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2afde61eceb64f1a0800000000000000
+      internalID: -6776672874147160158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_31
+      rect:
+        serializedVersion: 2
+        x: 1038
+        y: 444
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 873b3a32e0d4d3400800000000000000
+      internalID: 305485072853873528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_32
+      rect:
+        serializedVersion: 2
+        x: 1309
+        y: 269
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b62b4abb39b22480800000000000000
+      internalID: -8925367845315205453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_33
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 277
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 292e53f9484393470800000000000000
+      internalID: 8374782726283584146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_34
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 1
+        width: 277
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 749846df887cbd960800000000000000
+      internalID: 7627909785062771015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_35
+      rect:
+        serializedVersion: 2
+        x: 555
+        y: 1
+        width: 274
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d34785c7ff7dc01c0800000000000000
+      internalID: -4536013232366128067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_36
+      rect:
+        serializedVersion: 2
+        x: 767
+        y: 226
+        width: 271
+        height: 220
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35f86942f5994ac70800000000000000
+      internalID: 8981472190798401363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_37
+      rect:
+        serializedVersion: 2
+        x: 829
+        y: 1
+        width: 274
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 737eba189a60e0990800000000000000
+      internalID: -7417984211137861833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_38
+      rect:
+        serializedVersion: 2
+        x: 1038
+        y: 226
+        width: 271
+        height: 218
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9414423f4d87e7c40800000000000000
+      internalID: 5511975849955705161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_39
+      rect:
+        serializedVersion: 2
+        x: 1103
+        y: 1
+        width: 274
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6177c31b4b8d0a60800000000000000
+      internalID: 7641917297288245610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Yellow barrel blast_40
+      rect:
+        serializedVersion: 2
+        x: 1377
+        y: 1
+        width: 202
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 265f55175922d5f70800000000000000
+      internalID: 9177529640897869154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Yellow barrel blast_0: -6087616982235393465
+      Yellow barrel blast_1: 4938117908628308729
+      Yellow barrel blast_10: -2638105391279660156
+      Yellow barrel blast_11: -2955105784928672088
+      Yellow barrel blast_12: -3902655310910074770
+      Yellow barrel blast_13: -7458379829147312672
+      Yellow barrel blast_14: 7586379991550740412
+      Yellow barrel blast_15: 5570193667750448125
+      Yellow barrel blast_16: -1786215362487709603
+      Yellow barrel blast_17: -1091498137621070534
+      Yellow barrel blast_18: -6579726583448567855
+      Yellow barrel blast_19: -6905841877325862455
+      Yellow barrel blast_2: -1501635889578980189
+      Yellow barrel blast_20: -4707648695824665724
+      Yellow barrel blast_21: -8050322783938452992
+      Yellow barrel blast_22: -5512501541157781801
+      Yellow barrel blast_23: -8344575881525833912
+      Yellow barrel blast_24: 5428173512901726206
+      Yellow barrel blast_25: 2539723603173894608
+      Yellow barrel blast_26: 656793859575222904
+      Yellow barrel blast_27: -8622487979499272438
+      Yellow barrel blast_28: 6701336719945332041
+      Yellow barrel blast_29: -2684981362315824757
+      Yellow barrel blast_3: 1308701147364614031
+      Yellow barrel blast_30: -6776672874147160158
+      Yellow barrel blast_31: 305485072853873528
+      Yellow barrel blast_32: -8925367845315205453
+      Yellow barrel blast_33: 8374782726283584146
+      Yellow barrel blast_34: 7627909785062771015
+      Yellow barrel blast_35: -4536013232366128067
+      Yellow barrel blast_36: 8981472190798401363
+      Yellow barrel blast_37: -7417984211137861833
+      Yellow barrel blast_38: 5511975849955705161
+      Yellow barrel blast_39: 7641917297288245610
+      Yellow barrel blast_4: -7593382206672266877
+      Yellow barrel blast_40: 9177529640897869154
+      Yellow barrel blast_5: 6681646941352264462
+      Yellow barrel blast_6: 1445863862801678765
+      Yellow barrel blast_7: -1131500971213075635
+      Yellow barrel blast_8: -6836439150231558438
+      Yellow barrel blast_9: -6948694729290780234
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

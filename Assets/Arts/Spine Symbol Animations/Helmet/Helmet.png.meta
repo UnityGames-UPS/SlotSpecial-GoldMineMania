@@ -1,0 +1,1014 @@
+fileFormatVersion: 2
+guid: ac6443d8c6bcb98408c8de95cf009c46
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 309628545801974608
+    second: Helmet_0
+  - first:
+      213: -6492476722227787461
+    second: Helmet_1
+  - first:
+      213: -862436429288396067
+    second: Helmet_2
+  - first:
+      213: 2052024539347452602
+    second: Helmet_3
+  - first:
+      213: -761194614758592713
+    second: Helmet_4
+  - first:
+      213: 8352561086929705713
+    second: Helmet_5
+  - first:
+      213: 180330124835684876
+    second: Helmet_6
+  - first:
+      213: 8815945819817097633
+    second: Helmet_7
+  - first:
+      213: -22975815664129749
+    second: Helmet_8
+  - first:
+      213: -6656892824112025313
+    second: Helmet_9
+  - first:
+      213: 5898352447187580609
+    second: Helmet_10
+  - first:
+      213: 5287830381667880429
+    second: Helmet_11
+  - first:
+      213: 3077832946543437397
+    second: Helmet_12
+  - first:
+      213: -1286455423214519452
+    second: Helmet_13
+  - first:
+      213: 564581019204825394
+    second: Helmet_14
+  - first:
+      213: -6170126940846279571
+    second: Helmet_15
+  - first:
+      213: 3153377286252838505
+    second: Helmet_16
+  - first:
+      213: 4455002059224311632
+    second: Helmet_17
+  - first:
+      213: -2078755289069381970
+    second: Helmet_18
+  - first:
+      213: 7004199300845385598
+    second: Helmet_19
+  - first:
+      213: -3117233170348160962
+    second: Helmet_20
+  - first:
+      213: 8409213041454332008
+    second: Helmet_21
+  - first:
+      213: -245976915770997433
+    second: Helmet_22
+  - first:
+      213: -8268114522543311273
+    second: Helmet_23
+  - first:
+      213: 9151466107455141905
+    second: Helmet_24
+  - first:
+      213: -4243613096592096616
+    second: Helmet_25
+  - first:
+      213: 8919788208696170342
+    second: Helmet_26
+  - first:
+      213: 1064733174718338032
+    second: Helmet_27
+  - first:
+      213: -5293947251168665802
+    second: Helmet_28
+  - first:
+      213: -9210164531564026195
+    second: Helmet_29
+  - first:
+      213: 7972350951721877995
+    second: Helmet_30
+  - first:
+      213: -8304678041817252993
+    second: Helmet_31
+  - first:
+      213: -5545214303318638897
+    second: Helmet_32
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 0
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Helmet_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1014
+        width: 265
+        height: 235
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 053f8dc95850c4400800000000000000
+      internalID: 309628545801974608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_1
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 761
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b39ce1bd1d616e5a0800000000000000
+      internalID: -6492476722227787461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_2
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 1013
+        width: 254
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddaa8ee03a20804f0800000000000000
+      internalID: -862436429288396067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_3
+      rect:
+        serializedVersion: 2
+        x: 520
+        y: 1013
+        width: 254
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab2803a42714a7c10800000000000000
+      internalID: 2052024539347452602
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_4
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 1013
+        width: 254
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73faf56e781bf65f0800000000000000
+      internalID: -761194614758592713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_5
+      rect:
+        serializedVersion: 2
+        x: 1028
+        y: 1014
+        width: 254
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fa12370e024ae370800000000000000
+      internalID: 8352561086929705713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_6
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 761
+        width: 254
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0202290b49a08200800000000000000
+      internalID: 180330124835684876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_7
+      rect:
+        serializedVersion: 2
+        x: 1304
+        y: 1008
+        width: 254
+        height: 232
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a9b945a308885a70800000000000000
+      internalID: 8815945819817097633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_8
+      rect:
+        serializedVersion: 2
+        x: 1558
+        y: 993
+        width: 232
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b292aec0e9f5eaff0800000000000000
+      internalID: -22975815664129749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_9
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 507
+        width: 265
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f11b4f60f37fd93a0800000000000000
+      internalID: -6656892824112025313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_10
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 760
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c6fba6cc482bd150800000000000000
+      internalID: 5898352447187580609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_11
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 507
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ded05db47b5226940800000000000000
+      internalID: 5287830381667880429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_12
+      rect:
+        serializedVersion: 2
+        x: 531
+        y: 760
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55627b002c8a6ba20800000000000000
+      internalID: 3077832946543437397
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_13
+      rect:
+        serializedVersion: 2
+        x: 531
+        y: 507
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46b7ce7cb97952ee0800000000000000
+      internalID: -1286455423214519452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_14
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 760
+        width: 254
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 231b1a8127bc5d700800000000000000
+      internalID: 564581019204825394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_15
+      rect:
+        serializedVersion: 2
+        x: 796
+        y: 507
+        width: 258
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d643acfec3e4f5aa0800000000000000
+      internalID: -6170126940846279571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_16
+      rect:
+        serializedVersion: 2
+        x: 1054
+        y: 507
+        width: 232
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96eb2ed3feb03cb20800000000000000
+      internalID: 3153377286252838505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_17
+      rect:
+        serializedVersion: 2
+        x: 1304
+        y: 754
+        width: 252
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 057e2bde4c853dd30800000000000000
+      internalID: 4455002059224311632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_18
+      rect:
+        serializedVersion: 2
+        x: 1556
+        y: 739
+        width: 232
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea61e0c0417c623e0800000000000000
+      internalID: -2078755289069381970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_19
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 254
+        width: 277
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e77bdee772ae33160800000000000000
+      internalID: 7004199300845385598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_20
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 254
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e38455782fc5db4d0800000000000000
+      internalID: -3117233170348160962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_21
+      rect:
+        serializedVersion: 2
+        x: 543
+        y: 254
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 868b77015b683b470800000000000000
+      internalID: 8409213041454332008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_22
+      rect:
+        serializedVersion: 2
+        x: 808
+        y: 254
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74506806c4d169cf0800000000000000
+      internalID: -245976915770997433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_23
+      rect:
+        serializedVersion: 2
+        x: 1073
+        y: 254
+        width: 265
+        height: 246
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 756be89e5a1c14d80800000000000000
+      internalID: -8268114522543311273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_24
+      rect:
+        serializedVersion: 2
+        x: 1286
+        y: 500
+        width: 232
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 118f3ec20f9800f70800000000000000
+      internalID: 9151466107455141905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_25
+      rect:
+        serializedVersion: 2
+        x: 1518
+        y: 485
+        width: 246
+        height: 254
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 892ce6d4f58ab15c0800000000000000
+      internalID: -4243613096592096616
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_26
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 277
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6679d03ed1479cb70800000000000000
+      internalID: 8919788208696170342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_27
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 1
+        width: 266
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f319a36e21b6ce00800000000000000
+      internalID: 1064733174718338032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_28
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 1
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63f9f6a060f1886b0800000000000000
+      internalID: -5293947251168665802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_29
+      rect:
+        serializedVersion: 2
+        x: 809
+        y: 1
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da66935f72cee2080800000000000000
+      internalID: -9210164531564026195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_30
+      rect:
+        serializedVersion: 2
+        x: 1074
+        y: 1
+        width: 265
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be1412683fa73ae60800000000000000
+      internalID: 7972350951721877995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_31
+      rect:
+        serializedVersion: 2
+        x: 1339
+        y: 245
+        width: 265
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7bfe7f225bdfbc80800000000000000
+      internalID: -8304678041817252993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Helmet_32
+      rect:
+        serializedVersion: 2
+        x: 1339
+        y: 1
+        width: 265
+        height: 244
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcef64f88f07b03b0800000000000000
+      internalID: -5545214303318638897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Helmet_0: 309628545801974608
+      Helmet_1: -6492476722227787461
+      Helmet_10: 5898352447187580609
+      Helmet_11: 5287830381667880429
+      Helmet_12: 3077832946543437397
+      Helmet_13: -1286455423214519452
+      Helmet_14: 564581019204825394
+      Helmet_15: -6170126940846279571
+      Helmet_16: 3153377286252838505
+      Helmet_17: 4455002059224311632
+      Helmet_18: -2078755289069381970
+      Helmet_19: 7004199300845385598
+      Helmet_2: -862436429288396067
+      Helmet_20: -3117233170348160962
+      Helmet_21: 8409213041454332008
+      Helmet_22: -245976915770997433
+      Helmet_23: -8268114522543311273
+      Helmet_24: 9151466107455141905
+      Helmet_25: -4243613096592096616
+      Helmet_26: 8919788208696170342
+      Helmet_27: 1064733174718338032
+      Helmet_28: -5293947251168665802
+      Helmet_29: -9210164531564026195
+      Helmet_3: 2052024539347452602
+      Helmet_30: 7972350951721877995
+      Helmet_31: -8304678041817252993
+      Helmet_32: -5545214303318638897
+      Helmet_4: -761194614758592713
+      Helmet_5: 8352561086929705713
+      Helmet_6: 180330124835684876
+      Helmet_7: 8815945819817097633
+      Helmet_8: -22975815664129749
+      Helmet_9: -6656892824112025313
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
