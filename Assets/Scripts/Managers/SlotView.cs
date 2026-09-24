@@ -18,6 +18,7 @@ public class SlotView : MonoBehaviour
     private const int DefaultRowCount = 3;
     private const int FirstGoldBurstLockedSymbolId = 11;
     private const int LastGoldBurstLockedSymbolId = 13;
+    private const float TrainAnimationFramesPerSecond = 30f;
 
     [Header("References")]
     [SerializeField] private GameManager gameManager;
@@ -40,6 +41,27 @@ public class SlotView : MonoBehaviour
     [SerializeField] private Sprite spriteMegaGoldBurstScatter;        // 12
     [SerializeField] private Sprite spriteUltimateGoldBurstScatter;    // 13
     [SerializeField] private Sprite spriteGoldMineJourney;             // 14
+
+    [Header("Winning Symbol Animations")]
+    [SerializeField, Min(0.1f)] private float winSymbolLoopDuration = 2f;
+    [SerializeField] private List<Sprite> animSpritesMiner = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesDonkey = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesGoldHelmet = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesBoots = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesLantern = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesA = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesK = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesQ = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesJ = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesWild = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesFreeGameScatter = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesFreeGameTrigger = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesGoldBurstScatter = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesMegaGoldBurstScatter = new List<Sprite>();
+    [SerializeField] private List<Sprite> animSpritesUltimateGoldBurstScatter = new List<Sprite>();
+
+    [Header("Free Games Train Animation")]
+    [SerializeField, Min(0.01f)] private float trainSymbolScale = 1.3f;
 
     [Header("Reels")]
     [Tooltip("Optional. If empty, 5x3SlotHolder (or Slots) is discovered automatically.")]
@@ -78,6 +100,10 @@ public class SlotView : MonoBehaviour
     private readonly List<GoldBurstCellRuntime> goldBurstCells = new List<GoldBurstCellRuntime>();
     private readonly List<Tween> activeTweens = new List<Tween>();
     private readonly Dictionary<int, Sprite> spritesByServerId = new Dictionary<int, Sprite>();
+    private readonly Dictionary<int, List<Sprite>> winAnimationFramesByServerId =
+        new Dictionary<int, List<Sprite>>();
+    private readonly Dictionary<Image, Vector3> originalResultSlotScales =
+        new Dictionary<Image, Vector3>();
     private readonly List<int> mappedServerSymbolIds = new List<int>();
     private readonly HashSet<int> reportedUnknownSymbolIds = new HashSet<int>();
     private readonly HashSet<string> reportedResultSlotIssues = new HashSet<string>();
@@ -86,6 +112,15 @@ public class SlotView : MonoBehaviour
     private Coroutine reelStopRoutine;
     private bool isSpinning;
     private bool quickStopRequested;
+    private readonly List<WinAnimationRuntime> activeWinAnimations =
+        new List<WinAnimationRuntime>();
+    private readonly List<TrainSymbolAnimationRuntime> activeTrainAnimations =
+        new List<TrainSymbolAnimationRuntime>();
+    private int winAnimationSession;
+    private int requiredWinAnimationLoops;
+    private bool firstWinAnimationLoopReported;
+    private Action firstWinAnimationLoopCallback;
+    private Action winAnimationCompleteCallback;
 
     private sealed class ReelRuntime
     {
@@ -113,6 +148,29 @@ public class SlotView : MonoBehaviour
         internal Tween motionTween;
     }
 
+    private sealed class WinAnimationRuntime
+    {
+        internal Image baseImage;
+        internal bool baseImageWasEnabled;
+        internal RectTransform animationCell;
+        internal ImageAnimation animation;
+        internal int completedLoops;
+    }
+
+    private sealed class TrainSymbolAnimationRuntime
+    {
+        internal int reelIndex;
+        internal int row;
+        internal Image baseImage;
+        internal bool baseImageWasEnabled;
+        internal Vector3 baseImageOriginalScale;
+        internal RectTransform animationCell;
+        internal Vector3 animationCellOriginalScale;
+        internal Image animationCellImage;
+        internal bool animationCellImageWasEnabled;
+        internal ImageAnimation animation;
+    }
+
     private void Awake()
     {
         gameManager = gameManager != null ? gameManager : FindSceneComponent<GameManager>();
@@ -131,7 +189,7 @@ public class SlotView : MonoBehaviour
         }
 
         Transform featureSearchRoot = reelRoot != null ? reelRoot.parent : null;
-        featureVisualController.Initialize(featureSearchRoot);
+        featureVisualController.Initialize(featureSearchRoot, resultSlotsByReel);
         symbolInfoCard?.HideCard();
     }
 
@@ -142,6 +200,8 @@ public class SlotView : MonoBehaviour
 
     private void OnDisable()
     {
+        StopWinningSymbolAnimations();
+        StopTrainSymbolAnimations();
         StopViewCoroutines();
         KillAllTweens();
         featureVisualController?.ResetFeatures();
@@ -150,6 +210,8 @@ public class SlotView : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopWinningSymbolAnimations();
+        StopTrainSymbolAnimations();
         StopViewCoroutines();
         KillAllTweens();
     }
@@ -424,6 +486,7 @@ public class SlotView : MonoBehaviour
     private bool BuildServerSymbolMapping(List<SymbolInfo> symbols)
     {
         spritesByServerId.Clear();
+        winAnimationFramesByServerId.Clear();
         mappedServerSymbolIds.Clear();
         reportedUnknownSymbolIds.Clear();
 
@@ -455,6 +518,14 @@ public class SlotView : MonoBehaviour
 
             spritesByServerId.Add(symbol.id, sprite);
             mappedServerSymbolIds.Add(symbol.id);
+
+            if (TryResolveNamedWinAnimation(
+                    NormalizeSymbolName(symbol.name),
+                    out List<Sprite> animationFrames) &&
+                animationFrames != null && animationFrames.Count > 0)
+            {
+                winAnimationFramesByServerId[symbol.id] = animationFrames;
+            }
         }
 
         if (complete)
@@ -495,6 +566,43 @@ public class SlotView : MonoBehaviour
             case "ultimategoldburstscatter":
             case "ultimategoldburst": sprite = spriteUltimateGoldBurstScatter; break;
             case "goldminejourney": sprite = spriteGoldMineJourney; break;
+            default: return false;
+        }
+
+        return true;
+    }
+
+    private bool TryResolveNamedWinAnimation(
+        string normalizedName,
+        out List<Sprite> animationFrames)
+    {
+        animationFrames = null;
+        switch (normalizedName)
+        {
+            case "miner": animationFrames = animSpritesMiner; break;
+            case "donkey": animationFrames = animSpritesDonkey; break;
+            case "goldhelmet":
+            case "helmet": animationFrames = animSpritesGoldHelmet; break;
+            case "boots":
+            case "boot": animationFrames = animSpritesBoots; break;
+            case "lantern": animationFrames = animSpritesLantern; break;
+            case "a":
+            case "ace": animationFrames = animSpritesA; break;
+            case "k":
+            case "king": animationFrames = animSpritesK; break;
+            case "q":
+            case "queen": animationFrames = animSpritesQ; break;
+            case "j":
+            case "jack": animationFrames = animSpritesJ; break;
+            case "wild": animationFrames = animSpritesWild; break;
+            case "freegamescatter":
+            case "freegame": animationFrames = animSpritesFreeGameScatter; break;
+            case "goldburstscatter":
+            case "goldburst": animationFrames = animSpritesGoldBurstScatter; break;
+            case "megagoldburstscatter":
+            case "megagoldburst": animationFrames = animSpritesMegaGoldBurstScatter; break;
+            case "ultimategoldburstscatter":
+            case "ultimategoldburst": animationFrames = animSpritesUltimateGoldBurstScatter; break;
             default: return false;
         }
 
@@ -561,14 +669,366 @@ public class SlotView : MonoBehaviour
         featureVisualController?.PrepareTrains(placements);
     }
 
+    internal void ShowWinningSymbolAnimations(
+        IReadOnlyList<WinLine> winLines,
+        int requiredLoops,
+        Action onFirstLoopComplete,
+        Action onRequiredLoopsComplete)
+    {
+        StopWinningSymbolAnimations();
+        EnsureConfiguration();
+
+        requiredWinAnimationLoops = Mathf.Max(0, requiredLoops);
+        firstWinAnimationLoopCallback = onFirstLoopComplete;
+        winAnimationCompleteCallback = onRequiredLoopsComplete;
+        int session = winAnimationSession;
+
+        var winningPositions = new HashSet<int>();
+        if (winLines != null)
+        {
+            foreach (WinLine winLine in winLines)
+            {
+                if (winLine?.positions == null) continue;
+                foreach (int position in winLine.positions)
+                {
+                    winningPositions.Add(position);
+                }
+            }
+        }
+
+        foreach (int flatPosition in winningPositions)
+        {
+            int row = flatPosition / DefaultReelCount;
+            int reelIndex = flatPosition % DefaultReelCount;
+            if (flatPosition < 0 ||
+                reelIndex < 0 || reelIndex >= DefaultReelCount ||
+                row < 0 || row >= DefaultRowCount ||
+                currentDisplayMatrix == null ||
+                reelIndex >= currentDisplayMatrix.Count ||
+                currentDisplayMatrix[reelIndex] == null ||
+                row >= currentDisplayMatrix[reelIndex].Count)
+            {
+                continue;
+            }
+
+            int symbolId = currentDisplayMatrix[reelIndex][row];
+            if (symbolId == GetFreeGameScatterId()) continue;
+
+            if (!winAnimationFramesByServerId.TryGetValue(
+                    symbolId,
+                    out List<Sprite> animationFrames) ||
+                animationFrames == null || animationFrames.Count == 0)
+            {
+                continue;
+            }
+
+            Image baseImage = GetResultSlotImage(reelIndex, row);
+            if (baseImage == null ||
+                featureVisualController == null ||
+                !featureVisualController.TryAcquireWinAnimationCell(
+                    reelIndex,
+                    row,
+                    out RectTransform animationCell))
+            {
+                continue;
+            }
+
+            Image slotAnimationImage = animationCell.GetComponent<Image>();
+            if (slotAnimationImage == null)
+            {
+                featureVisualController.ReleaseWinAnimationCell(animationCell);
+                continue;
+            }
+
+            ImageAnimation animation = animationCell.GetComponent<ImageAnimation>();
+            if (animation == null)
+            {
+                animation = animationCell.gameObject.AddComponent<ImageAnimation>();
+            }
+
+            animation.StopAnimation();
+            animation.textureArray = animationFrames;
+            animation.rendererDelegate = slotAnimationImage;
+            animation.doLoopAnimation = true;
+            animation.delayBetweenLoop = 0f;
+            animation.SetLoopDuration(winSymbolLoopDuration);
+
+            if (animation.rendererDelegate != null)
+            {
+                Color animationColor = animation.rendererDelegate.color;
+                animation.rendererDelegate.color = new Color(
+                    animationColor.r,
+                    animationColor.g,
+                    animationColor.b,
+                    1f);
+                animation.rendererDelegate.enabled = true;
+            }
+
+            var runtime = new WinAnimationRuntime
+            {
+                baseImage = baseImage,
+                baseImageWasEnabled = baseImage.enabled,
+                animationCell = animationCell,
+                animation = animation
+            };
+            activeWinAnimations.Add(runtime);
+            baseImage.enabled = false;
+
+            animation.onLoopComplete = loopCount =>
+                HandleWinAnimationLoop(session, runtime, loopCount);
+        }
+
+        if (activeWinAnimations.Count == 0)
+        {
+            CompleteUnavailableWinAnimation();
+            return;
+        }
+
+        foreach (WinAnimationRuntime runtime in activeWinAnimations)
+        {
+            runtime.animation.StartAnimation();
+        }
+    }
+
+    internal void StopWinningSymbolAnimations()
+    {
+        winAnimationSession++;
+
+        foreach (WinAnimationRuntime runtime in activeWinAnimations)
+        {
+            if (runtime.animation != null)
+            {
+                runtime.animation.onLoopComplete = null;
+                runtime.animation.doLoopAnimation = false;
+                runtime.animation.StopAnimation();
+                runtime.animation.ClearLoopDuration();
+            }
+
+            if (runtime.baseImage != null)
+            {
+                runtime.baseImage.enabled = runtime.baseImageWasEnabled;
+            }
+
+            featureVisualController?.ReleaseWinAnimationCell(runtime.animationCell);
+        }
+
+        activeWinAnimations.Clear();
+        firstWinAnimationLoopCallback = null;
+        winAnimationCompleteCallback = null;
+        requiredWinAnimationLoops = 0;
+        firstWinAnimationLoopReported = false;
+    }
+
+    private void HandleWinAnimationLoop(
+        int session,
+        WinAnimationRuntime runtime,
+        int loopCount)
+    {
+        if (session != winAnimationSession || runtime == null) return;
+
+        runtime.completedLoops = Mathf.Max(runtime.completedLoops, loopCount);
+        if (!firstWinAnimationLoopReported &&
+            activeWinAnimations.All(active => active.completedLoops >= 1))
+        {
+            firstWinAnimationLoopReported = true;
+            Action firstLoopCallback = firstWinAnimationLoopCallback;
+            firstWinAnimationLoopCallback = null;
+            firstLoopCallback?.Invoke();
+        }
+
+        if (session != winAnimationSession || requiredWinAnimationLoops <= 0 ||
+            !activeWinAnimations.All(active =>
+                active.completedLoops >= requiredWinAnimationLoops))
+        {
+            return;
+        }
+
+        Action completionCallback = winAnimationCompleteCallback;
+        StopWinningSymbolAnimations();
+        completionCallback?.Invoke();
+    }
+
+    private void CompleteUnavailableWinAnimation()
+    {
+        Action firstLoopCallback = firstWinAnimationLoopCallback;
+        Action completionCallback = winAnimationCompleteCallback;
+        int requiredLoops = requiredWinAnimationLoops;
+
+        firstWinAnimationLoopCallback = null;
+        winAnimationCompleteCallback = null;
+        requiredWinAnimationLoops = 0;
+        firstWinAnimationLoopReported = true;
+
+        firstLoopCallback?.Invoke();
+        if (requiredLoops > 0) completionCallback?.Invoke();
+    }
+
+    private void StartTrainLandingAnimationsForReel(
+        int reelIndex,
+        IReadOnlyList<int> resultColumn)
+    {
+        if (resultColumn == null) return;
+
+        int rowCount = Mathf.Min(DefaultRowCount, resultColumn.Count);
+        int trainSymbolId = GetFreeGameScatterId();
+        for (int row = 0; row < rowCount; row++)
+        {
+            if (resultColumn[row] == trainSymbolId)
+            {
+                StartTrainLandingAnimation(reelIndex, row);
+            }
+        }
+    }
+
+    private void StartTrainLandingAnimation(int reelIndex, int row)
+    {
+        if (animSpritesFreeGameScatter == null ||
+            animSpritesFreeGameScatter.Count == 0 ||
+            activeTrainAnimations.Any(active =>
+                active.reelIndex == reelIndex && active.row == row))
+        {
+            return;
+        }
+
+        Image baseImage = GetResultSlotImage(reelIndex, row);
+        if (baseImage == null ||
+            featureVisualController == null ||
+            !featureVisualController.TryAcquireTrainAnimationCell(
+                reelIndex,
+                row,
+                out RectTransform animationCell))
+        {
+            return;
+        }
+
+        Image animationCellImage = animationCell.GetComponent<Image>();
+        if (animationCellImage == null)
+        {
+            featureVisualController.ReleaseTrainAnimationCell(animationCell);
+            return;
+        }
+
+        var runtime = new TrainSymbolAnimationRuntime
+        {
+            reelIndex = reelIndex,
+            row = row,
+            baseImage = baseImage,
+            baseImageWasEnabled = baseImage.enabled,
+            baseImageOriginalScale = GetOriginalResultSlotScale(baseImage),
+            animationCell = animationCell,
+            animationCellOriginalScale = animationCell.localScale,
+            animationCellImage = animationCellImage,
+            animationCellImageWasEnabled = animationCellImage.enabled,
+            animation = animationCell.GetComponent<ImageAnimation>() ??
+                        animationCell.gameObject.AddComponent<ImageAnimation>()
+        };
+
+        baseImage.rectTransform.localScale =
+            runtime.baseImageOriginalScale * trainSymbolScale;
+        animationCell.localScale =
+            runtime.animationCellOriginalScale * trainSymbolScale;
+        animationCellImage.enabled = true;
+
+        baseImage.enabled = false;
+        activeTrainAnimations.Add(runtime);
+        StartTrainSpriteAnimation(runtime, animSpritesFreeGameScatter, true);
+    }
+
+    internal IEnumerator PlayFreeGameTrainTriggerAnimation()
+    {
+        List<TrainSymbolAnimationRuntime> activeAnimations = activeTrainAnimations
+            .Where(active => active?.animation != null)
+            .ToList();
+        if (activeAnimations.Count == 0 ||
+            animSpritesFreeGameTrigger == null ||
+            animSpritesFreeGameTrigger.Count == 0)
+        {
+            yield break;
+        }
+
+        float triggerDuration =
+            animSpritesFreeGameTrigger.Count / TrainAnimationFramesPerSecond;
+        foreach (TrainSymbolAnimationRuntime active in activeAnimations)
+        {
+            StartTrainSpriteAnimation(active, animSpritesFreeGameTrigger, false);
+        }
+
+        yield return new WaitForSeconds(triggerDuration);
+    }
+
+    private static void StartTrainSpriteAnimation(
+        TrainSymbolAnimationRuntime runtime,
+        List<Sprite> frames,
+        bool shouldLoop)
+    {
+        if (runtime?.animation == null ||
+            runtime.animationCellImage == null ||
+            frames == null || frames.Count == 0)
+        {
+            return;
+        }
+
+        runtime.animation.StopAnimation();
+        runtime.animation.textureArray = frames;
+        runtime.animation.rendererDelegate = runtime.animationCellImage;
+        runtime.animation.doLoopAnimation = shouldLoop;
+        runtime.animation.delayBetweenLoop = 0f;
+        runtime.animation.SetLoopDuration(
+            frames.Count / TrainAnimationFramesPerSecond);
+        runtime.animation.onLoopComplete = null;
+        runtime.animation.StartAnimation();
+    }
+
+    private void StopTrainSymbolAnimations()
+    {
+        foreach (TrainSymbolAnimationRuntime runtime in activeTrainAnimations)
+        {
+            if (runtime?.animation != null)
+            {
+                runtime.animation.onLoopComplete = null;
+                runtime.animation.doLoopAnimation = false;
+                runtime.animation.StopAnimation();
+                runtime.animation.ClearLoopDuration();
+            }
+
+            RestoreTrainAnimationRuntime(runtime);
+        }
+
+        activeTrainAnimations.Clear();
+    }
+
+    private void RestoreTrainAnimationRuntime(TrainSymbolAnimationRuntime runtime)
+    {
+        if (runtime == null) return;
+
+        if (runtime.baseImage != null)
+        {
+            runtime.baseImage.enabled = runtime.baseImageWasEnabled;
+            runtime.baseImage.rectTransform.localScale = runtime.baseImageOriginalScale;
+        }
+
+        if (runtime.animationCellImage != null)
+        {
+            runtime.animationCellImage.enabled = runtime.animationCellImageWasEnabled;
+        }
+
+        if (runtime.animationCell != null)
+        {
+            runtime.animationCell.localScale = runtime.animationCellOriginalScale;
+        }
+
+        featureVisualController?.ReleaseTrainAnimationCell(runtime.animationCell);
+    }
+
     internal void StartSpin()
     {
         if (isSpinning || reels.Count == 0) return;
 
+        StopWinningSymbolAnimations();
+        StopTrainSymbolAnimations();
         EnsureConfiguration();
         HideSymbolInfoCard();
         KillReelTweens(true);
-        featureVisualController?.ResetFeatures();
 
         quickStopRequested = false;
         isSpinning = true;
@@ -579,6 +1039,8 @@ public class SlotView : MonoBehaviour
     {
         if (isSpinning || reels.Count == 0) return;
 
+        StopWinningSymbolAnimations();
+        StopTrainSymbolAnimations();
         HideSymbolInfoCard();
         KillReelTweens(true);
         KillGoldBurstCellTweens(true);
@@ -880,7 +1342,13 @@ public class SlotView : MonoBehaviour
                 overshoot,
                 overshootDuration,
                 settleDuration,
-                () => completedStops++));
+                () =>
+                {
+                    StartTrainLandingAnimationsForReel(
+                        capturedReelIndex,
+                        resultMatrix[capturedReelIndex]);
+                    completedStops++;
+                }));
 
             nextReelDelay += anticipation;
             stoppedFreeGameScatters += CountFreeGameScatters(resultMatrix[reelIndex]);
@@ -1080,9 +1548,27 @@ public class SlotView : MonoBehaviour
             Image resultImage = GetResultSlotImage(reelIndex, row);
             if (resultImage == null) continue;
 
+            Vector3 originalScale = GetOriginalResultSlotScale(resultImage);
+            resultImage.rectTransform.localScale = column[row] == GetFreeGameScatterId()
+                ? originalScale * trainSymbolScale
+                : originalScale;
+
             Sprite sprite = GetSymbolSprite(column[row]);
             if (sprite != null) resultImage.sprite = sprite;
         }
+    }
+
+    private Vector3 GetOriginalResultSlotScale(Image resultImage)
+    {
+        if (resultImage == null) return Vector3.one;
+
+        if (!originalResultSlotScales.TryGetValue(resultImage, out Vector3 originalScale))
+        {
+            originalScale = resultImage.rectTransform.localScale;
+            originalResultSlotScales[resultImage] = originalScale;
+        }
+
+        return originalScale;
     }
 
     private bool IsValidMatrix(List<List<int>> matrix)

@@ -30,6 +30,7 @@ public class ImageAnimation : MonoBehaviour
     private int indexOfTexture;
     private float idealFrameRate = 0.0416666679f; // ~24 fps
     private float delayBetweenAnimation;
+    private float loopDurationOverride;
 
     public float AnimationSpeed = 5f;
     public float delayBetweenLoop;
@@ -116,7 +117,9 @@ public class ImageAnimation : MonoBehaviour
 
         RevertToInitialState();
 
-        delayBetweenAnimation = idealFrameRate * (float)textureArray.Count / AnimationSpeed;
+        delayBetweenAnimation = loopDurationOverride > 0f
+            ? loopDurationOverride / textureArray.Count
+            : idealFrameRate * (float)textureArray.Count / AnimationSpeed;
         if (delayBetweenAnimation <= 0) delayBetweenAnimation = 0.05f;
 
         Invoke(nameof(AnimationProcess), delayBetweenAnimation);
@@ -130,6 +133,16 @@ public class ImageAnimation : MonoBehaviour
     public void Play()
     {
         StartAnimation();
+    }
+
+    public void SetLoopDuration(float duration)
+    {
+        loopDurationOverride = Mathf.Max(0f, duration);
+    }
+
+    public void ClearLoopDuration()
+    {
+        loopDurationOverride = 0f;
     }
 
     public void PauseAnimation()

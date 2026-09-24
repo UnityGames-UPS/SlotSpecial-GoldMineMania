@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -15,6 +16,10 @@ public class SlotFeatureVisualController : MonoBehaviour
     private const int MaxHorizontalPurpleTrains = 1;
     private const int MaxVerticalPurpleTrains = 2;
     private const int MaxGoldenTrains = 1;
+    private const int TwoSlotFeatureType = -1;
+    private const int ThreeSlotFeatureType = -2;
+    private const float ConversionHoldDuration = 0.15f;
+    private const float ConversionFadeDuration = 0.3f;
 
     [Header("Feature References")]
     [SerializeField] private RectTransform animationRoot;
@@ -25,6 +30,9 @@ public class SlotFeatureVisualController : MonoBehaviour
     [SerializeField] private RectTransform horizontalPurpleTrainRoot;
     [SerializeField] private RectTransform verticalPurpleTrainRoot;
     [SerializeField] private RectTransform goldenTrainRoot;
+
+    [Header("Animation Grid")]
+    [SerializeField, Min(0.01f)] private float winboxScale = 0.79f;
 
     [Header("2x1 Barrel Positions")]
     [SerializeField] private float topAndMiddleY = 110f;
@@ -61,20 +69,30 @@ public class SlotFeatureVisualController : MonoBehaviour
     private readonly Dictionary<int, int> pendingStartRowByReel = new Dictionary<int, int>();
     private readonly HashSet<int> pendingThreeSlotReels = new HashSet<int>();
     private readonly List<TrainPlacement> pendingTrains = new List<TrainPlacement>();
-    private readonly HashSet<TrainPlacement> revealedTrains = new HashSet<TrainPlacement>();
+    private readonly Dictionary<
+        (int type, int startRow, int startCol, int rowCount, int columnCount),
+        RectTransform> visibleFeatures =
+            new Dictionary<
+                (int type, int startRow, int startCol, int rowCount, int columnCount),
+                RectTransform>();
     private readonly Dictionary<TrainVisualType, RectTransform> trainRoots =
         new Dictionary<TrainVisualType, RectTransform>();
     private readonly Dictionary<TrainVisualType, List<RectTransform>> trainVisuals =
         new Dictionary<TrainVisualType, List<RectTransform>>();
     private readonly HashSet<GameObject> hiddenAnimationCells = new HashSet<GameObject>();
+    private readonly HashSet<GameObject> activeWinAnimationCells = new HashSet<GameObject>();
+    private readonly HashSet<GameObject> activeTrainAnimationCells = new HashSet<GameObject>();
+    private readonly HashSet<CanvasGroup> conversionCanvasGroups = new HashSet<CanvasGroup>();
 
     private Transform searchRoot;
+    private IReadOnlyList<ReelResultSlots> conversionSourceSlots;
     private bool isInitialized;
     private bool configurationWarningShown;
 
-    internal void Initialize(Transform slotRoot)
+    internal void Initialize(Transform slotRoot, IReadOnlyList<ReelResultSlots> resultSlotsByReel)
     {
         searchRoot = slotRoot != null ? slotRoot : searchRoot;
+        conversionSourceSlots = resultSlotsByReel;
         CacheSceneObjects();
         ResetFeatures();
     }
@@ -150,17 +168,24 @@ public class SlotFeatureVisualController : MonoBehaviour
 
         if (pendingThreeSlotReels.Contains(reelIndex))
         {
-            RevealThreeSlotBarrel(reelIndex);
+            if (!visibleFeatures.ContainsKey((ThreeSlotFeatureType, 0, reelIndex, RowCount, 1)))
+            {
+                RevealThreeSlotBarrel(reelIndex);
+            }
         }
         else if (pendingStartRowByReel.TryGetValue(reelIndex, out int startRow))
         {
-            RevealTwoSlotBarrel(reelIndex, startRow);
+            if (!visibleFeatures.ContainsKey((TwoSlotFeatureType, startRow, reelIndex, 2, 1)))
+            {
+                RevealTwoSlotBarrel(reelIndex, startRow);
+            }
         }
 
         foreach (TrainPlacement train in pendingTrains)
         {
             int lastCoveredReel = train.startCol + train.columnCount - 1;
-            if (lastCoveredReel == reelIndex && !revealedTrains.Contains(train))
+            var key = ((int)train.type, train.startRow, train.startCol, train.rowCount, train.columnCount);
+            if (lastCoveredReel == reelIndex && !visibleFeatures.ContainsKey(key))
             {
                 RevealTrain(train);
             }
@@ -171,24 +196,27 @@ public class SlotFeatureVisualController : MonoBehaviour
     {
         if (!HasTwoSlotConfiguration()) return;
 
-        HideAnimationCells(reelIndex, startRow, 2);
-
         RectTransform barrel = twoSlotBarrels[reelIndex];
         Vector2 barrelPosition = barrel.anchoredPosition;
         barrelPosition.y = startRow == 0 ? topAndMiddleY : middleAndBottomY;
         barrel.anchoredPosition = barrelPosition;
 
-        twoSlotBarrelRoot.gameObject.SetActive(true);
-        barrel.gameObject.SetActive(true);
+        PlayConversionFade(reelIndex, 1, startRow, 2, barrel);
+        visibleFeatures[(TwoSlotFeatureType, startRow, reelIndex, 2, 1)] = barrel;
     }
 
     private void RevealThreeSlotBarrel(int reelIndex)
     {
         if (!HasThreeSlotConfiguration()) return;
 
-        HideAnimationCells(reelIndex, 0, RowCount);
-        threeSlotBarrelRoot.gameObject.SetActive(true);
-        threeSlotBarrels[reelIndex].gameObject.SetActive(true);
+        PlayConversionFade(
+            reelIndex,
+            1,
+            0,
+            RowCount,
+            threeSlotBarrels[reelIndex]);
+        visibleFeatures[(ThreeSlotFeatureType, 0, reelIndex, RowCount, 1)] =
+            threeSlotBarrels[reelIndex];
     }
 
     private void RevealTrain(TrainPlacement train)
@@ -205,23 +233,21 @@ public class SlotFeatureVisualController : MonoBehaviour
             return;
         }
 
-        for (int reelIndex = train.startCol;
-             reelIndex < train.startCol + train.columnCount;
-             reelIndex++)
-        {
-            HideAnimationCells(reelIndex, train.startRow, train.rowCount);
-        }
-
         trainVisual.anchoredPosition = position;
-        trainRoot.gameObject.SetActive(true);
-        trainVisual.gameObject.SetActive(true);
-        revealedTrains.Add(train);
+        PlayConversionFade(
+            train.startCol,
+            train.columnCount,
+            train.startRow,
+            train.rowCount,
+            trainVisual);
+        visibleFeatures[((int)train.type, train.startRow, train.startCol,
+            train.rowCount, train.columnCount)] = trainVisual;
     }
 
     internal void RevealAllFeatures()
     {
-        ClearVisibleFeatures();
-        revealedTrains.Clear();
+        DOTween.Complete(this);
+        RemoveFeaturesMissingFromResult();
 
         for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
         {
@@ -234,15 +260,104 @@ public class SlotFeatureVisualController : MonoBehaviour
         pendingStartRowByReel.Clear();
         pendingThreeSlotReels.Clear();
         pendingTrains.Clear();
-        revealedTrains.Clear();
         ClearVisibleFeatures();
+    }
+
+    internal bool TryAcquireWinAnimationCell(
+        int reelIndex,
+        int row,
+        out RectTransform animationCell)
+    {
+        EnsureInitialized();
+        animationCell = null;
+
+        if (!HasCompleteAnimationGrid() ||
+            reelIndex < 0 || reelIndex >= ReelCount ||
+            row < 0 || row >= RowCount ||
+            IsCellCoveredByPendingFeature(reelIndex, row))
+        {
+            return false;
+        }
+
+        animationCell = animationCellsByReel[reelIndex][row];
+        if (animationCell == null) return false;
+
+        activeWinAnimationCells.Add(animationCell.gameObject);
+        SetWinboxActive(animationCell, true);
+        animationRoot.gameObject.SetActive(true);
+        animationColumns[reelIndex].gameObject.SetActive(true);
+        animationCell.gameObject.SetActive(true);
+        return true;
+    }
+
+    internal void ReleaseWinAnimationCell(RectTransform animationCell)
+    {
+        if (animationCell == null) return;
+
+        activeWinAnimationCells.Remove(animationCell.gameObject);
+        bool keepCellActive = activeTrainAnimationCells.Contains(animationCell.gameObject);
+        SetWinboxActive(animationCell, false);
+        animationCell.gameObject.SetActive(keepCellActive);
+        RefreshAnimationHierarchy();
+    }
+
+    internal bool TryAcquireTrainAnimationCell(
+        int reelIndex,
+        int row,
+        out RectTransform animationCell)
+    {
+        EnsureInitialized();
+        animationCell = null;
+
+        if (!HasCompleteAnimationGrid() ||
+            reelIndex < 0 || reelIndex >= ReelCount ||
+            row < 0 || row >= RowCount ||
+            IsCellCoveredByPendingFeature(reelIndex, row))
+        {
+            return false;
+        }
+
+        animationCell = animationCellsByReel[reelIndex][row];
+        if (animationCell == null) return false;
+
+        activeTrainAnimationCells.Add(animationCell.gameObject);
+        if (!activeWinAnimationCells.Contains(animationCell.gameObject))
+        {
+            SetWinboxActive(animationCell, false);
+        }
+
+        animationRoot.gameObject.SetActive(true);
+        animationColumns[reelIndex].gameObject.SetActive(true);
+        animationCell.gameObject.SetActive(true);
+        return true;
+    }
+
+    internal void ReleaseTrainAnimationCell(RectTransform animationCell)
+    {
+        if (animationCell == null) return;
+
+        activeTrainAnimationCells.Remove(animationCell.gameObject);
+        bool keepCellActive = activeWinAnimationCells.Contains(animationCell.gameObject);
+        SetWinboxActive(animationCell, keepCellActive);
+        animationCell.gameObject.SetActive(keepCellActive);
+        RefreshAnimationHierarchy();
     }
 
     private void ClearVisibleFeatures()
     {
+        DOTween.Kill(this);
+
+        foreach (CanvasGroup canvasGroup in conversionCanvasGroups)
+        {
+            if (canvasGroup != null) canvasGroup.alpha = 1f;
+        }
+
         foreach (GameObject hiddenCell in hiddenAnimationCells)
         {
-            if (hiddenCell != null) hiddenCell.SetActive(true);
+            if (hiddenCell != null)
+            {
+                hiddenCell.SetActive(IsAnimationCellActive(hiddenCell));
+            }
         }
         hiddenAnimationCells.Clear();
 
@@ -278,6 +393,9 @@ public class SlotFeatureVisualController : MonoBehaviour
         {
             if (entry.Value != null) entry.Value.gameObject.SetActive(false);
         }
+
+        visibleFeatures.Clear();
+        RefreshAnimationHierarchy();
     }
 
     private void CacheSceneObjects()
@@ -396,6 +514,11 @@ public class SlotFeatureVisualController : MonoBehaviour
 
             cells.Sort((top, bottom) =>
                 bottom.anchoredPosition.y.CompareTo(top.anchoredPosition.y));
+            foreach (RectTransform cell in cells)
+            {
+                SetWinboxScale(cell);
+                cell.gameObject.SetActive(false);
+            }
             animationCellsByReel.Add(cells);
         }
 
@@ -420,6 +543,163 @@ public class SlotFeatureVisualController : MonoBehaviour
         ValidateTrainVisualPool(TrainVisualType.HorizontalPurple);
         ValidateTrainVisualPool(TrainVisualType.VerticalPurple);
         ValidateTrainVisualPool(TrainVisualType.Golden);
+    }
+
+    private void RemoveFeaturesMissingFromResult()
+    {
+        var pendingFeatures = new HashSet<
+            (int type, int startRow, int startCol, int rowCount, int columnCount)>();
+
+        foreach (KeyValuePair<int, int> barrel in pendingStartRowByReel)
+        {
+            pendingFeatures.Add((TwoSlotFeatureType, barrel.Value, barrel.Key, 2, 1));
+        }
+
+        foreach (int reelIndex in pendingThreeSlotReels)
+        {
+            pendingFeatures.Add((ThreeSlotFeatureType, 0, reelIndex, RowCount, 1));
+        }
+
+        foreach (TrainPlacement train in pendingTrains)
+        {
+            pendingFeatures.Add(((int)train.type, train.startRow, train.startCol,
+                train.rowCount, train.columnCount));
+        }
+
+        foreach (KeyValuePair<
+                     (int type, int startRow, int startCol, int rowCount, int columnCount),
+                     RectTransform> visibleFeature in visibleFeatures.ToList())
+        {
+            if (pendingFeatures.Contains(visibleFeature.Key)) continue;
+
+            FadeOutRemovedFeature(visibleFeature.Key, visibleFeature.Value);
+            visibleFeatures.Remove(visibleFeature.Key);
+        }
+    }
+
+    private void FadeOutRemovedFeature(
+        (int type, int startRow, int startCol, int rowCount, int columnCount) feature,
+        RectTransform visual)
+    {
+        Sequence sequence = DOTween.Sequence().SetUpdate(true).SetTarget(this);
+        sequence.AppendInterval(ConversionHoldDuration);
+
+        CanvasGroup visualGroup = GetConversionCanvasGroup(visual.gameObject);
+        sequence.Insert(
+            ConversionHoldDuration,
+            visualGroup.DOFade(0f, ConversionFadeDuration).SetEase(Ease.Linear));
+
+        var animationCellsToRestore = new List<GameObject>();
+        for (int reelIndex = feature.startCol;
+             reelIndex < feature.startCol + feature.columnCount;
+             reelIndex++)
+        {
+            for (int row = feature.startRow; row < feature.startRow + feature.rowCount; row++)
+            {
+                if (IsCellCoveredByPendingFeature(reelIndex, row)) continue;
+
+                RectTransform sourceCell = GetConversionSourceCell(reelIndex, row);
+                if (sourceCell == null) continue;
+
+                CanvasGroup sourceGroup = GetConversionCanvasGroup(sourceCell.gameObject);
+                sequence.Insert(
+                    ConversionHoldDuration,
+                    sourceGroup.DOFade(1f, ConversionFadeDuration).SetEase(Ease.Linear));
+                animationCellsToRestore.Add(animationCellsByReel[reelIndex][row].gameObject);
+            }
+        }
+
+        sequence.AppendCallback(() =>
+        {
+            visual.gameObject.SetActive(false);
+            visualGroup.alpha = 1f;
+
+            foreach (GameObject animationCell in animationCellsToRestore)
+            {
+                hiddenAnimationCells.Remove(animationCell);
+                animationCell.SetActive(IsAnimationCellActive(animationCell));
+            }
+
+            RefreshAnimationHierarchy();
+        });
+    }
+
+    private void PlayConversionFade(
+        int startReel,
+        int reelCount,
+        int startRow,
+        int rowCount,
+        RectTransform visual)
+    {
+        Sequence sequence = DOTween.Sequence().SetUpdate(true).SetTarget(this);
+        sequence.AppendInterval(ConversionHoldDuration);
+
+        for (int reelIndex = startReel; reelIndex < startReel + reelCount; reelIndex++)
+        {
+            for (int row = startRow; row < startRow + rowCount; row++)
+            {
+                RectTransform sourceCell = GetConversionSourceCell(reelIndex, row);
+                if (sourceCell == null) continue;
+
+                CanvasGroup sourceGroup = GetConversionCanvasGroup(sourceCell.gameObject);
+                sequence.Insert(
+                    ConversionHoldDuration,
+                    sourceGroup.DOFade(0f, ConversionFadeDuration).SetEase(Ease.Linear));
+            }
+        }
+
+        CanvasGroup visualGroup = GetConversionCanvasGroup(visual.gameObject);
+        visualGroup.alpha = 0f;
+        animationRoot.gameObject.SetActive(true);
+        visual.parent.gameObject.SetActive(true);
+        visual.gameObject.SetActive(true);
+
+        sequence.Insert(
+            ConversionHoldDuration,
+            visualGroup.DOFade(1f, ConversionFadeDuration).SetEase(Ease.Linear));
+
+        sequence.AppendCallback(() =>
+        {
+            for (int reelIndex = startReel; reelIndex < startReel + reelCount; reelIndex++)
+            {
+                HideAnimationCells(reelIndex, startRow, rowCount);
+            }
+        });
+    }
+
+    private bool IsCellCoveredByPendingFeature(int reelIndex, int row)
+    {
+        if (pendingThreeSlotReels.Contains(reelIndex)) return true;
+
+        if (pendingStartRowByReel.TryGetValue(reelIndex, out int barrelStartRow) &&
+            row >= barrelStartRow && row < barrelStartRow + 2)
+        {
+            return true;
+        }
+
+        return pendingTrains.Any(train =>
+            reelIndex >= train.startCol && reelIndex < train.startCol + train.columnCount &&
+            row >= train.startRow && row < train.startRow + train.rowCount);
+    }
+
+    private RectTransform GetConversionSourceCell(int reelIndex, int row)
+    {
+        return conversionSourceSlots != null &&
+               reelIndex >= 0 && reelIndex < conversionSourceSlots.Count
+            ? conversionSourceSlots[reelIndex]?.Get(row)?.rectTransform
+            : null;
+    }
+
+    private CanvasGroup GetConversionCanvasGroup(GameObject target)
+    {
+        CanvasGroup canvasGroup = target.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = target.AddComponent<CanvasGroup>();
+        }
+
+        conversionCanvasGroups.Add(canvasGroup);
+        return canvasGroup;
     }
 
     private void CacheTrainVisuals(TrainVisualType type, RectTransform root)
@@ -577,6 +857,67 @@ public class SlotFeatureVisualController : MonoBehaviour
             coveredCell.SetActive(false);
             hiddenAnimationCells.Add(coveredCell);
         }
+    }
+
+    private void RefreshAnimationHierarchy()
+    {
+        if (animationRoot == null) return;
+
+        bool hasActiveAnimationCell = false;
+        for (int reelIndex = 0; reelIndex < animationColumns.Count; reelIndex++)
+        {
+            RectTransform column = animationColumns[reelIndex];
+            bool hasActiveCell = reelIndex < animationCellsByReel.Count &&
+                                 animationCellsByReel[reelIndex].Any(cell =>
+                                     cell != null &&
+                                     IsAnimationCellActive(cell.gameObject) &&
+                                     cell.gameObject.activeSelf);
+
+            column.gameObject.SetActive(hasActiveCell);
+            hasActiveAnimationCell |= hasActiveCell;
+        }
+
+        bool hasActiveFeature = visibleFeatures.Values.Any(visual =>
+            visual != null && visual.gameObject.activeSelf);
+        animationRoot.gameObject.SetActive(hasActiveAnimationCell || hasActiveFeature);
+    }
+
+    private bool IsAnimationCellActive(GameObject animationCell)
+    {
+        return animationCell != null &&
+               (activeWinAnimationCells.Contains(animationCell) ||
+                activeTrainAnimationCells.Contains(animationCell));
+    }
+
+    private void SetWinboxScale(RectTransform animationCell)
+    {
+        Transform winbox = FindDirectWinbox(animationCell);
+        if (winbox != null)
+        {
+            winbox.localScale = Vector3.one * winboxScale;
+        }
+    }
+
+    private static void SetWinboxActive(RectTransform animationCell, bool isActive)
+    {
+        Transform winbox = FindDirectWinbox(animationCell);
+        if (winbox != null)
+        {
+            winbox.gameObject.SetActive(isActive);
+        }
+    }
+
+    private static Transform FindDirectWinbox(RectTransform animationCell)
+    {
+        if (animationCell == null) return null;
+
+        for (int childIndex = 0; childIndex < animationCell.childCount; childIndex++)
+        {
+            Transform child = animationCell.GetChild(childIndex);
+            if (child.name.StartsWith("Winbox")) return child;
+        }
+
+        return null;
     }
 
     private bool HasTwoSlotConfiguration()

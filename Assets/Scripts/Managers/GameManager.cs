@@ -308,30 +308,86 @@ public class GameManager : MonoBehaviour
         {
             double totalPay = GetTotalPay();
             double multiplier = totalPay > 0 ? (lastResult.winAmount / totalPay) : 0;
+            bool isBigWin = multiplier >= bigWinMultiplierThreshold;
+            bool isAutomaticRound =
+                isAutoPlaying || isInFreeSpins || isInGoldBurstRespins;
+            SpinResult animationResult = lastResult;
 
-            if (multiplier >= bigWinMultiplierThreshold)
+            uiManager.OnSpinStopping(lastResult);
+            uiManager.DisableControlsDuringWinAnimation();
+
+            if (isBigWin)
             {
-                uiManager.DisableControlsDuringWinAnimation();
-                currentState = GameState.Idle;
                 StartCoroutine(TriggerWinPopupWithDelay(1.5f, lastResult));
-                OnWinAnimationComplete();
+            }
+
+            if (slotView != null)
+            {
+                slotView.ShowWinningSymbolAnimations(
+                    lastResult.winLines,
+                    isAutomaticRound ? 2 : 0,
+                    () => OnFirstWinAnimationLoopComplete(
+                        animationResult,
+                        isAutomaticRound,
+                        isBigWin),
+                    isAutomaticRound
+                        ? () => OnAutomaticWinAnimationComplete(animationResult)
+                        : null);
             }
             else
             {
-                // For normal wins, trigger UI update immediately and enable controls
-                uiManager.OnSpinStopping(lastResult);
-                uiManager.EnableControlsAfterWinAnimation();
-                uiManager.OnSpinCompleted(lastResult);
-                currentState = GameState.Idle;
-                OnWinAnimationComplete();
+                OnFirstWinAnimationLoopComplete(
+                    animationResult,
+                    isAutomaticRound,
+                    isBigWin);
+                if (isAutomaticRound)
+                {
+                    OnAutomaticWinAnimationComplete(animationResult);
+                }
             }
         }
         else
         {
             uiManager.OnSpinStopping(lastResult);
-            currentState = GameState.Idle;
+            if (IsBaseGameFreeSpinsTriggered(lastResult))
+            {
+                uiManager.DisableControlsDuringWinAnimation();
+            }
+            else
+            {
+                currentState = GameState.Idle;
+            }
             OnWinAnimationComplete();
         }
+    }
+
+    private void OnFirstWinAnimationLoopComplete(
+        SpinResult animationResult,
+        bool isAutomaticRound,
+        bool isBigWin)
+    {
+        if (lastResult != animationResult) return;
+
+        bool isFreeGameTrigger = IsBaseGameFreeSpinsTriggered(animationResult);
+        if (!isFreeGameTrigger)
+        {
+            currentState = GameState.Idle;
+            if (!isBigWin)
+            {
+                uiManager.EnableControlsAfterWinAnimation();
+            }
+        }
+
+        if (!isAutomaticRound)
+        {
+            OnWinAnimationComplete();
+        }
+    }
+
+    private void OnAutomaticWinAnimationComplete(SpinResult animationResult)
+    {
+        if (lastResult != animationResult) return;
+        OnWinAnimationComplete();
     }
 
     private IEnumerator TriggerWinPopupWithDelay(float delay, SpinResult result)
@@ -363,18 +419,6 @@ public class GameManager : MonoBehaviour
 
     private void OnWinAnimationComplete()
     {
-        if (lastResult != null)
-        {
-            double totalPay = GetTotalPay();
-            double multiplier = totalPay > 0 ? (lastResult.winAmount / totalPay) : 0;
-
-            // Only update UI here if it wasn't already updated in OnReelsStoppedComplete (multiplier < bigWinMultiplierThreshold)
-            if (multiplier >= bigWinMultiplierThreshold)
-            {
-                uiManager.OnSpinStopping(lastResult);
-            }
-        }
-
         StartCoroutine(ProcessSpecialFeaturesAfterWin());
     }
 
@@ -386,13 +430,26 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        if (lastResult != null && lastResult.freeSpinData != null && lastResult.freeSpinData.isTriggered && !isInFreeSpins)
+        if (IsBaseGameFreeSpinsTriggered(lastResult))
         {
+            if (slotView != null)
+            {
+                yield return slotView.PlayFreeGameTrainTriggerAnimation();
+            }
+
             ProcessSpinResult();
             yield break;
         }
 
         ResumeAfterSpecialFeature();
+    }
+
+    private bool IsBaseGameFreeSpinsTriggered(SpinResult result)
+    {
+        return result != null &&
+               result.freeSpinData != null &&
+               result.freeSpinData.isTriggered &&
+               !isInFreeSpins;
     }
 
     private void ResumeAfterSpecialFeature()
