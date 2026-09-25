@@ -14,6 +14,7 @@ public class ImageAnimation : MonoBehaviour
     public static ImageAnimation Instance;
 
     public List<Sprite> textureArray;
+    public List<Sprite> secondaryTextureArray;
     public Image rendererDelegate;
     public bool useSharedMaterial = true;
     public bool doLoopAnimation = true;
@@ -31,6 +32,7 @@ public class ImageAnimation : MonoBehaviour
     private float idealFrameRate = 0.0416666679f; // ~24 fps
     private float delayBetweenAnimation;
     private float loopDurationOverride;
+    private bool isPlayingSecondaryArray;
 
     public float AnimationSpeed = 5f;
     public float delayBetweenLoop;
@@ -77,18 +79,25 @@ public class ImageAnimation : MonoBehaviour
 
     private void AnimationProcess()
     {
-        if (textureArray == null || textureArray.Count == 0) return;
+        List<Sprite> activeTextureArray = GetActiveTextureArray();
+        if (activeTextureArray == null || activeTextureArray.Count == 0) return;
 
-        SetTextureOfIndex();
+        SetTextureOfIndex(activeTextureArray);
         indexOfTexture++;
 
-        if (indexOfTexture >= textureArray.Count)
+        if (indexOfTexture >= activeTextureArray.Count)
         {
             indexOfTexture = 0;
             currentLoopCount++;
             onLoopComplete?.Invoke(currentLoopCount);
-            
-            if (doLoopAnimation)
+
+            if (!isPlayingSecondaryArray && secondaryTextureArray != null && secondaryTextureArray.Count > 0)
+            {
+                isPlayingSecondaryArray = true;
+                UpdateFrameDelay(secondaryTextureArray.Count);
+                Invoke(nameof(AnimationProcess), delayBetweenAnimation + delayBetweenLoop);
+            }
+            else if (doLoopAnimation)
             {
                 Invoke(nameof(AnimationProcess), delayBetweenAnimation + delayBetweenLoop);
             }
@@ -113,14 +122,12 @@ public class ImageAnimation : MonoBehaviour
         CancelInvoke(nameof(AnimationProcess));
         indexOfTexture = 0;
         currentLoopCount = 0;
+        isPlayingSecondaryArray = false;
         currentAnimationState = ImageState.PLAYING;
 
         RevertToInitialState();
 
-        delayBetweenAnimation = loopDurationOverride > 0f
-            ? loopDurationOverride / textureArray.Count
-            : idealFrameRate * (float)textureArray.Count / AnimationSpeed;
-        if (delayBetweenAnimation <= 0) delayBetweenAnimation = 0.05f;
+        UpdateFrameDelay(textureArray.Count);
 
         Invoke(nameof(AnimationProcess), delayBetweenAnimation);
     }
@@ -175,6 +182,7 @@ public class ImageAnimation : MonoBehaviour
             CancelInvoke(nameof(AnimationProcess));
             currentAnimationState = ImageState.NONE;
             currentLoopCount = 0;
+            isPlayingSecondaryArray = false;
         }
     }
 
@@ -186,12 +194,30 @@ public class ImageAnimation : MonoBehaviour
 
     private void SetTextureOfIndex()
     {
-        if (textureArray == null || textureArray.Count == 0 || indexOfTexture < 0 || indexOfTexture >= textureArray.Count) return;
+        SetTextureOfIndex(textureArray);
+    }
+
+    private void SetTextureOfIndex(List<Sprite> sprites)
+    {
+        if (sprites == null || sprites.Count == 0 || indexOfTexture < 0 || indexOfTexture >= sprites.Count) return;
 
         EnsureRenderer();
         if (rendererDelegate != null)
         {
-            rendererDelegate.sprite = textureArray[indexOfTexture];
+            rendererDelegate.sprite = sprites[indexOfTexture];
         }
+    }
+
+    private List<Sprite> GetActiveTextureArray()
+    {
+        return isPlayingSecondaryArray ? secondaryTextureArray : textureArray;
+    }
+
+    private void UpdateFrameDelay(int frameCount)
+    {
+        delayBetweenAnimation = loopDurationOverride > 0f
+            ? loopDurationOverride / frameCount
+            : idealFrameRate * (float)frameCount / AnimationSpeed;
+        if (delayBetweenAnimation <= 0) delayBetweenAnimation = 0.05f;
     }
 }

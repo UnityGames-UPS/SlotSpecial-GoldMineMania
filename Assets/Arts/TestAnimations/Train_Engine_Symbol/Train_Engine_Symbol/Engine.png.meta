@@ -1,0 +1,988 @@
+fileFormatVersion: 2
+guid: 3c9808defc4c04643b4bb0be133b5bc2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -507298352823947034
+    second: Engine_0
+  - first:
+      213: 5431140035281086521
+    second: Engine_1
+  - first:
+      213: 6968563211340274525
+    second: Engine_2
+  - first:
+      213: -9092227746032131226
+    second: Engine_3
+  - first:
+      213: 3516870357671568361
+    second: Engine_4
+  - first:
+      213: 7328422948914800027
+    second: Engine_5
+  - first:
+      213: -7831070424563541763
+    second: Engine_6
+  - first:
+      213: 1754865068882458919
+    second: Engine_7
+  - first:
+      213: 2141572640987090473
+    second: Engine_8
+  - first:
+      213: -7738572022964187726
+    second: Engine_9
+  - first:
+      213: -7845512934193153870
+    second: Engine_10
+  - first:
+      213: 2691513755329757783
+    second: Engine_11
+  - first:
+      213: 9183767358302688034
+    second: Engine_12
+  - first:
+      213: -458471039866176026
+    second: Engine_13
+  - first:
+      213: -3590022893839201480
+    second: Engine_14
+  - first:
+      213: 4194803056596283714
+    second: Engine_15
+  - first:
+      213: -2079546265139855155
+    second: Engine_16
+  - first:
+      213: 8879384958541973011
+    second: Engine_17
+  - first:
+      213: 5689296764379031587
+    second: Engine_18
+  - first:
+      213: 639751807210218445
+    second: Engine_19
+  - first:
+      213: 7298061043428411512
+    second: Engine_20
+  - first:
+      213: -2621080138385325605
+    second: Engine_21
+  - first:
+      213: 6039934376325437515
+    second: Engine_22
+  - first:
+      213: -8175391713538873618
+    second: Engine_23
+  - first:
+      213: 2226072276026526313
+    second: Engine_24
+  - first:
+      213: -4653778620910293467
+    second: Engine_25
+  - first:
+      213: -8116960303226800100
+    second: Engine_26
+  - first:
+      213: 3140904062103007574
+    second: Engine_27
+  - first:
+      213: 7208883701421825554
+    second: Engine_28
+  - first:
+      213: 603710936062393170
+    second: Engine_29
+  - first:
+      213: -2087493845317726221
+    second: Engine_30
+  - first:
+      213: 5208473268094326856
+    second: Engine_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 0
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 0
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 0
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Engine_0
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1140
+        width: 885
+        height: 903
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e0b9ccf5d6b5f8f0800000000000000
+      internalID: -507298352823947034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_1
+      rect:
+        serializedVersion: 2
+        x: 886
+        y: 1771
+        width: 377
+        height: 237
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 938e45036194f5b40800000000000000
+      internalID: 5431140035281086521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_2
+      rect:
+        serializedVersion: 2
+        x: 886
+        y: 1393
+        width: 237
+        height: 378
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5bdac6d15f45b060800000000000000
+      internalID: 6968563211340274525
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_3
+      rect:
+        serializedVersion: 2
+        x: 1123
+        y: 1575
+        width: 334
+        height: 196
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 663edc4a90be1d180800000000000000
+      internalID: -9092227746032131226
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_4
+      rect:
+        serializedVersion: 2
+        x: 1263
+        y: 1771
+        width: 376
+        height: 236
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e36d1605fe6ec030800000000000000
+      internalID: 3516870357671568361
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_5
+      rect:
+        serializedVersion: 2
+        x: 1639
+        y: 1770
+        width: 374
+        height: 235
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9523e928d9c3b560800000000000000
+      internalID: 7328422948914800027
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_6
+      rect:
+        serializedVersion: 2
+        x: 1180
+        y: 1337
+        width: 379
+        height: 238
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df892dc80f2725390800000000000000
+      internalID: -7831070424563541763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_7
+      rect:
+        serializedVersion: 2
+        x: 1559
+        y: 1437
+        width: 193
+        height: 333
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 729fa738b788a5810800000000000000
+      internalID: 1754865068882458919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_8
+      rect:
+        serializedVersion: 2
+        x: 1573
+        y: 1199
+        width: 381
+        height: 238
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92e0bbe68f468bd10800000000000000
+      internalID: 2141572640987090473
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_9
+      rect:
+        serializedVersion: 2
+        x: 1752
+        y: 1437
+        width: 192
+        height: 332
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2bd817eeeb11b9490800000000000000
+      internalID: -7738572022964187726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_10
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 1
+        width: 1190
+        height: 1139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b83facbd832f1390800000000000000
+      internalID: -7845512934193153870
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_11
+      rect:
+        serializedVersion: 2
+        x: 886
+        y: 1140
+        width: 294
+        height: 253
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 752028e008d2a5520800000000000000
+      internalID: 2691513755329757783
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_12
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 1098
+        width: 382
+        height: 239
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 223957331cb437f70800000000000000
+      internalID: 9183767358302688034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_13
+      rect:
+        serializedVersion: 2
+        x: 1574
+        y: 960
+        width: 383
+        height: 239
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6edf8f0b40f23a9f0800000000000000
+      internalID: -458471039866176026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_14
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 722
+        width: 383
+        height: 376
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83bc135e23dad2ec0800000000000000
+      internalID: -3590022893839201480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_15
+      rect:
+        serializedVersion: 2
+        x: 1575
+        y: 720
+        width: 384
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 241f42ba72fe63a30800000000000000
+      internalID: 4194803056596283714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_16
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 753
+        width: 47
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc0495490b7f323e0800000000000000
+      internalID: -2079546265139855155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_17
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 481
+        width: 384
+        height: 241
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31647d52399e93b70800000000000000
+      internalID: 8879384958541973011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_18
+      rect:
+        serializedVersion: 2
+        x: 1576
+        y: 480
+        width: 385
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3286796934174fe40800000000000000
+      internalID: 5689296764379031587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_19
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 615
+        width: 47
+        height: 137
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc3ed2d01ead0e800800000000000000
+      internalID: 639751807210218445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_20
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 562
+        width: 47
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 878caaa2adbe74560800000000000000
+      internalID: 7298061043428411512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_21
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 525
+        width: 47
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd106bf408d00abd0800000000000000
+      internalID: -2621080138385325605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_22
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 482
+        width: 47
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b485c87705822d350800000000000000
+      internalID: 6039934376325437515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_23
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 447
+        width: 47
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee6e7d63d8c2b8e80800000000000000
+      internalID: -8175391713538873618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_24
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 241
+        width: 385
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96a08e8d0f894ee10800000000000000
+      internalID: 2226072276026526313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_25
+      rect:
+        serializedVersion: 2
+        x: 1578
+        y: 240
+        width: 386
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52ea55540057a6fb0800000000000000
+      internalID: -4653778620910293467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_26
+      rect:
+        serializedVersion: 2
+        x: 1964
+        y: 401
+        width: 50
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1838361c93ca5f80800000000000000
+      internalID: -8116960303226800100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_27
+      rect:
+        serializedVersion: 2
+        x: 1969
+        y: 283
+        width: 49
+        height: 118
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6513b3f6a9bb69b20800000000000000
+      internalID: 3140904062103007574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_28
+      rect:
+        serializedVersion: 2
+        x: 1191
+        y: 1
+        width: 387
+        height: 240
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21ed95a38891b0460800000000000000
+      internalID: 7208883701421825554
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_29
+      rect:
+        serializedVersion: 2
+        x: 1578
+        y: 1
+        width: 387
+        height: 239
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25b7403d5efc06800800000000000000
+      internalID: 603710936062393170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_30
+      rect:
+        serializedVersion: 2
+        x: 1965
+        y: 33
+        width: 52
+        height: 255
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ffc50f586bb703e0800000000000000
+      internalID: -2087493845317726221
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Engine_31
+      rect:
+        serializedVersion: 2
+        x: 1965
+        y: 1
+        width: 56
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84851e677d6384840800000000000000
+      internalID: 5208473268094326856
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Engine_0: -507298352823947034
+      Engine_1: 5431140035281086521
+      Engine_10: -7845512934193153870
+      Engine_11: 2691513755329757783
+      Engine_12: 9183767358302688034
+      Engine_13: -458471039866176026
+      Engine_14: -3590022893839201480
+      Engine_15: 4194803056596283714
+      Engine_16: -2079546265139855155
+      Engine_17: 8879384958541973011
+      Engine_18: 5689296764379031587
+      Engine_19: 639751807210218445
+      Engine_2: 6968563211340274525
+      Engine_20: 7298061043428411512
+      Engine_21: -2621080138385325605
+      Engine_22: 6039934376325437515
+      Engine_23: -8175391713538873618
+      Engine_24: 2226072276026526313
+      Engine_25: -4653778620910293467
+      Engine_26: -8116960303226800100
+      Engine_27: 3140904062103007574
+      Engine_28: 7208883701421825554
+      Engine_29: 603710936062393170
+      Engine_3: -9092227746032131226
+      Engine_30: -2087493845317726221
+      Engine_31: 5208473268094326856
+      Engine_4: 3516870357671568361
+      Engine_5: 7328422948914800027
+      Engine_6: -7831070424563541763
+      Engine_7: 1754865068882458919
+      Engine_8: 2141572640987090473
+      Engine_9: -7738572022964187726
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

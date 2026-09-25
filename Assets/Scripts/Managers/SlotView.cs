@@ -1,5 +1,5 @@
-using System;
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -1026,6 +1026,7 @@ public class SlotView : MonoBehaviour
 
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
+        featureVisualController?.BeginSpinPresentation();
         EnsureConfiguration();
         HideSymbolInfoCard();
         KillReelTweens(true);

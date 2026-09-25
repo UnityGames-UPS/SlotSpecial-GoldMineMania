@@ -21,6 +21,28 @@ public class SlotFeatureVisualController : MonoBehaviour
     private const float ConversionHoldDuration = 0.15f;
     private const float ConversionFadeDuration = 0.3f;
 
+    [System.Serializable]
+    private sealed class AnimationCellReferences
+    {
+        public RectTransform slot = null;
+        public RectTransform winbox = null;
+    }
+
+    [System.Serializable]
+    private sealed class AnimationColumnReferences
+    {
+        public RectTransform column = null;
+        public AnimationCellReferences[] rows = new AnimationCellReferences[RowCount];
+    }
+
+    [System.Serializable]
+    private sealed class TrainVisualReferences
+    {
+        public RectTransform visual = null;
+        public GameObject mask = null;
+        public RectTransform pressPlay = null;
+    }
+
     [Header("Feature References")]
     [SerializeField] private RectTransform animationRoot;
     [SerializeField] private RectTransform twoSlotBarrelRoot;
@@ -31,8 +53,29 @@ public class SlotFeatureVisualController : MonoBehaviour
     [SerializeField] private RectTransform verticalPurpleTrainRoot;
     [SerializeField] private RectTransform goldenTrainRoot;
 
+    [Header("5x3 Train Visuals")]
+    [SerializeField] private TrainVisualReferences[] greenTrainVisuals =
+        new TrainVisualReferences[MaxGreenTrains];
+    [SerializeField] private TrainVisualReferences[] redTrainVisuals =
+        new TrainVisualReferences[MaxRedTrains];
+    [SerializeField] private TrainVisualReferences[] horizontalPurpleTrainVisuals =
+        new TrainVisualReferences[MaxHorizontalPurpleTrains];
+    [SerializeField] private TrainVisualReferences[] verticalPurpleTrainVisuals =
+        new TrainVisualReferences[MaxVerticalPurpleTrains];
+    [SerializeField] private TrainVisualReferences[] goldenTrainVisuals =
+        new TrainVisualReferences[MaxGoldenTrains];
+
+    [Header("Press Play Animation")]
+    [SerializeField, Min(1f)] private float pressPlayPopupScale = 1.12f;
+    [SerializeField, Min(0.01f)] private float pressPlayPopupDuration = 0.25f;
+    [SerializeField, Min(0.01f)] private float pressPlaySettleDuration = 0.12f;
+    [SerializeField, Range(0.8f, 1f)] private float pressPlayHeartbeatSmallScale = 0.98f;
+    [SerializeField, Min(1f)] private float pressPlayHeartbeatLargeScale = 1.04f;
+    [SerializeField, Min(0.05f)] private float pressPlayHeartbeatHalfCycle = 0.45f;
+
     [Header("Animation Grid")]
-    [SerializeField, Min(0.01f)] private float winboxScale = 0.79f;
+    [SerializeField] private AnimationColumnReferences[] animationGrid =
+        new AnimationColumnReferences[ReelCount];
 
     [Header("2x1 Barrel Positions")]
     [SerializeField] private float topAndMiddleY = 110f;
@@ -64,8 +107,8 @@ public class SlotFeatureVisualController : MonoBehaviour
 
     private readonly List<RectTransform> twoSlotBarrels = new List<RectTransform>();
     private readonly List<RectTransform> threeSlotBarrels = new List<RectTransform>();
-    private readonly List<RectTransform> animationColumns = new List<RectTransform>();
-    private readonly List<List<RectTransform>> animationCellsByReel = new List<List<RectTransform>>();
+    private readonly Dictionary<GameObject, RectTransform> winboxByAnimationCell =
+        new Dictionary<GameObject, RectTransform>();
     private readonly Dictionary<int, int> pendingStartRowByReel = new Dictionary<int, int>();
     private readonly HashSet<int> pendingThreeSlotReels = new HashSet<int>();
     private readonly List<TrainPlacement> pendingTrains = new List<TrainPlacement>();
@@ -77,8 +120,12 @@ public class SlotFeatureVisualController : MonoBehaviour
                 RectTransform>();
     private readonly Dictionary<TrainVisualType, RectTransform> trainRoots =
         new Dictionary<TrainVisualType, RectTransform>();
-    private readonly Dictionary<TrainVisualType, List<RectTransform>> trainVisuals =
-        new Dictionary<TrainVisualType, List<RectTransform>>();
+    private readonly Dictionary<TrainVisualType, List<TrainVisualReferences>> trainVisuals =
+        new Dictionary<TrainVisualType, List<TrainVisualReferences>>();
+    private readonly Dictionary<RectTransform, TrainVisualReferences> trainReferencesByVisual =
+        new Dictionary<RectTransform, TrainVisualReferences>();
+    private readonly Dictionary<RectTransform, Vector3> pressPlayBaseScales =
+        new Dictionary<RectTransform, Vector3>();
     private readonly HashSet<GameObject> hiddenAnimationCells = new HashSet<GameObject>();
     private readonly HashSet<GameObject> activeWinAnimationCells = new HashSet<GameObject>();
     private readonly HashSet<GameObject> activeTrainAnimationCells = new HashSet<GameObject>();
@@ -222,7 +269,8 @@ public class SlotFeatureVisualController : MonoBehaviour
     private void RevealTrain(TrainPlacement train)
     {
         RectTransform trainRoot = GetTrainRoot(train.type);
-        RectTransform trainVisual = GetAvailableTrainVisual(train.type);
+        TrainVisualReferences trainReferences = GetAvailableTrainVisual(train.type);
+        RectTransform trainVisual = trainReferences?.visual;
         if (trainVisual == null || trainRoot == null ||
             !TryGetTrainPosition(train, out Vector2 position) ||
             !HasCompleteAnimationGrid())
@@ -233,6 +281,7 @@ public class SlotFeatureVisualController : MonoBehaviour
             return;
         }
 
+        PrepareTrainVisualForReveal(trainReferences);
         trainVisual.anchoredPosition = position;
         PlayConversionFade(
             train.startCol,
@@ -253,6 +302,14 @@ public class SlotFeatureVisualController : MonoBehaviour
         {
             RevealFeaturesForReel(reelIndex);
         }
+
+        ShowPressPlayButtons();
+    }
+
+    internal void BeginSpinPresentation()
+    {
+        EnsureInitialized();
+        ClearVisibleFeatures();
     }
 
     internal void ResetFeatures()
@@ -279,13 +336,13 @@ public class SlotFeatureVisualController : MonoBehaviour
             return false;
         }
 
-        animationCell = animationCellsByReel[reelIndex][row];
+        animationCell = GetAnimationCell(reelIndex, row);
         if (animationCell == null) return false;
 
         activeWinAnimationCells.Add(animationCell.gameObject);
         SetWinboxActive(animationCell, true);
         animationRoot.gameObject.SetActive(true);
-        animationColumns[reelIndex].gameObject.SetActive(true);
+        GetAnimationColumn(reelIndex).gameObject.SetActive(true);
         animationCell.gameObject.SetActive(true);
         return true;
     }
@@ -317,7 +374,7 @@ public class SlotFeatureVisualController : MonoBehaviour
             return false;
         }
 
-        animationCell = animationCellsByReel[reelIndex][row];
+        animationCell = GetAnimationCell(reelIndex, row);
         if (animationCell == null) return false;
 
         activeTrainAnimationCells.Add(animationCell.gameObject);
@@ -327,7 +384,7 @@ public class SlotFeatureVisualController : MonoBehaviour
         }
 
         animationRoot.gameObject.SetActive(true);
-        animationColumns[reelIndex].gameObject.SetActive(true);
+        GetAnimationColumn(reelIndex).gameObject.SetActive(true);
         animationCell.gameObject.SetActive(true);
         return true;
     }
@@ -356,7 +413,11 @@ public class SlotFeatureVisualController : MonoBehaviour
         {
             if (hiddenCell != null)
             {
-                hiddenCell.SetActive(IsAnimationCellActive(hiddenCell));
+                bool isActive = IsAnimationCellActive(hiddenCell);
+                hiddenCell.SetActive(isActive);
+                SetWinboxActive(
+                    hiddenCell,
+                    isActive && activeWinAnimationCells.Contains(hiddenCell));
             }
         }
         hiddenAnimationCells.Clear();
@@ -381,11 +442,15 @@ public class SlotFeatureVisualController : MonoBehaviour
             threeSlotBarrelRoot.gameObject.SetActive(false);
         }
 
-        foreach (KeyValuePair<TrainVisualType, List<RectTransform>> entry in trainVisuals)
+        foreach (KeyValuePair<TrainVisualType, List<TrainVisualReferences>> entry in trainVisuals)
         {
-            foreach (RectTransform visual in entry.Value)
+            foreach (TrainVisualReferences trainReferences in entry.Value)
             {
-                if (visual != null) visual.gameObject.SetActive(false);
+                ResetTrainPresentation(trainReferences);
+                if (trainReferences?.visual != null)
+                {
+                    trainReferences.visual.gameObject.SetActive(false);
+                }
             }
         }
 
@@ -486,57 +551,90 @@ public class SlotFeatureVisualController : MonoBehaviour
 
         CacheTrainVisuals();
 
-        animationCellsByReel.Clear();
-        animationColumns.Clear();
-        for (int index = 0; index < animationRoot.childCount; index++)
-        {
-            if (!(animationRoot.GetChild(index) is RectTransform child)) continue;
-            if (!child.name.StartsWith("Slot") || child.childCount < RowCount) continue;
-
-            animationColumns.Add(child);
-        }
-
-        animationColumns.Sort((left, right) =>
-            left.anchoredPosition.x.CompareTo(right.anchoredPosition.x));
-
-        foreach (RectTransform column in animationColumns)
-        {
-            column.gameObject.SetActive(false);
-
-            var cells = new List<RectTransform>();
-            for (int row = 0; row < column.childCount; row++)
-            {
-                if (column.GetChild(row) is RectTransform cell)
-                {
-                    cells.Add(cell);
-                }
-            }
-
-            cells.Sort((top, bottom) =>
-                bottom.anchoredPosition.y.CompareTo(top.anchoredPosition.y));
-            foreach (RectTransform cell in cells)
-            {
-                SetWinboxScale(cell);
-                cell.gameObject.SetActive(false);
-            }
-            animationCellsByReel.Add(cells);
-        }
+        CacheAnimationGrid();
 
         isInitialized = true;
         HasTwoSlotConfiguration();
         HasThreeSlotConfiguration();
     }
 
+    private void CacheAnimationGrid()
+    {
+        winboxByAnimationCell.Clear();
+        if (animationGrid == null) return;
+
+        foreach (AnimationColumnReferences columnReferences in animationGrid)
+        {
+            if (columnReferences == null) continue;
+
+            if (columnReferences.column != null)
+            {
+                columnReferences.column.gameObject.SetActive(false);
+            }
+
+            if (columnReferences.rows == null) continue;
+
+            foreach (AnimationCellReferences cellReferences in columnReferences.rows)
+            {
+                if (cellReferences == null) continue;
+
+                if (cellReferences.slot != null)
+                {
+                    cellReferences.slot.gameObject.SetActive(false);
+                }
+
+                if (cellReferences.winbox == null) continue;
+
+                cellReferences.winbox.gameObject.SetActive(false);
+
+                if (cellReferences.slot != null)
+                {
+                    winboxByAnimationCell[cellReferences.slot.gameObject] =
+                        cellReferences.winbox;
+                }
+            }
+        }
+    }
+
+    private RectTransform GetAnimationColumn(int reelIndex)
+    {
+        return animationGrid != null &&
+               reelIndex >= 0 && reelIndex < animationGrid.Length
+            ? animationGrid[reelIndex]?.column
+            : null;
+    }
+
+    private RectTransform GetAnimationCell(int reelIndex, int row)
+    {
+        if (animationGrid == null ||
+            reelIndex < 0 || reelIndex >= animationGrid.Length ||
+            animationGrid[reelIndex]?.rows == null ||
+            row < 0 || row >= animationGrid[reelIndex].rows.Length)
+        {
+            return null;
+        }
+
+        return animationGrid[reelIndex].rows[row]?.slot;
+    }
+
     private void CacheTrainVisuals()
     {
         trainRoots.Clear();
         trainVisuals.Clear();
+        trainReferencesByVisual.Clear();
+        pressPlayBaseScales.Clear();
 
-        CacheTrainVisuals(TrainVisualType.Green, greenTrainRoot);
-        CacheTrainVisuals(TrainVisualType.Red, redTrainRoot);
-        CacheTrainVisuals(TrainVisualType.HorizontalPurple, horizontalPurpleTrainRoot);
-        CacheTrainVisuals(TrainVisualType.VerticalPurple, verticalPurpleTrainRoot);
-        CacheTrainVisuals(TrainVisualType.Golden, goldenTrainRoot);
+        CacheTrainVisuals(TrainVisualType.Green, greenTrainRoot, greenTrainVisuals);
+        CacheTrainVisuals(TrainVisualType.Red, redTrainRoot, redTrainVisuals);
+        CacheTrainVisuals(
+            TrainVisualType.HorizontalPurple,
+            horizontalPurpleTrainRoot,
+            horizontalPurpleTrainVisuals);
+        CacheTrainVisuals(
+            TrainVisualType.VerticalPurple,
+            verticalPurpleTrainRoot,
+            verticalPurpleTrainVisuals);
+        CacheTrainVisuals(TrainVisualType.Golden, goldenTrainRoot, goldenTrainVisuals);
 
         ValidateTrainVisualPool(TrainVisualType.Green);
         ValidateTrainVisualPool(TrainVisualType.Red);
@@ -605,19 +703,30 @@ public class SlotFeatureVisualController : MonoBehaviour
                 sequence.Insert(
                     ConversionHoldDuration,
                     sourceGroup.DOFade(1f, ConversionFadeDuration).SetEase(Ease.Linear));
-                animationCellsToRestore.Add(animationCellsByReel[reelIndex][row].gameObject);
+                animationCellsToRestore.Add(GetAnimationCell(reelIndex, row).gameObject);
             }
         }
 
         sequence.AppendCallback(() =>
         {
+            if (trainReferencesByVisual.TryGetValue(
+                    visual,
+                    out TrainVisualReferences trainReferences))
+            {
+                ResetTrainPresentation(trainReferences);
+            }
+
             visual.gameObject.SetActive(false);
             visualGroup.alpha = 1f;
 
             foreach (GameObject animationCell in animationCellsToRestore)
             {
                 hiddenAnimationCells.Remove(animationCell);
-                animationCell.SetActive(IsAnimationCellActive(animationCell));
+                bool isActive = IsAnimationCellActive(animationCell);
+                animationCell.SetActive(isActive);
+                SetWinboxActive(
+                    animationCell,
+                    isActive && activeWinAnimationCells.Contains(animationCell));
             }
 
             RefreshAnimationHierarchy();
@@ -702,28 +811,39 @@ public class SlotFeatureVisualController : MonoBehaviour
         return canvasGroup;
     }
 
-    private void CacheTrainVisuals(TrainVisualType type, RectTransform root)
+    private void CacheTrainVisuals(
+        TrainVisualType type,
+        RectTransform root,
+        TrainVisualReferences[] references)
     {
         trainRoots[type] = root;
-        var visuals = new List<RectTransform>();
+        var visuals = new List<TrainVisualReferences>();
 
-        if (root != null)
+        if (references != null)
         {
-            for (int index = 0; index < root.childCount; index++)
+            foreach (TrainVisualReferences trainReferences in references)
             {
-                if (root.GetChild(index) is RectTransform visual)
+                if (trainReferences?.visual == null) continue;
+
+                visuals.Add(trainReferences);
+                trainReferencesByVisual[trainReferences.visual] = trainReferences;
+
+                if (trainReferences.pressPlay != null)
                 {
-                    visuals.Add(visual);
+                    pressPlayBaseScales[trainReferences.pressPlay] =
+                        trainReferences.pressPlay.localScale;
                 }
+
+                ResetTrainPresentation(trainReferences);
             }
         }
 
         trainVisuals[type] = visuals;
     }
 
-    private RectTransform GetAvailableTrainVisual(TrainVisualType type)
+    private TrainVisualReferences GetAvailableTrainVisual(TrainVisualType type)
     {
-        if (!trainVisuals.TryGetValue(type, out List<RectTransform> visuals))
+        if (!trainVisuals.TryGetValue(type, out List<TrainVisualReferences> visuals))
         {
             return null;
         }
@@ -731,14 +851,109 @@ public class SlotFeatureVisualController : MonoBehaviour
         int reusableCount = Mathf.Min(GetMaximumVisibleTrainCount(type), visuals.Count);
         for (int index = 0; index < reusableCount; index++)
         {
-            RectTransform visual = visuals[index];
-            if (visual != null && !visual.gameObject.activeSelf)
+            TrainVisualReferences trainReferences = visuals[index];
+            if (trainReferences?.visual != null &&
+                !trainReferences.visual.gameObject.activeSelf)
             {
-                return visual;
+                return trainReferences;
             }
         }
 
         return null;
+    }
+
+    private void PrepareTrainVisualForReveal(TrainVisualReferences trainReferences)
+    {
+        if (trainReferences == null) return;
+
+        ResetPressPlay(trainReferences);
+        if (trainReferences.mask != null)
+        {
+            trainReferences.mask.SetActive(true);
+        }
+    }
+
+    private void ShowPressPlayButtons()
+    {
+        foreach (RectTransform visual in visibleFeatures.Values.Distinct())
+        {
+            if (visual == null || !visual.gameObject.activeSelf ||
+                !trainReferencesByVisual.TryGetValue(
+                    visual,
+                    out TrainVisualReferences trainReferences))
+            {
+                continue;
+            }
+
+            PlayPressPlayAnimation(trainReferences);
+        }
+    }
+
+    private void PlayPressPlayAnimation(TrainVisualReferences trainReferences)
+    {
+        RectTransform pressPlay = trainReferences?.pressPlay;
+        if (pressPlay == null) return;
+
+        DOTween.Kill(pressPlay);
+        Vector3 baseScale = GetPressPlayBaseScale(pressPlay);
+        pressPlay.localScale = Vector3.zero;
+        pressPlay.gameObject.SetActive(true);
+
+        Sequence popup = DOTween.Sequence().SetUpdate(true).SetTarget(pressPlay);
+        popup.Append(
+            pressPlay.DOScale(baseScale * pressPlayPopupScale, pressPlayPopupDuration)
+                .SetEase(Ease.OutCubic));
+        popup.Append(
+            pressPlay.DOScale(baseScale, pressPlaySettleDuration)
+                .SetEase(Ease.OutSine));
+        popup.OnComplete(() => StartPressPlayHeartbeat(pressPlay, baseScale));
+    }
+
+    private void StartPressPlayHeartbeat(RectTransform pressPlay, Vector3 baseScale)
+    {
+        if (pressPlay == null || !pressPlay.gameObject.activeInHierarchy) return;
+
+        Sequence heartbeat = DOTween.Sequence().SetUpdate(true).SetTarget(pressPlay);
+        heartbeat.Append(
+            pressPlay.DOScale(
+                    baseScale * pressPlayHeartbeatLargeScale,
+                    pressPlayHeartbeatHalfCycle)
+                .SetEase(Ease.InOutSine));
+        heartbeat.Append(
+            pressPlay.DOScale(
+                    baseScale * pressPlayHeartbeatSmallScale,
+                    pressPlayHeartbeatHalfCycle)
+                .SetEase(Ease.InOutSine));
+        heartbeat.SetLoops(-1, LoopType.Restart);
+    }
+
+    private void ResetTrainPresentation(TrainVisualReferences trainReferences)
+    {
+        if (trainReferences == null) return;
+
+        ResetPressPlay(trainReferences);
+        if (trainReferences.mask != null)
+        {
+            trainReferences.mask.SetActive(false);
+        }
+    }
+
+    private void ResetPressPlay(TrainVisualReferences trainReferences)
+    {
+        RectTransform pressPlay = trainReferences?.pressPlay;
+        if (pressPlay == null) return;
+
+        DOTween.Kill(pressPlay);
+        pressPlay.localScale = GetPressPlayBaseScale(pressPlay);
+        pressPlay.gameObject.SetActive(false);
+    }
+
+    private Vector3 GetPressPlayBaseScale(RectTransform pressPlay)
+    {
+        return pressPlay != null &&
+               pressPlayBaseScales.TryGetValue(pressPlay, out Vector3 baseScale)
+            ? baseScale
+            : Vector3.one;
     }
 
     private bool TryGetTrainPosition(TrainPlacement train, out Vector2 position)
@@ -797,7 +1012,9 @@ public class SlotFeatureVisualController : MonoBehaviour
 
     private void ValidateTrainVisualPool(TrainVisualType type)
     {
-        int availableCount = trainVisuals.TryGetValue(type, out List<RectTransform> visuals)
+        int availableCount = trainVisuals.TryGetValue(
+            type,
+            out List<TrainVisualReferences> visuals)
             ? visuals.Count
             : 0;
         int requiredCount = GetMaximumVisibleTrainCount(type);
@@ -850,10 +1067,11 @@ public class SlotFeatureVisualController : MonoBehaviour
 
     private void HideAnimationCells(int reelIndex, int startRow, int count)
     {
-        List<RectTransform> reelCells = animationCellsByReel[reelIndex];
         for (int row = startRow; row < startRow + count; row++)
         {
-            GameObject coveredCell = reelCells[row].gameObject;
+            RectTransform animationCell = GetAnimationCell(reelIndex, row);
+            GameObject coveredCell = animationCell.gameObject;
+            SetWinboxActive(animationCell, false);
             coveredCell.SetActive(false);
             hiddenAnimationCells.Add(coveredCell);
         }
@@ -864,16 +1082,19 @@ public class SlotFeatureVisualController : MonoBehaviour
         if (animationRoot == null) return;
 
         bool hasActiveAnimationCell = false;
-        for (int reelIndex = 0; reelIndex < animationColumns.Count; reelIndex++)
+        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
         {
-            RectTransform column = animationColumns[reelIndex];
-            bool hasActiveCell = reelIndex < animationCellsByReel.Count &&
-                                 animationCellsByReel[reelIndex].Any(cell =>
-                                     cell != null &&
-                                     IsAnimationCellActive(cell.gameObject) &&
-                                     cell.gameObject.activeSelf);
+            RectTransform column = GetAnimationColumn(reelIndex);
+            bool hasActiveCell = false;
+            for (int row = 0; row < RowCount; row++)
+            {
+                RectTransform cell = GetAnimationCell(reelIndex, row);
+                hasActiveCell |= cell != null &&
+                                 IsAnimationCellActive(cell.gameObject) &&
+                                 cell.gameObject.activeSelf;
+            }
 
-            column.gameObject.SetActive(hasActiveCell);
+            if (column != null) column.gameObject.SetActive(hasActiveCell);
             hasActiveAnimationCell |= hasActiveCell;
         }
 
@@ -889,35 +1110,19 @@ public class SlotFeatureVisualController : MonoBehaviour
                 activeTrainAnimationCells.Contains(animationCell));
     }
 
-    private void SetWinboxScale(RectTransform animationCell)
+    private void SetWinboxActive(RectTransform animationCell, bool isActive)
     {
-        Transform winbox = FindDirectWinbox(animationCell);
-        if (winbox != null)
-        {
-            winbox.localScale = Vector3.one * winboxScale;
-        }
+        SetWinboxActive(animationCell != null ? animationCell.gameObject : null, isActive);
     }
 
-    private static void SetWinboxActive(RectTransform animationCell, bool isActive)
+    private void SetWinboxActive(GameObject animationCell, bool isActive)
     {
-        Transform winbox = FindDirectWinbox(animationCell);
-        if (winbox != null)
+        if (animationCell != null &&
+            winboxByAnimationCell.TryGetValue(animationCell, out RectTransform winbox) &&
+            winbox != null)
         {
             winbox.gameObject.SetActive(isActive);
         }
-    }
-
-    private static Transform FindDirectWinbox(RectTransform animationCell)
-    {
-        if (animationCell == null) return null;
-
-        for (int childIndex = 0; childIndex < animationCell.childCount; childIndex++)
-        {
-            Transform child = animationCell.GetChild(childIndex);
-            if (child.name.StartsWith("Winbox")) return child;
-        }
-
-        return null;
     }
 
     private bool HasTwoSlotConfiguration()
@@ -952,8 +1157,15 @@ public class SlotFeatureVisualController : MonoBehaviour
 
     private bool HasCompleteAnimationGrid()
     {
-        return animationCellsByReel.Count == ReelCount &&
-               animationCellsByReel.All(cells => cells.Count >= RowCount);
+        return animationGrid != null &&
+               animationGrid.Length == ReelCount &&
+               animationGrid.All(column =>
+                   column != null &&
+                   column.column != null &&
+                   column.rows != null &&
+                   column.rows.Length == RowCount &&
+                   column.rows.All(cell =>
+                       cell != null && cell.slot != null && cell.winbox != null));
     }
 
     private void EnsureInitialized()
