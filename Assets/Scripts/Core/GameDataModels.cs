@@ -464,6 +464,17 @@ public class GoldBurstData
     public bool triggered;
     public bool inRespin;
     public int remainingRespins;
+    public List<GoldBurstPrizePlacement> prizes = new List<GoldBurstPrizePlacement>();
+}
+
+[Serializable]
+public class GoldBurstPrizePlacement
+{
+    public int startRow;
+    public int startCol;
+    public int rowCount = 1;
+    public int columnCount = 1;
+    public double amount;
 }
 
 [Serializable]
@@ -488,6 +499,13 @@ public enum TrainVisualType
     Golden
 }
 
+public enum GoldBurstTier
+{
+    Cold,
+    Mega,
+    Ultimate
+}
+
 [Serializable]
 public class TrainPlacement
 {
@@ -496,6 +514,8 @@ public class TrainPlacement
     public int startCol;
     public int rowCount;
     public int columnCount;
+    public double payout;
+    public List<double> trainJourney = new List<double>();
 }
 
 #endregion
@@ -710,6 +730,8 @@ public static class InitDataConverter
             out List<TwoSlotBarrelPlacement> twoSlotBarrels,
             out List<ThreeSlotBarrelPlacement> threeSlotBarrels,
             out List<TrainPlacement> trains);
+        List<GoldBurstPrizePlacement> goldBurstPrizes =
+            ConvertGoldBurstPrizePlacements(serverResponse);
 
         var result = new SpinResult
         {
@@ -782,7 +804,8 @@ public static class InitDataConverter
                 {
                     triggered = serverResponse.payload.goldBurst.triggered,
                     inRespin = serverResponse.payload.goldBurst.inRespin,
-                    remainingRespins = serverResponse.payload.goldBurst.remainingRespins
+                    remainingRespins = serverResponse.payload.goldBurst.remainingRespins,
+                    prizes = goldBurstPrizes
                 }
                 : null,
 
@@ -792,6 +815,279 @@ public static class InitDataConverter
         };
 
         return result;
+    }
+
+    private static List<GoldBurstPrizePlacement> ConvertGoldBurstPrizePlacements(
+        ServerSpinResponse serverResponse)
+    {
+        var placements = new Dictionary<
+            (int row, int col, int rows, int columns),
+            GoldBurstPrizePlacement>();
+
+        CollectGoldBurstPrizePlacements(
+            serverResponse?.payload?.goldBurst?.additionalData,
+            placements);
+
+        // Older server versions exposed the same prize objects one level higher.
+        // Read those locations as fallbacks without replacing authoritative data
+        // already supplied by goldBurst.additionalData.
+        CollectGoldBurstPrizePlacements(
+            serverResponse?.payload?.additionalData,
+            placements,
+            replaceExisting: false);
+        CollectGoldBurstPrizePlacements(
+            serverResponse?.additionalData,
+            placements,
+            replaceExisting: false);
+
+        return placements.Values
+            .OrderBy(placement => placement.startCol)
+            .ThenBy(placement => placement.startRow)
+            .ToList();
+    }
+
+    private static void CollectGoldBurstPrizePlacements(
+        IDictionary<string, JToken> additionalData,
+        Dictionary<(int row, int col, int rows, int columns), GoldBurstPrizePlacement> placements,
+        bool replaceExisting = true)
+    {
+        if (additionalData == null) return;
+
+        foreach (JToken token in additionalData.Values)
+        {
+            CollectGoldBurstPrizePlacements(token, placements, replaceExisting);
+        }
+    }
+
+    private static void CollectGoldBurstPrizePlacements(
+        JToken token,
+        Dictionary<(int row, int col, int rows, int columns), GoldBurstPrizePlacement> placements,
+        bool replaceExisting)
+    {
+        if (token == null) return;
+
+        if (token is JObject objectToken)
+        {
+            if (TryReadGoldBurstGeometry(
+                    objectToken,
+                    out int startRow,
+                    out int startCol,
+                    out int rowCount,
+                    out int columnCount) &&
+                TryReadGoldBurstAmount(objectToken, out double amount))
+            {
+                var key = (startRow, startCol, rowCount, columnCount);
+                if (replaceExisting || !placements.ContainsKey(key))
+                {
+                    placements[key] = new GoldBurstPrizePlacement
+                    {
+                        startRow = startRow,
+                        startCol = startCol,
+                        rowCount = rowCount,
+                        columnCount = columnCount,
+                        amount = amount
+                    };
+                }
+            }
+
+            foreach (JProperty property in objectToken.Properties())
+            {
+                CollectGoldBurstPrizePlacements(property.Value, placements, replaceExisting);
+            }
+        }
+        else if (token is JArray arrayToken)
+        {
+            foreach (JToken child in arrayToken)
+            {
+                CollectGoldBurstPrizePlacements(child, placements, replaceExisting);
+            }
+        }
+    }
+
+    private static bool TryReadGoldBurstGeometry(
+        JObject objectToken,
+        out int startRow,
+        out int startCol,
+        out int rowCount,
+        out int columnCount)
+    {
+        startRow = 0;
+        startCol = 0;
+        rowCount = 0;
+        columnCount = 0;
+
+        JToken positionsToken = GetPropertyValue(
+            objectToken,
+            "coveredPositions",
+            "coveredSlots",
+            "positions",
+            "cells");
+        if (positionsToken is JArray positionsArray)
+        {
+            var positions = positionsArray
+                .OfType<JObject>()
+                .Select(position => new
+                {
+                    Row = ReadNullableInt(position, "row", "rowIndex", "y"),
+                    Col = ReadNullableInt(position, "col", "column", "columnIndex", "reel", "reelIndex", "x")
+                })
+                .Where(position => position.Row.HasValue && position.Col.HasValue)
+                .ToList();
+
+            List<int> rows = positions
+                .Select(position => position.Row.Value)
+                .Distinct()
+                .OrderBy(value => value)
+                .ToList();
+            List<int> columns = positions
+                .Select(position => position.Col.Value)
+                .Distinct()
+                .OrderBy(value => value)
+                .ToList();
+
+            if (rows.Count > 0 && columns.Count > 0 &&
+                rows[0] >= 0 && rows[rows.Count - 1] < 3 &&
+                columns[0] >= 0 && columns[columns.Count - 1] < 5 &&
+                positions.Count == rows.Count * columns.Count &&
+                AreConsecutive(rows) && AreConsecutive(columns))
+            {
+                startRow = rows[0];
+                startCol = columns[0];
+                rowCount = rows.Count;
+                columnCount = columns.Count;
+                return true;
+            }
+        }
+
+        int? row = ReadNullableInt(objectToken, "row", "rowIndex", "startRow", "y");
+        int? col = ReadNullableInt(
+            objectToken,
+            "col",
+            "column",
+            "columnIndex",
+            "startCol",
+            "reel",
+            "reelIndex",
+            "x");
+
+        // Single Gold Burst payouts carry their cell under a nested `position`
+        // object while keeping the payout on this parent object.
+        if ((!row.HasValue || !col.HasValue) &&
+            GetPropertyValue(objectToken, "position") is JObject positionObject)
+        {
+            if (!row.HasValue)
+            {
+                row = ReadNullableInt(positionObject, "row", "rowIndex", "y");
+            }
+
+            if (!col.HasValue)
+            {
+                col = ReadNullableInt(
+                    positionObject,
+                    "col",
+                    "column",
+                    "columnIndex",
+                    "reel",
+                    "reelIndex",
+                    "x");
+            }
+        }
+
+        if (!row.HasValue || !col.HasValue ||
+            row.Value < 0 || row.Value >= 3 || col.Value < 0 || col.Value >= 5)
+        {
+            return false;
+        }
+
+        startRow = row.Value;
+        startCol = col.Value;
+        rowCount = Math.Max(1, ReadNullableInt(objectToken, "rowCount", "height", "rows") ?? 1);
+        columnCount = Math.Max(1, ReadNullableInt(objectToken, "columnCount", "colCount", "width", "columns") ?? 1);
+        return startRow + rowCount <= 3 && startCol + columnCount <= 5;
+    }
+
+    private static bool TryReadGoldBurstAmount(JObject objectToken, out double amount)
+    {
+        string[] amountPropertyNames =
+        {
+            "amount",
+            "value",
+            "cash",
+            "win",
+            "cashValue",
+            "winAmount",
+            "winInCash",
+            "winInCredits",
+            "payout",
+            "payoutAmount",
+            "prizeAmount",
+            "awardAmount",
+            "creditValue",
+            "creditsAwarded",
+            "totalWin",
+            "totalWinInCash"
+        };
+
+        foreach (string propertyName in amountPropertyNames)
+        {
+            JToken value = GetPropertyValue(objectToken, propertyName);
+            if (TryReadDouble(value, out amount)) return true;
+        }
+
+        foreach (string containerName in new[] { "prize", "award", "reward", "result" })
+        {
+            if (!(GetPropertyValue(objectToken, containerName) is JObject nested)) continue;
+
+            foreach (string propertyName in amountPropertyNames)
+            {
+                JToken value = GetPropertyValue(nested, propertyName);
+                if (TryReadDouble(value, out amount)) return true;
+            }
+        }
+
+        amount = 0;
+        return false;
+    }
+
+    private static int? ReadNullableInt(JObject objectToken, params string[] propertyNames)
+    {
+        JToken value = GetPropertyValue(objectToken, propertyNames);
+        if (value == null) return null;
+
+        if (value.Type == JTokenType.Integer) return value.Value<int>();
+        return int.TryParse(value.ToString(), out int parsed) ? parsed : (int?)null;
+    }
+
+    private static JToken GetPropertyValue(JObject objectToken, params string[] propertyNames)
+    {
+        if (objectToken == null || propertyNames == null) return null;
+
+        foreach (JProperty property in objectToken.Properties())
+        {
+            if (propertyNames.Any(name =>
+                    string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return property.Value;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool TryReadDouble(JToken token, out double value)
+    {
+        if (token != null &&
+            (token.Type == JTokenType.Float || token.Type == JTokenType.Integer))
+        {
+            value = token.Value<double>();
+            return true;
+        }
+
+        return double.TryParse(
+            token?.ToString(),
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out value);
     }
 
     private static void ConvertBarrelPlacements(
@@ -877,6 +1173,7 @@ public static class InitDataConverter
         {
             AddFeaturePlacement(
                 coveredPositions,
+                token.Parent?.Parent as JObject,
                 twoSlotPlacementsByReel,
                 threeSlotPlacementsByReel,
                 trainPlacements);
@@ -910,6 +1207,7 @@ public static class InitDataConverter
 
     private static void AddFeaturePlacement(
         JArray coveredPositions,
+        JObject placementData,
         Dictionary<int, TwoSlotBarrelPlacement> twoSlotPlacementsByReel,
         Dictionary<int, ThreeSlotBarrelPlacement> threeSlotPlacementsByReel,
         List<TrainPlacement> trainPlacements)
@@ -969,13 +1267,43 @@ public static class InitDataConverter
         TrainVisualType? trainType = GetTrainVisualType(rows.Count, columns.Count);
         if (!trainType.HasValue) return;
 
+        double payout = 0d;
+        TryReadDouble(GetPropertyValue(placementData, "payout"), out payout);
+
+        var trainJourney = new List<double>();
+        if (GetPropertyValue(placementData, "trainJourney") is JArray journeyToken)
+        {
+            foreach (JToken amountToken in journeyToken)
+            {
+                if (TryReadDouble(amountToken, out double amount))
+                {
+                    trainJourney.Add(amount);
+                }
+            }
+        }
+
+        TrainPlacement existingTrain = trainPlacements.FirstOrDefault(train =>
+            train.type == trainType.Value &&
+            train.startRow == startRow &&
+            train.startCol == startCol &&
+            train.rowCount == rows.Count &&
+            train.columnCount == columns.Count);
+        if (existingTrain != null)
+        {
+            if (payout > 0d) existingTrain.payout = payout;
+            if (trainJourney.Count > 0) existingTrain.trainJourney = trainJourney;
+            return;
+        }
+
         trainPlacements.Add(new TrainPlacement
         {
             type = trainType.Value,
             startRow = startRow,
             startCol = startCol,
             rowCount = rows.Count,
-            columnCount = columns.Count
+            columnCount = columns.Count,
+            payout = payout,
+            trainJourney = trainJourney
         });
     }
 

@@ -1,7 +1,15 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using DG.Tweening;
+using Spine.Unity;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 /// <summary>
 /// Owns feature visuals that sit on top of the reel presentation.
@@ -11,6 +19,8 @@ public class SlotFeatureVisualController : MonoBehaviour
 {
     private const int ReelCount = 5;
     private const int RowCount = 3;
+    private const int FirstGoldBurstSymbolId = 11;
+    private const int LastGoldBurstSymbolId = 13;
     private const int MaxGreenTrains = 2;
     private const int MaxRedTrains = 1;
     private const int MaxHorizontalPurpleTrains = 1;
@@ -43,6 +53,13 @@ public class SlotFeatureVisualController : MonoBehaviour
         public RectTransform pressPlay = null;
     }
 
+    private sealed class GoldBoxRuntime
+    {
+        internal RectTransform visual;
+        internal TMP_Text amountText;
+        internal Vector3 baseScale;
+    }
+
     [Header("Feature References")]
     [SerializeField] private RectTransform animationRoot;
     [SerializeField] private RectTransform twoSlotBarrelRoot;
@@ -52,6 +69,21 @@ public class SlotFeatureVisualController : MonoBehaviour
     [SerializeField] private RectTransform horizontalPurpleTrainRoot;
     [SerializeField] private RectTransform verticalPurpleTrainRoot;
     [SerializeField] private RectTransform goldenTrainRoot;
+
+    [Header("Gold Burst Presentation")]
+    [SerializeField] private GameObject darkBackground;
+    [SerializeField] private GameObject coldBurstRespin;
+    [SerializeField] private GameObject megaGoldBurstRespin;
+    [SerializeField] private GameObject ultimateGoldBurstRespin;
+    [SerializeField] private GameObject track;
+    [SerializeField] private GameObject trolleyMan;
+    [SerializeField] private RectTransform oneSlotGoldBoxRoot;
+    [SerializeField] private RectTransform twoSlotGoldBoxRoot;
+    [SerializeField] private RectTransform threeSlotGoldBoxRoot;
+    [SerializeField, Min(1f)] private float goldBurstIntroFramesPerSecond = 29f;
+    [SerializeField, Min(0f)] private float goldBurstMergeDelayAfterTrolley = 0.5f;
+    [SerializeField, Min(0f)] private float goldBoxRevealStagger = 0.12f;
+    [SerializeField, Min(0f)] private float goldBoxHoldWithoutTrain = 1.2f;
 
     [Header("5x3 Train Visuals")]
     [SerializeField] private TrainVisualReferences[] greenTrainVisuals =
@@ -64,6 +96,24 @@ public class SlotFeatureVisualController : MonoBehaviour
         new TrainVisualReferences[MaxVerticalPurpleTrains];
     [SerializeField] private TrainVisualReferences[] goldenTrainVisuals =
         new TrainVisualReferences[MaxGoldenTrains];
+
+    [Header("Gold Burst Train Journey Presentation")]
+    [SerializeField] private RectTransform trainJourneyGreenTrain;
+    [SerializeField] private RectTransform trainJourneyActor;
+    [SerializeField] private RectTransform trainJourneySecondActor;
+    [SerializeField] private RectTransform trainJourneyWinBox;
+    [SerializeField] private TMP_Text[] trainJourneyWagonAmounts = new TMP_Text[4];
+    [SerializeField] private TMP_Text trainJourneyWinAmount;
+    [SerializeField, Min(0.1f)] private float trainJourneyPhaseDuration = 1.25f;
+    [SerializeField, Min(0f)] private float trainJourneySettleDelay = 0.2f;
+    [SerializeField, Min(0f)] private float trainJourneyResultHold = 0.3f;
+    [SerializeField, Min(0.1f)] private float trainJourneyExitDuration = 1f;
+    [SerializeField] private float trainJourneyCenterX;
+    [SerializeField] private float trainJourneyExitX = 2813f;
+    [SerializeField] private float trainJourneyCollectionXOffset;
+    [SerializeField, Min(0.01f)] private float trainJourneyCollectionCountDuration = 0.25f;
+    [SerializeField, Min(0.01f)] private float trainJourneyActorExitLeadTime = 0.3f;
+    [SerializeField, Min(0f)] private float trainJourneyActorExitDistance = 900f;
 
     [Header("Press Play Animation")]
     [SerializeField, Min(1f)] private float pressPlayPopupScale = 1.12f;
@@ -124,17 +174,40 @@ public class SlotFeatureVisualController : MonoBehaviour
         new Dictionary<TrainVisualType, List<TrainVisualReferences>>();
     private readonly Dictionary<RectTransform, TrainVisualReferences> trainReferencesByVisual =
         new Dictionary<RectTransform, TrainVisualReferences>();
+    private readonly Dictionary<RectTransform, TrainPlacement> trainPlacementsByVisual =
+        new Dictionary<RectTransform, TrainPlacement>();
     private readonly Dictionary<RectTransform, Vector3> pressPlayBaseScales =
         new Dictionary<RectTransform, Vector3>();
     private readonly HashSet<GameObject> hiddenAnimationCells = new HashSet<GameObject>();
     private readonly HashSet<GameObject> activeWinAnimationCells = new HashSet<GameObject>();
     private readonly HashSet<GameObject> activeTrainAnimationCells = new HashSet<GameObject>();
+    private readonly HashSet<GameObject> activeGoldBurstAnimationCells = new HashSet<GameObject>();
     private readonly HashSet<CanvasGroup> conversionCanvasGroups = new HashSet<CanvasGroup>();
+    private readonly List<GoldBoxRuntime> allGoldBoxes = new List<GoldBoxRuntime>();
+    private readonly List<GoldBoxRuntime>[] oneSlotGoldBoxesByReel =
+        new List<GoldBoxRuntime>[ReelCount];
+    private readonly List<GoldBoxRuntime> twoSlotGoldBoxes = new List<GoldBoxRuntime>();
+    private readonly List<GoldBoxRuntime> threeSlotGoldBoxes = new List<GoldBoxRuntime>();
+    private readonly HashSet<CanvasGroup> hiddenGoldBurstSources = new HashSet<CanvasGroup>();
+    private readonly HashSet<RectTransform> hiddenGoldBurstFeatures = new HashSet<RectTransform>();
+    private readonly Dictionary<RectTransform, int> animationColumnSiblingIndices =
+        new Dictionary<RectTransform, int>();
 
     private Transform searchRoot;
     private IReadOnlyList<ReelResultSlots> conversionSourceSlots;
     private bool isInitialized;
     private bool configurationWarningShown;
+    private bool isGoldBurstPresentationActive;
+    private bool deferGoldBurstTriggerBarrelMerge;
+    private bool goldBurstPressPlayHandled;
+    private Action goldBurstPressPlayCallback;
+    private Coroutine trainJourneyRoutine;
+    private Vector2 trainJourneyGreenTrainStartPosition;
+    private Vector2 trainJourneyActorStartPosition;
+    private Vector2 trainJourneySecondActorStartPosition;
+    private bool trainJourneyOriginalLoop;
+    private bool hasCapturedTrainJourneyState;
+    private bool trainJourneyOwnsDarkBackground;
 
     internal void Initialize(Transform slotRoot, IReadOnlyList<ReelResultSlots> resultSlotsByReel)
     {
@@ -207,12 +280,50 @@ public class SlotFeatureVisualController : MonoBehaviour
 
             pendingTrains.Add(placement);
         }
+
+        // A train can remain visible across Gold Burst respins while the server
+        // refreshes its payout journey on the final response. Keep the reusable
+        // visual bound to the newest placement data even when it is not revealed again.
+        foreach (TrainPlacement placement in pendingTrains)
+        {
+            var key = ((int)placement.type, placement.startRow, placement.startCol,
+                placement.rowCount, placement.columnCount);
+            if (visibleFeatures.TryGetValue(key, out RectTransform visibleTrain) &&
+                visibleTrain != null)
+            {
+                trainPlacementsByVisual[visibleTrain] = placement;
+            }
+        }
+    }
+
+    internal void ConfigureGoldBurstTriggerBarrelMerge(bool shouldDefer)
+    {
+        EnsureInitialized();
+        deferGoldBurstTriggerBarrelMerge = shouldDefer;
     }
 
     internal void RevealFeaturesForReel(int reelIndex)
     {
         EnsureInitialized();
 
+        if (!deferGoldBurstTriggerBarrelMerge)
+        {
+            RevealBarrelForReel(reelIndex);
+        }
+
+        foreach (TrainPlacement train in pendingTrains)
+        {
+            int lastCoveredReel = train.startCol + train.columnCount - 1;
+            var key = ((int)train.type, train.startRow, train.startCol, train.rowCount, train.columnCount);
+            if (lastCoveredReel == reelIndex && !visibleFeatures.ContainsKey(key))
+            {
+                RevealTrain(train);
+            }
+        }
+    }
+
+    private void RevealBarrelForReel(int reelIndex)
+    {
         if (pendingThreeSlotReels.Contains(reelIndex))
         {
             if (!visibleFeatures.ContainsKey((ThreeSlotFeatureType, 0, reelIndex, RowCount, 1)))
@@ -225,16 +336,6 @@ public class SlotFeatureVisualController : MonoBehaviour
             if (!visibleFeatures.ContainsKey((TwoSlotFeatureType, startRow, reelIndex, 2, 1)))
             {
                 RevealTwoSlotBarrel(reelIndex, startRow);
-            }
-        }
-
-        foreach (TrainPlacement train in pendingTrains)
-        {
-            int lastCoveredReel = train.startCol + train.columnCount - 1;
-            var key = ((int)train.type, train.startRow, train.startCol, train.rowCount, train.columnCount);
-            if (lastCoveredReel == reelIndex && !visibleFeatures.ContainsKey(key))
-            {
-                RevealTrain(train);
             }
         }
     }
@@ -291,6 +392,7 @@ public class SlotFeatureVisualController : MonoBehaviour
             trainVisual);
         visibleFeatures[((int)train.type, train.startRow, train.startCol,
             train.rowCount, train.columnCount)] = trainVisual;
+        trainPlacementsByVisual[trainVisual] = train;
     }
 
     internal void RevealAllFeatures()
@@ -303,12 +405,16 @@ public class SlotFeatureVisualController : MonoBehaviour
             RevealFeaturesForReel(reelIndex);
         }
 
-        ShowPressPlayButtons();
+        if (!isGoldBurstPresentationActive)
+        {
+            ShowPressPlayButtons();
+        }
     }
 
     internal void BeginSpinPresentation()
     {
         EnsureInitialized();
+        ResetGoldBurstPresentation();
         ClearVisibleFeatures();
     }
 
@@ -318,6 +424,339 @@ public class SlotFeatureVisualController : MonoBehaviour
         pendingThreeSlotReels.Clear();
         pendingTrains.Clear();
         ClearVisibleFeatures();
+        ResetGoldBurstPresentation();
+    }
+
+    internal void BeginGoldBurstTriggerPresentation()
+    {
+        EnsureInitialized();
+        DOTween.Complete(this);
+        ResetGoldBurstPresentation();
+        deferGoldBurstTriggerBarrelMerge = true;
+        isGoldBurstPresentationActive = true;
+    }
+
+    internal IEnumerator PlayGoldBurstTriggerPresentation(GoldBurstTier tier)
+    {
+        EnsureInitialized();
+        if (!isGoldBurstPresentationActive)
+        {
+            BeginGoldBurstTriggerPresentation();
+        }
+
+        if (darkBackground != null) darkBackground.SetActive(true);
+
+        GameObject intro = tier switch
+        {
+            GoldBurstTier.Mega => megaGoldBurstRespin,
+            GoldBurstTier.Ultimate => ultimateGoldBurstRespin,
+            _ => coldBurstRespin
+        };
+        if (intro != null)
+        {
+            yield return PlayOneShotImageAnimation(intro);
+        }
+
+        if (track != null) track.SetActive(true);
+        if (trolleyMan != null)
+        {
+            trolleyMan.SetActive(true);
+            SkeletonGraphic trolleyGraphic = trolleyMan.GetComponent<SkeletonGraphic>();
+            float trolleyDuration = 0f;
+            if (trolleyGraphic != null)
+            {
+                if (trolleyGraphic.SkeletonData == null)
+                {
+                    trolleyGraphic.Initialize(false);
+                }
+
+                Spine.Animation trolleyAnimation =
+                    trolleyGraphic.SkeletonData?.FindAnimation("animation");
+                if (trolleyAnimation != null && trolleyGraphic.AnimationState != null)
+                {
+                    trolleyGraphic.AnimationState.SetAnimation(0, trolleyAnimation.Name, false);
+                    trolleyDuration = trolleyAnimation.Duration;
+                }
+            }
+
+            if (trolleyDuration > 0f)
+            {
+                yield return new WaitForSecondsRealtime(trolleyDuration);
+            }
+        }
+
+        if (trolleyMan != null) trolleyMan.SetActive(false);
+        if (track != null) track.SetActive(false);
+        if (darkBackground != null) darkBackground.SetActive(false);
+
+        if (goldBurstMergeDelayAfterTrolley > 0f)
+        {
+            yield return new WaitForSecondsRealtime(goldBurstMergeDelayAfterTrolley);
+        }
+
+        deferGoldBurstTriggerBarrelMerge = false;
+        bool hasPreparedBarrelMerge = pendingThreeSlotReels.Count > 0 ||
+                                      pendingStartRowByReel.Count > 0;
+        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
+        {
+            RevealBarrelForReel(reelIndex);
+        }
+
+        if (hasPreparedBarrelMerge)
+        {
+            yield return new WaitForSecondsRealtime(
+                ConversionHoldDuration + ConversionFadeDuration);
+        }
+    }
+
+    internal List<GoldBurstPrizePlacement> GetGoldBurstTriggerSingleSlotBarrels(
+        IReadOnlyList<List<int>> matrix)
+    {
+        EnsureInitialized();
+        var placements = new List<GoldBurstPrizePlacement>();
+        var coveredCells = new bool[ReelCount, RowCount];
+
+        foreach (int reelIndex in pendingThreeSlotReels.OrderBy(index => index))
+        {
+            if (reelIndex < 0 || reelIndex >= ReelCount) continue;
+
+            for (int row = 0; row < RowCount; row++)
+            {
+                placements.Add(new GoldBurstPrizePlacement
+                {
+                    startCol = reelIndex,
+                    startRow = row,
+                    rowCount = 1,
+                    columnCount = 1
+                });
+                coveredCells[reelIndex, row] = true;
+            }
+        }
+
+        foreach (KeyValuePair<int, int> barrel in pendingStartRowByReel
+                     .OrderBy(entry => entry.Key))
+        {
+            int reelIndex = barrel.Key;
+            int startRow = barrel.Value;
+            if (reelIndex < 0 || reelIndex >= ReelCount ||
+                startRow < 0 || startRow + 1 >= RowCount ||
+                coveredCells[reelIndex, startRow] ||
+                coveredCells[reelIndex, startRow + 1])
+            {
+                continue;
+            }
+
+            for (int row = startRow; row < startRow + 2; row++)
+            {
+                placements.Add(new GoldBurstPrizePlacement
+                {
+                    startCol = reelIndex,
+                    startRow = row,
+                    rowCount = 1,
+                    columnCount = 1
+                });
+                coveredCells[reelIndex, row] = true;
+            }
+        }
+
+        if (matrix == null) return placements;
+
+        for (int reelIndex = 0;
+             reelIndex < Mathf.Min(ReelCount, matrix.Count);
+             reelIndex++)
+        {
+            List<int> column = matrix[reelIndex];
+            if (column == null) continue;
+
+            for (int row = 0; row < Mathf.Min(RowCount, column.Count); row++)
+            {
+                int symbolId = column[row];
+                if (coveredCells[reelIndex, row] ||
+                    symbolId < FirstGoldBurstSymbolId ||
+                    symbolId > LastGoldBurstSymbolId)
+                {
+                    continue;
+                }
+
+                placements.Add(new GoldBurstPrizePlacement
+                {
+                    startCol = reelIndex,
+                    startRow = row,
+                    rowCount = 1,
+                    columnCount = 1
+                });
+            }
+        }
+
+        return placements;
+    }
+
+    internal void BeginGoldBurstPrizeReveal()
+    {
+        EnsureInitialized();
+        HideAllGoldBoxes();
+    }
+
+    internal IEnumerator RevealGoldBurstPrize(GoldBurstPrizePlacement prize)
+    {
+        EnsureInitialized();
+        if (prize == null || prize.amount < 0d ||
+            !TryGetGoldBox(prize, out GoldBoxRuntime goldBox))
+        {
+            yield break;
+        }
+
+        HideGoldBurstSource(prize);
+        SetGoldBoxRootActive(prize.rowCount, true);
+        if (goldBox.visual.parent != null)
+        {
+            goldBox.visual.parent.gameObject.SetActive(true);
+        }
+
+        goldBox.amountText.text = prize.amount.ToString("0.00", CultureInfo.InvariantCulture);
+        DOTween.Kill(goldBox.visual);
+        goldBox.visual.localScale = Vector3.zero;
+        goldBox.visual.gameObject.SetActive(true);
+        RefreshAnimationHierarchy();
+
+        Sequence reveal = DOTween.Sequence().SetUpdate(true).SetTarget(goldBox.visual);
+        reveal.Append(goldBox.visual
+            .DOScale(goldBox.baseScale * 1.08f, 0.2f)
+            .SetEase(Ease.OutBack));
+        reveal.Append(goldBox.visual
+            .DOScale(goldBox.baseScale, 0.12f)
+            .SetEase(Ease.OutSine));
+        yield return reveal.WaitForCompletion();
+
+        if (goldBoxRevealStagger > 0f)
+        {
+            yield return new WaitForSecondsRealtime(goldBoxRevealStagger);
+        }
+
+        RefreshAnimationHierarchy();
+    }
+
+    internal bool ShowGoldBurstPressPlay(Action onPressed)
+    {
+        goldBurstPressPlayHandled = false;
+        goldBurstPressPlayCallback = onPressed;
+        bool showedButton = false;
+
+        foreach (RectTransform visual in visibleFeatures.Values.Distinct())
+        {
+            if (visual == null || !visual.gameObject.activeSelf ||
+                !trainReferencesByVisual.TryGetValue(
+                    visual,
+                    out TrainVisualReferences trainReferences) ||
+                trainReferences?.pressPlay == null)
+            {
+                continue;
+            }
+
+            Button button = trainReferences.pressPlay.GetComponent<Button>();
+            if (button == null) continue;
+
+            button.onClick.RemoveListener(OnGoldBurstPressPlayClicked);
+            button.onClick.AddListener(OnGoldBurstPressPlayClicked);
+            button.interactable = true;
+            PlayPressPlayAnimation(trainReferences);
+            showedButton = true;
+        }
+
+        if (!showedButton)
+        {
+            goldBurstPressPlayCallback = null;
+        }
+
+        return showedButton;
+    }
+
+    internal float GoldBurstHoldWithoutTrain => goldBoxHoldWithoutTrain;
+
+    internal void EndGoldBurstPresentation()
+    {
+        ResetGoldBurstPresentation();
+        RefreshAnimationHierarchy();
+    }
+
+    internal bool TryAcquireGoldBurstAnimationCell(
+        int reelIndex,
+        int row,
+        out RectTransform animationCell)
+    {
+        EnsureInitialized();
+        animationCell = null;
+
+        if (!HasCompleteAnimationGrid() ||
+            reelIndex < 0 || reelIndex >= ReelCount ||
+            row < 0 || row >= RowCount)
+        {
+            return false;
+        }
+
+        animationCell = GetAnimationCell(reelIndex, row);
+        RectTransform column = GetAnimationColumn(reelIndex);
+        if (animationCell == null || column == null || animationRoot == null ||
+            !animationCell.IsChildOf(animationRoot))
+        {
+            return false;
+        }
+
+        activeGoldBurstAnimationCells.Add(animationCell.gameObject);
+        SetWinboxActive(animationCell, false);
+        animationRoot.gameObject.SetActive(true);
+        column.gameObject.SetActive(true);
+        column.SetAsLastSibling();
+        animationCell.gameObject.SetActive(true);
+        return true;
+    }
+
+    internal void ReleaseGoldBurstAnimationCell(RectTransform animationCell)
+    {
+        if (animationCell == null) return;
+
+        activeGoldBurstAnimationCells.Remove(animationCell.gameObject);
+        bool keepCellActive = activeWinAnimationCells.Contains(animationCell.gameObject) ||
+                              activeTrainAnimationCells.Contains(animationCell.gameObject);
+        SetWinboxActive(
+            animationCell,
+            activeWinAnimationCells.Contains(animationCell.gameObject));
+        animationCell.gameObject.SetActive(keepCellActive);
+
+        Transform columnTransform = animationCell.parent;
+        if (columnTransform is RectTransform column &&
+            !activeGoldBurstAnimationCells.Any(cell => cell.transform.parent == column) &&
+            animationColumnSiblingIndices.TryGetValue(column, out int siblingIndex))
+        {
+            column.SetSiblingIndex(siblingIndex);
+        }
+
+        RefreshAnimationHierarchy();
+    }
+
+    internal bool TryGetGoldBurstAnimationCenter(
+        int reelIndex,
+        int startRow,
+        int rowCount,
+        out Vector3 worldCenter)
+    {
+        EnsureInitialized();
+        worldCenter = Vector3.zero;
+
+        int endRow = startRow + rowCount - 1;
+        if (!HasCompleteAnimationGrid() ||
+            reelIndex < 0 || reelIndex >= ReelCount ||
+            startRow < 0 || endRow < startRow || endRow >= RowCount)
+        {
+            return false;
+        }
+
+        RectTransform firstCell = GetAnimationCell(reelIndex, startRow);
+        RectTransform lastCell = GetAnimationCell(reelIndex, endRow);
+        if (firstCell == null || lastCell == null) return false;
+
+        worldCenter = (firstCell.position + lastCell.position) * 0.5f;
+        return true;
     }
 
     internal bool TryAcquireWinAnimationCell(
@@ -378,9 +817,11 @@ public class SlotFeatureVisualController : MonoBehaviour
         if (animationCell == null) return false;
 
         activeTrainAnimationCells.Add(animationCell.gameObject);
+        SetWinboxActive(animationCell, true);
         if (!activeWinAnimationCells.Contains(animationCell.gameObject))
         {
-            SetWinboxActive(animationCell, false);
+            Image trainImage = animationCell.GetComponent<Image>();
+            if (trainImage != null) trainImage.enabled = false;
         }
 
         animationRoot.gameObject.SetActive(true);
@@ -460,6 +901,7 @@ public class SlotFeatureVisualController : MonoBehaviour
         }
 
         visibleFeatures.Clear();
+        trainPlacementsByVisual.Clear();
         RefreshAnimationHierarchy();
     }
 
@@ -518,6 +960,8 @@ public class SlotFeatureVisualController : MonoBehaviour
             goldenTrainRoot = FindDescendant(animationRoot, "GoldenTrains") as RectTransform;
         }
 
+        CacheGoldBurstSceneObjects();
+
         twoSlotBarrels.Clear();
         if (twoSlotBarrelRoot != null)
         {
@@ -550,17 +994,136 @@ public class SlotFeatureVisualController : MonoBehaviour
         }
 
         CacheTrainVisuals();
+        CacheTrainJourneyPresentation();
 
         CacheAnimationGrid();
+        CacheGoldBoxPools();
 
         isInitialized = true;
         HasTwoSlotConfiguration();
         HasThreeSlotConfiguration();
     }
 
+    private void CacheGoldBurstSceneObjects()
+    {
+        darkBackground = darkBackground != null
+            ? darkBackground
+            : FindSceneGameObject("DarkBackground");
+        coldBurstRespin = coldBurstRespin != null
+            ? coldBurstRespin
+            : FindSceneGameObject("ColdBurstRespin");
+        megaGoldBurstRespin = megaGoldBurstRespin != null
+            ? megaGoldBurstRespin
+            : FindSceneGameObject("MegaGoldBurstRespin");
+        ultimateGoldBurstRespin = ultimateGoldBurstRespin != null
+            ? ultimateGoldBurstRespin
+            : FindSceneGameObject("UltimateGoldBurstRespin");
+        track = track != null ? track : FindSceneGameObject("Track");
+        trolleyMan = trolleyMan != null ? trolleyMan : FindSceneGameObject("TrolleyMan");
+
+        if (oneSlotGoldBoxRoot == null)
+        {
+            oneSlotGoldBoxRoot = FindDescendant(animationRoot, "1SlotGoldBox") as RectTransform;
+        }
+        if (twoSlotGoldBoxRoot == null)
+        {
+            twoSlotGoldBoxRoot = FindDescendant(animationRoot, "2SlotGoldBox") as RectTransform;
+        }
+        if (threeSlotGoldBoxRoot == null)
+        {
+            threeSlotGoldBoxRoot = FindDescendant(animationRoot, "3SlotGoldBox") as RectTransform;
+        }
+    }
+
+    private void CacheGoldBoxPools()
+    {
+        allGoldBoxes.Clear();
+        twoSlotGoldBoxes.Clear();
+        threeSlotGoldBoxes.Clear();
+        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
+        {
+            oneSlotGoldBoxesByReel[reelIndex] = new List<GoldBoxRuntime>();
+        }
+
+        if (oneSlotGoldBoxRoot != null)
+        {
+            List<RectTransform> reelColumns = GetSortedChildren(oneSlotGoldBoxRoot, true);
+            for (int reelIndex = 0;
+                 reelIndex < Mathf.Min(ReelCount, reelColumns.Count);
+                 reelIndex++)
+            {
+                List<RectTransform> rowVisuals = GetSortedChildren(reelColumns[reelIndex], false);
+                foreach (RectTransform rowVisual in rowVisuals.Take(RowCount))
+                {
+                    GoldBoxRuntime runtime = CreateGoldBoxRuntime(rowVisual);
+                    if (runtime == null) continue;
+
+                    oneSlotGoldBoxesByReel[reelIndex].Add(runtime);
+                    allGoldBoxes.Add(runtime);
+                }
+            }
+        }
+
+        CacheLinearGoldBoxPool(twoSlotGoldBoxRoot, twoSlotGoldBoxes);
+        CacheLinearGoldBoxPool(threeSlotGoldBoxRoot, threeSlotGoldBoxes);
+        HideAllGoldBoxes();
+    }
+
+    private void CacheLinearGoldBoxPool(
+        RectTransform root,
+        List<GoldBoxRuntime> destination)
+    {
+        if (root == null) return;
+
+        foreach (RectTransform child in GetSortedChildren(root, true).Take(ReelCount))
+        {
+            GoldBoxRuntime runtime = CreateGoldBoxRuntime(child);
+            if (runtime == null) continue;
+
+            destination.Add(runtime);
+            allGoldBoxes.Add(runtime);
+        }
+    }
+
+    private static List<RectTransform> GetSortedChildren(
+        RectTransform root,
+        bool sortLeftToRight)
+    {
+        if (root == null) return new List<RectTransform>();
+
+        var children = new List<RectTransform>();
+        for (int index = 0; index < root.childCount; index++)
+        {
+            if (root.GetChild(index) is RectTransform child)
+            {
+                children.Add(child);
+            }
+        }
+
+        return sortLeftToRight
+            ? children.OrderBy(child => child.anchoredPosition.x).ToList()
+            : children.OrderByDescending(child => child.anchoredPosition.y).ToList();
+    }
+
+    private static GoldBoxRuntime CreateGoldBoxRuntime(RectTransform visual)
+    {
+        if (visual == null) return null;
+
+        TMP_Text amountText = visual.GetComponentInChildren<TMP_Text>(true);
+        return amountText == null
+            ? null
+            : new GoldBoxRuntime
+            {
+                visual = visual,
+                amountText = amountText,
+                baseScale = visual.localScale
+            };
+    }
+
     private void CacheAnimationGrid()
     {
         winboxByAnimationCell.Clear();
+        animationColumnSiblingIndices.Clear();
         if (animationGrid == null) return;
 
         foreach (AnimationColumnReferences columnReferences in animationGrid)
@@ -569,6 +1132,8 @@ public class SlotFeatureVisualController : MonoBehaviour
 
             if (columnReferences.column != null)
             {
+                animationColumnSiblingIndices[columnReferences.column] =
+                    columnReferences.column.GetSiblingIndex();
                 columnReferences.column.gameObject.SetActive(false);
             }
 
@@ -811,6 +1376,53 @@ public class SlotFeatureVisualController : MonoBehaviour
         return canvasGroup;
     }
 
+    private void CacheTrainJourneyPresentation()
+    {
+        if (trainJourneyGreenTrain != null)
+        {
+            TMP_Text[] discoveredAmounts = trainJourneyGreenTrain
+                .GetComponentsInChildren<TMP_Text>(true)
+                .Where(text => text != null &&
+                               text.name.StartsWith("Winamount", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(text => text.rectTransform.anchoredPosition.x)
+                .ToArray();
+
+            if (trainJourneyWagonAmounts == null ||
+                trainJourneyWagonAmounts.Length == 0 ||
+                trainJourneyWagonAmounts.All(text => text == null))
+            {
+                trainJourneyWagonAmounts = discoveredAmounts;
+            }
+
+            if (!hasCapturedTrainJourneyState)
+            {
+                trainJourneyGreenTrainStartPosition =
+                    trainJourneyGreenTrain.anchoredPosition;
+                if (trainJourneyActor != null)
+                {
+                    trainJourneyActorStartPosition =
+                        trainJourneyActor.anchoredPosition;
+                }
+                if (trainJourneySecondActor != null)
+                {
+                    trainJourneySecondActorStartPosition =
+                        trainJourneySecondActor.anchoredPosition;
+                }
+                ImageAnimation trainAnimation =
+                    trainJourneyGreenTrain.GetComponent<ImageAnimation>();
+                trainJourneyOriginalLoop = trainAnimation != null &&
+                                           trainAnimation.doLoopAnimation;
+                hasCapturedTrainJourneyState = true;
+            }
+        }
+
+        if (trainJourneyWinAmount == null && trainJourneyWinBox != null)
+        {
+            trainJourneyWinAmount =
+                trainJourneyWinBox.GetComponentInChildren<TMP_Text>(true);
+        }
+    }
+
     private void CacheTrainVisuals(
         TrainVisualType type,
         RectTransform root,
@@ -943,6 +1555,13 @@ public class SlotFeatureVisualController : MonoBehaviour
         RectTransform pressPlay = trainReferences?.pressPlay;
         if (pressPlay == null) return;
 
+        Button button = pressPlay.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.RemoveListener(OnGoldBurstPressPlayClicked);
+            button.interactable = true;
+        }
+
         DOTween.Kill(pressPlay);
         pressPlay.localScale = GetPressPlayBaseScale(pressPlay);
         pressPlay.gameObject.SetActive(false);
@@ -954,6 +1573,744 @@ public class SlotFeatureVisualController : MonoBehaviour
                pressPlayBaseScales.TryGetValue(pressPlay, out Vector3 baseScale)
             ? baseScale
             : Vector3.one;
+    }
+
+    private IEnumerator PlayOneShotImageAnimation(GameObject animationObject)
+    {
+        if (animationObject == null) yield break;
+
+        ImageAnimation imageAnimation = animationObject.GetComponent<ImageAnimation>();
+        if (imageAnimation == null ||
+            imageAnimation.textureArray == null ||
+            imageAnimation.textureArray.Count == 0)
+        {
+            animationObject.SetActive(true);
+            yield return null;
+            animationObject.SetActive(false);
+            yield break;
+        }
+
+        bool completed = false;
+        Action<int> completionHandler = _ => completed = true;
+        imageAnimation.onLoopComplete += completionHandler;
+        imageAnimation.doLoopAnimation = false;
+
+        float duration = imageAnimation.textureArray.Count /
+                         Mathf.Max(1f, goldBurstIntroFramesPerSecond);
+        imageAnimation.SetLoopDuration(duration);
+        animationObject.SetActive(true);
+        imageAnimation.StartAnimation();
+
+        float elapsed = 0f;
+        float timeout = duration + 0.5f;
+        while (!completed && elapsed < timeout && animationObject.activeInHierarchy)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        imageAnimation.onLoopComplete -= completionHandler;
+        imageAnimation.StopAnimation();
+        imageAnimation.ClearLoopDuration();
+        animationObject.SetActive(false);
+    }
+
+    private bool TryGetGoldBox(
+        GoldBurstPrizePlacement prize,
+        out GoldBoxRuntime goldBox)
+    {
+        goldBox = null;
+        if (prize == null || prize.columnCount != 1 ||
+            prize.startCol < 0 || prize.startCol >= ReelCount ||
+            prize.startRow < 0 || prize.startRow >= RowCount)
+        {
+            return false;
+        }
+
+        switch (prize.rowCount)
+        {
+            case 1:
+                List<GoldBoxRuntime> reelBoxes = oneSlotGoldBoxesByReel[prize.startCol];
+                if (reelBoxes == null || prize.startRow >= reelBoxes.Count) return false;
+                goldBox = reelBoxes[prize.startRow];
+                break;
+
+            case 2:
+                if (prize.startCol >= twoSlotGoldBoxes.Count || prize.startRow >= RowCount - 1)
+                {
+                    return false;
+                }
+
+                goldBox = twoSlotGoldBoxes[prize.startCol];
+                Vector2 twoSlotPosition = goldBox.visual.anchoredPosition;
+                twoSlotPosition.y = prize.startRow == 0 ? topAndMiddleY : middleAndBottomY;
+                goldBox.visual.anchoredPosition = twoSlotPosition;
+                break;
+
+            case 3:
+                if (prize.startRow != 0 || prize.startCol >= threeSlotGoldBoxes.Count)
+                {
+                    return false;
+                }
+                goldBox = threeSlotGoldBoxes[prize.startCol];
+                break;
+        }
+
+        return goldBox?.visual != null && goldBox.amountText != null;
+    }
+
+    private void HideGoldBurstSource(GoldBurstPrizePlacement prize)
+    {
+        for (int reelIndex = prize.startCol;
+             reelIndex < prize.startCol + prize.columnCount;
+             reelIndex++)
+        {
+            for (int row = prize.startRow; row < prize.startRow + prize.rowCount; row++)
+            {
+                RectTransform source = GetConversionSourceCell(reelIndex, row);
+                if (source == null) continue;
+
+                CanvasGroup sourceGroup = GetConversionCanvasGroup(source.gameObject);
+                sourceGroup.alpha = 0f;
+                hiddenGoldBurstSources.Add(sourceGroup);
+            }
+        }
+
+        RectTransform feature = null;
+        if (prize.columnCount == 1 && prize.rowCount == 2)
+        {
+            visibleFeatures.TryGetValue(
+                (TwoSlotFeatureType, prize.startRow, prize.startCol, 2, 1),
+                out feature);
+        }
+        else if (prize.columnCount == 1 && prize.rowCount == 3)
+        {
+            visibleFeatures.TryGetValue(
+                (ThreeSlotFeatureType, 0, prize.startCol, 3, 1),
+                out feature);
+        }
+
+        if (feature != null)
+        {
+            feature.gameObject.SetActive(false);
+            hiddenGoldBurstFeatures.Add(feature);
+        }
+    }
+
+    private void SetGoldBoxRootActive(int rowCount, bool isActive)
+    {
+        RectTransform root = rowCount switch
+        {
+            2 => twoSlotGoldBoxRoot,
+            3 => threeSlotGoldBoxRoot,
+            _ => oneSlotGoldBoxRoot
+        };
+        if (root != null) root.gameObject.SetActive(isActive);
+    }
+
+    private void HideAllGoldBoxes()
+    {
+        foreach (GoldBoxRuntime goldBox in allGoldBoxes)
+        {
+            if (goldBox?.visual == null) continue;
+
+            DOTween.Kill(goldBox.visual);
+            goldBox.visual.localScale = goldBox.baseScale;
+            goldBox.visual.gameObject.SetActive(false);
+        }
+
+        if (oneSlotGoldBoxRoot != null)
+        {
+            for (int index = 0; index < oneSlotGoldBoxRoot.childCount; index++)
+            {
+                oneSlotGoldBoxRoot.GetChild(index).gameObject.SetActive(false);
+            }
+            oneSlotGoldBoxRoot.gameObject.SetActive(false);
+        }
+        if (twoSlotGoldBoxRoot != null) twoSlotGoldBoxRoot.gameObject.SetActive(false);
+        if (threeSlotGoldBoxRoot != null) threeSlotGoldBoxRoot.gameObject.SetActive(false);
+    }
+
+    private bool HasVisibleGoldBox()
+    {
+        return allGoldBoxes.Any(goldBox =>
+            goldBox?.visual != null && goldBox.visual.gameObject.activeInHierarchy);
+    }
+
+    private void ResetGoldBurstPresentation()
+    {
+        ResetTrainJourneyPresentation();
+        isGoldBurstPresentationActive = false;
+        deferGoldBurstTriggerBarrelMerge = false;
+        goldBurstPressPlayHandled = false;
+        goldBurstPressPlayCallback = null;
+
+        StopAndHideImageAnimation(coldBurstRespin);
+        StopAndHideImageAnimation(megaGoldBurstRespin);
+        StopAndHideImageAnimation(ultimateGoldBurstRespin);
+        if (darkBackground != null) darkBackground.SetActive(false);
+        if (track != null) track.SetActive(false);
+        if (trolleyMan != null) trolleyMan.SetActive(false);
+
+        foreach (List<TrainVisualReferences> references in trainVisuals.Values)
+        {
+            foreach (TrainVisualReferences trainReferences in references)
+            {
+                ResetPressPlay(trainReferences);
+            }
+        }
+
+        HideAllGoldBoxes();
+
+        foreach (CanvasGroup sourceGroup in hiddenGoldBurstSources)
+        {
+            if (sourceGroup != null) sourceGroup.alpha = 1f;
+        }
+        hiddenGoldBurstSources.Clear();
+
+        foreach (RectTransform feature in hiddenGoldBurstFeatures)
+        {
+            if (feature != null && visibleFeatures.Values.Contains(feature))
+            {
+                feature.gameObject.SetActive(true);
+            }
+        }
+        hiddenGoldBurstFeatures.Clear();
+
+        foreach (GameObject cell in activeGoldBurstAnimationCells.ToList())
+        {
+            if (cell != null)
+            {
+                SetWinboxActive(cell, activeWinAnimationCells.Contains(cell));
+                cell.SetActive(activeWinAnimationCells.Contains(cell) ||
+                               activeTrainAnimationCells.Contains(cell));
+            }
+        }
+        activeGoldBurstAnimationCells.Clear();
+
+        foreach (KeyValuePair<RectTransform, int> entry in animationColumnSiblingIndices)
+        {
+            if (entry.Key != null) entry.Key.SetSiblingIndex(entry.Value);
+        }
+    }
+
+    private static void StopAndHideImageAnimation(GameObject animationObject)
+    {
+        if (animationObject == null) return;
+
+        ImageAnimation imageAnimation = animationObject.GetComponent<ImageAnimation>();
+        if (imageAnimation != null)
+        {
+            imageAnimation.onLoopComplete = null;
+            imageAnimation.StopAnimation();
+            imageAnimation.ClearLoopDuration();
+        }
+        animationObject.SetActive(false);
+    }
+
+    private void OnGoldBurstPressPlayClicked()
+    {
+        if (goldBurstPressPlayHandled) return;
+        TrainPlacement selectedTrain = GetSelectedTrainPlacement();
+        goldBurstPressPlayHandled = true;
+
+        foreach (List<TrainVisualReferences> references in trainVisuals.Values)
+        {
+            foreach (TrainVisualReferences trainReferences in references)
+            {
+                ResetPressPlay(trainReferences);
+            }
+        }
+
+        Action callback = goldBurstPressPlayCallback;
+        goldBurstPressPlayCallback = null;
+        if (CanPlayTrainJourneyPresentation(selectedTrain))
+        {
+            trainJourneyRoutine = StartCoroutine(
+                PlayTrainJourneyPresentation(selectedTrain, callback));
+            return;
+        }
+
+        callback?.Invoke();
+    }
+
+    private TrainPlacement GetSelectedTrainPlacement()
+    {
+        GameObject selectedObject = EventSystem.current != null
+            ? EventSystem.current.currentSelectedGameObject
+            : null;
+        RectTransform fallbackVisual = null;
+
+        foreach (List<TrainVisualReferences> references in trainVisuals.Values)
+        {
+            foreach (TrainVisualReferences trainReferences in references)
+            {
+                if (trainReferences?.visual == null ||
+                    trainReferences.pressPlay == null ||
+                    !trainReferences.pressPlay.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                fallbackVisual ??= trainReferences.visual;
+                if (selectedObject == trainReferences.pressPlay.gameObject ||
+                    (selectedObject != null &&
+                     selectedObject.transform.IsChildOf(trainReferences.pressPlay)))
+                {
+                    return trainPlacementsByVisual.TryGetValue(
+                        trainReferences.visual,
+                        out TrainPlacement selectedTrain)
+                        ? selectedTrain
+                        : null;
+                }
+            }
+        }
+
+        return fallbackVisual != null &&
+               trainPlacementsByVisual.TryGetValue(fallbackVisual, out TrainPlacement fallbackTrain)
+            ? fallbackTrain
+            : null;
+    }
+
+    private bool CanPlayTrainJourneyPresentation(TrainPlacement train)
+    {
+        return train != null &&
+               train.type == TrainVisualType.Green &&
+               trainJourneyGreenTrain != null &&
+               trainJourneyWinBox != null &&
+               trainJourneyWagonAmounts != null &&
+               trainJourneyWagonAmounts.Any(text => text != null);
+    }
+
+    private IEnumerator PlayTrainJourneyPresentation(
+        TrainPlacement train,
+        Action onComplete)
+    {
+        ResetTrainJourneyVisuals();
+
+        double totalPayout = train.payout > 0d
+            ? train.payout
+            : train.trainJourney?.Sum() ?? 0d;
+        SetTrainJourneyWagonAmounts(train.trainJourney);
+        SetSpriteAmount(trainJourneyWinAmount, 0d);
+
+        if (darkBackground != null && !darkBackground.activeSelf)
+        {
+            darkBackground.SetActive(true);
+            trainJourneyOwnsDarkBackground = true;
+        }
+
+        trainJourneyWinBox.gameObject.SetActive(true);
+        PlayTrainJourneyActor(trainJourneyActor);
+        PlayTrainJourneyActor(trainJourneySecondActor);
+
+        ImageAnimation trainAnimation =
+            trainJourneyGreenTrain.GetComponent<ImageAnimation>();
+        float travelDuration = Mathf.Max(
+            0.2f,
+            trainJourneyPhaseDuration + trainJourneyExitDuration);
+        if (trainAnimation != null)
+        {
+            trainAnimation.StopAnimation();
+            trainAnimation.onLoopComplete = null;
+            trainAnimation.doLoopAnimation = false;
+            int animationPhaseCount =
+                trainAnimation.secondaryTextureArray != null &&
+                trainAnimation.secondaryTextureArray.Count > 0
+                    ? 2
+                    : 1;
+            trainAnimation.SetLoopDuration(travelDuration / animationPhaseCount);
+        }
+
+        Vector2 startPosition = hasCapturedTrainJourneyState
+            ? trainJourneyGreenTrainStartPosition
+            : trainJourneyGreenTrain.anchoredPosition;
+        trainJourneyGreenTrain.anchoredPosition = startPosition;
+
+        if (trainJourneySettleDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(trainJourneySettleDelay);
+        }
+
+        trainJourneyGreenTrain.gameObject.SetActive(true);
+        trainAnimation?.PlayAnimation();
+
+        Tween travelTween = trainJourneyGreenTrain
+            .DOAnchorPosX(trainJourneyExitX, travelDuration)
+            .SetEase(Ease.Linear)
+            .SetUpdate(true);
+
+        yield return AnimateTrainJourneyCollections(
+            train.trainJourney,
+            totalPayout,
+            travelDuration);
+
+        if (travelTween.IsActive() && !travelTween.IsComplete())
+        {
+            yield return travelTween.WaitForCompletion();
+        }
+
+        if (trainJourneyResultHold > 0f)
+        {
+            yield return new WaitForSecondsRealtime(trainJourneyResultHold);
+        }
+
+        yield return PlayTrainJourneyActorJumpAndExit();
+
+        ResetTrainJourneyVisuals();
+        trainJourneyRoutine = null;
+        onComplete?.Invoke();
+    }
+
+    private IEnumerator AnimateTrainJourneyCollections(
+        IReadOnlyList<double> amounts,
+        double totalPayout,
+        float travelDuration)
+    {
+        int amountCount = Mathf.Min(
+            amounts?.Count ?? 0,
+            trainJourneyWagonAmounts?.Length ?? 0);
+        if (amountCount <= 0)
+        {
+            yield return CountTrainJourneyWinAmount(
+                0d,
+                totalPayout,
+                travelDuration);
+            yield break;
+        }
+
+        float collectionWorldX = trainJourneyWinBox
+            .TransformPoint(new Vector3(trainJourneyCollectionXOffset, 0f, 0f))
+            .x;
+        float collectionTimeout = Time.realtimeSinceStartup + travelDuration + 0.5f;
+        double displayedTotal = 0d;
+
+        for (int index = 0; index < amountCount; index++)
+        {
+            TMP_Text wagonAmount = trainJourneyWagonAmounts[index];
+            if (wagonAmount == null) continue;
+
+            RectTransform wagonMarker = wagonAmount.rectTransform;
+            while (wagonMarker != null &&
+                   wagonMarker.position.x < collectionWorldX &&
+                   Time.realtimeSinceStartup < collectionTimeout)
+            {
+                yield return null;
+            }
+
+            if (wagonMarker == null || wagonMarker.position.x < collectionWorldX)
+            {
+                continue;
+            }
+
+            double nextTotal = displayedTotal + Math.Max(0d, amounts[index]);
+            if (index == amountCount - 1)
+            {
+                nextTotal = totalPayout;
+            }
+
+            PlayTrainJourneyWinBoxAnimation();
+            yield return CountTrainJourneyWinAmount(
+                displayedTotal,
+                nextTotal,
+                trainJourneyCollectionCountDuration);
+            displayedTotal = nextTotal;
+        }
+
+        SetSpriteAmount(trainJourneyWinAmount, totalPayout);
+    }
+
+    private IEnumerator CountTrainJourneyWinAmount(
+        double startAmount,
+        double targetAmount,
+        float duration)
+    {
+        float elapsed = 0f;
+        float safeDuration = Mathf.Max(0.01f, duration);
+        while (elapsed < safeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(elapsed / safeDuration);
+            double displayedAmount = startAmount +
+                                     (targetAmount - startAmount) *
+                                     EaseOutCubic(progress);
+            SetSpriteAmount(trainJourneyWinAmount, displayedAmount);
+            yield return null;
+        }
+
+        SetSpriteAmount(trainJourneyWinAmount, targetAmount);
+    }
+
+    private void PlayTrainJourneyWinBoxAnimation()
+    {
+        if (trainJourneyWinBox == null) return;
+
+        ImageAnimation winBoxAnimation =
+            trainJourneyWinBox.GetComponentInChildren<ImageAnimation>(true);
+        if (winBoxAnimation == null) return;
+
+        winBoxAnimation.StopAnimation();
+        winBoxAnimation.PlayAnimation();
+    }
+
+    private void SetTrainJourneyWagonAmounts(IReadOnlyList<double> amounts)
+    {
+        for (int index = 0; index < trainJourneyWagonAmounts.Length; index++)
+        {
+            TMP_Text amountText = trainJourneyWagonAmounts[index];
+            if (amountText == null) continue;
+
+            bool hasAmount = amounts != null && index < amounts.Count;
+            amountText.gameObject.SetActive(hasAmount);
+            if (hasAmount)
+            {
+                SetSpriteAmount(amountText, amounts[index]);
+            }
+        }
+    }
+
+    private void SetTrainJourneyWagonAmountsVisible(bool visible)
+    {
+        if (trainJourneyWagonAmounts == null) return;
+
+        foreach (TMP_Text amountText in trainJourneyWagonAmounts)
+        {
+            if (amountText != null) amountText.gameObject.SetActive(visible);
+        }
+    }
+
+    private static void SetSpriteAmount(TMP_Text target, double amount)
+    {
+        if (target == null) return;
+
+        string number = Math.Max(0d, amount).ToString("0.00", CultureInfo.InvariantCulture);
+        if (target.spriteAsset == null)
+        {
+            target.text = number;
+            return;
+        }
+
+        var spriteText = new StringBuilder(number.Length * 10);
+        foreach (char character in number)
+        {
+            if (character >= '0' && character <= '9')
+            {
+                spriteText.Append("<sprite=")
+                    .Append(character - '0')
+                    .Append('>');
+            }
+            else if (character == '.')
+            {
+                spriteText.Append("<sprite=10>");
+            }
+            else if (character == ',')
+            {
+                spriteText.Append("<sprite=11>");
+            }
+        }
+
+        target.text = spriteText.ToString();
+    }
+
+    private static float EaseOutCubic(float value)
+    {
+        float inverse = 1f - value;
+        return 1f - inverse * inverse * inverse;
+    }
+
+    private static void PlayTrainJourneyActor(RectTransform actor)
+    {
+        if (actor == null) return;
+
+        actor.gameObject.SetActive(true);
+        SkeletonGraphic actorGraphic =
+            actor.GetComponent<SkeletonGraphic>();
+        if (actorGraphic == null) return;
+
+        if (actorGraphic.SkeletonData == null)
+        {
+            actorGraphic.Initialize(false);
+        }
+
+        actorGraphic.freeze = false;
+        actorGraphic.AnimationState?.ClearTracks();
+        Spine.Animation enterAnimation =
+            actorGraphic.SkeletonData?.FindAnimation("enter");
+        Spine.Animation idleAnimation =
+            actorGraphic.SkeletonData?.FindAnimation("Ideal");
+        if (enterAnimation != null)
+        {
+            actorGraphic.AnimationState.SetAnimation(0, enterAnimation.Name, false);
+            if (idleAnimation != null)
+            {
+                actorGraphic.AnimationState.AddAnimation(0, idleAnimation.Name, true, 0f);
+            }
+        }
+        else if (idleAnimation != null)
+        {
+            actorGraphic.AnimationState.SetAnimation(0, idleAnimation.Name, true);
+        }
+    }
+
+    private IEnumerator PlayTrainJourneyActorJumpAndExit()
+    {
+        float donkeyJumpDuration = PlayTrainJourneyActorJump(trainJourneyActor);
+        float manJumpDuration = PlayTrainJourneyActorJump(trainJourneySecondActor);
+        float jumpDuration = Mathf.Max(donkeyJumpDuration, manJumpDuration);
+        float exitDuration = Mathf.Min(
+            Mathf.Max(0.01f, trainJourneyActorExitLeadTime),
+            jumpDuration > 0f ? jumpDuration : trainJourneyActorExitLeadTime);
+        float exitDelay = Mathf.Max(0f, jumpDuration - exitDuration);
+
+        if (exitDelay > 0f)
+        {
+            yield return new WaitForSecondsRealtime(exitDelay);
+        }
+
+        var exitSequence = DOTween.Sequence().SetUpdate(true);
+        bool hasExitTween = false;
+        hasExitTween |= AppendTrainJourneyActorExit(
+            exitSequence,
+            trainJourneyActor,
+            trainJourneyActorStartPosition,
+            exitDuration);
+        hasExitTween |= AppendTrainJourneyActorExit(
+            exitSequence,
+            trainJourneySecondActor,
+            trainJourneySecondActorStartPosition,
+            exitDuration);
+
+        if (hasExitTween)
+        {
+            yield return exitSequence.WaitForCompletion();
+        }
+        else if (exitDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(exitDuration);
+        }
+    }
+
+    private static float PlayTrainJourneyActorJump(RectTransform actor)
+    {
+        if (actor == null || !actor.gameObject.activeInHierarchy) return 0f;
+
+        SkeletonGraphic actorGraphic = actor.GetComponent<SkeletonGraphic>();
+        if (actorGraphic == null) return 0f;
+
+        if (actorGraphic.SkeletonData == null)
+        {
+            actorGraphic.Initialize(false);
+        }
+
+        Spine.Animation jumpAnimation =
+            actorGraphic.SkeletonData?.FindAnimation("Jump");
+        if (jumpAnimation == null) return 0f;
+
+        actorGraphic.freeze = false;
+        actorGraphic.AnimationState.SetAnimation(0, jumpAnimation.Name, false);
+        return jumpAnimation.Duration;
+    }
+
+    private bool AppendTrainJourneyActorExit(
+        Sequence sequence,
+        RectTransform actor,
+        Vector2 startPosition,
+        float duration)
+    {
+        if (sequence == null || actor == null || !actor.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        DOTween.Kill(actor);
+        float exitY = startPosition.y - trainJourneyActorExitDistance;
+        sequence.Join(
+            actor.DOAnchorPosY(exitY, duration)
+                .SetEase(Ease.InQuad)
+                .SetUpdate(true));
+        return true;
+    }
+
+    private void ResetTrainJourneyPresentation()
+    {
+        if (trainJourneyRoutine != null)
+        {
+            StopCoroutine(trainJourneyRoutine);
+            trainJourneyRoutine = null;
+        }
+
+        ResetTrainJourneyVisuals();
+    }
+
+    private void ResetTrainJourneyVisuals()
+    {
+        if (trainJourneyGreenTrain != null)
+        {
+            DOTween.Kill(trainJourneyGreenTrain);
+            ImageAnimation trainAnimation =
+                trainJourneyGreenTrain.GetComponent<ImageAnimation>();
+            if (trainAnimation != null)
+            {
+                trainAnimation.onLoopComplete = null;
+                trainAnimation.StopAnimation();
+                trainAnimation.ClearLoopDuration();
+                trainAnimation.doLoopAnimation = trainJourneyOriginalLoop;
+            }
+
+            if (hasCapturedTrainJourneyState)
+            {
+                trainJourneyGreenTrain.anchoredPosition =
+                    trainJourneyGreenTrainStartPosition;
+            }
+            trainJourneyGreenTrain.gameObject.SetActive(false);
+        }
+
+        ResetTrainJourneyActor(
+            trainJourneyActor,
+            trainJourneyActorStartPosition);
+        ResetTrainJourneyActor(
+            trainJourneySecondActor,
+            trainJourneySecondActorStartPosition);
+
+        if (trainJourneyWinBox != null)
+        {
+            ImageAnimation winBoxAnimation =
+                trainJourneyWinBox.GetComponentInChildren<ImageAnimation>(true);
+            if (winBoxAnimation != null)
+            {
+                winBoxAnimation.onLoopComplete = null;
+                winBoxAnimation.StopAnimation();
+                winBoxAnimation.ClearLoopDuration();
+            }
+            trainJourneyWinBox.gameObject.SetActive(false);
+        }
+
+        if (trainJourneyOwnsDarkBackground && darkBackground != null)
+        {
+            darkBackground.SetActive(false);
+            trainJourneyOwnsDarkBackground = false;
+        }
+    }
+
+    private void ResetTrainJourneyActor(
+        RectTransform actor,
+        Vector2 startPosition)
+    {
+        if (actor == null) return;
+
+        DOTween.Kill(actor);
+        if (hasCapturedTrainJourneyState)
+        {
+            actor.anchoredPosition = startPosition;
+        }
+
+        SkeletonGraphic actorGraphic = actor.GetComponent<SkeletonGraphic>();
+        if (actorGraphic != null)
+        {
+            actorGraphic.AnimationState?.ClearTracks();
+            actorGraphic.freeze = true;
+        }
+        actor.gameObject.SetActive(false);
     }
 
     private bool TryGetTrainPosition(TrainPlacement train, out Vector2 position)
@@ -1100,14 +2457,16 @@ public class SlotFeatureVisualController : MonoBehaviour
 
         bool hasActiveFeature = visibleFeatures.Values.Any(visual =>
             visual != null && visual.gameObject.activeSelf);
-        animationRoot.gameObject.SetActive(hasActiveAnimationCell || hasActiveFeature);
+        animationRoot.gameObject.SetActive(
+            hasActiveAnimationCell || hasActiveFeature || HasVisibleGoldBox());
     }
 
     private bool IsAnimationCellActive(GameObject animationCell)
     {
         return animationCell != null &&
                (activeWinAnimationCells.Contains(animationCell) ||
-                activeTrainAnimationCells.Contains(animationCell));
+                activeTrainAnimationCells.Contains(animationCell) ||
+                activeGoldBurstAnimationCells.Contains(animationCell));
     }
 
     private void SetWinboxActive(RectTransform animationCell, bool isActive)
@@ -1193,5 +2552,15 @@ public class SlotFeatureVisualController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private static GameObject FindSceneGameObject(string objectName)
+    {
+        Transform match = Resources.FindObjectsOfTypeAll<Transform>()
+            .FirstOrDefault(candidate =>
+                candidate != null &&
+                candidate.gameObject.scene.IsValid() &&
+                candidate.name == objectName);
+        return match != null ? match.gameObject : null;
     }
 }
