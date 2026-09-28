@@ -1,0 +1,503 @@
+Trolley_Man.png
+size:2018,2027
+filter:Linear,Linear
+pma:true
+Fire_Fx_1/RENDER HD 1280x720_00000
+bounds:2010,2019,6,6
+offsets:245,252,500,500
+Fire_Fx_1/RENDER HD 1280x720_00003
+bounds:2,1549,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00004
+bounds:2,1071,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00005
+bounds:504,1549,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00006
+bounds:2,593,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00007
+bounds:504,1071,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00008
+bounds:1006,1549,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00009
+bounds:2,115,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00010
+bounds:504,593,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00011
+bounds:1006,1071,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00012
+bounds:1508,1549,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00013
+bounds:504,115,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00014
+bounds:1006,593,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00015
+bounds:1508,1071,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00016
+bounds:1006,115,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00017
+bounds:1508,593,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00018
+bounds:1508,115,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00117
+bounds:699,46,64,67
+offsets:62,375,500,500
+Fire_Fx_1/RENDER HD 1280x720_00118
+bounds:856,64,49,55
+offsets:75,376,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00119
+bounds:2,2,1,1
+L_Aram
+bounds:436,35,80,78
+offsets:1,1,84,80
+L_Finger
+bounds:621,41,76,72
+offsets:7,2,84,75
+L_Hand
+bounds:333,18,101,95
+offsets:0,1,101,96
+L_mustache
+bounds:765,76,89,37
+offsets:0,1,89,38
+R_mustache
+bounds:518,62,101,51
+offsets:73,11,174,62
+fire glow
+bounds:196,22,91,135
+offsets:4,3,100,139
+rotate:90
+red thread
+bounds:2,5,192,108
+offsets:0,0,197,108
+
+Trolley_Man_2.png
+size:1998,2015
+filter:Linear,Linear
+pma:true
+B_wheel
+bounds:2,2,191,193
+offsets:1,1,193,195
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00001
+bounds:1460,80,500,451
+offsets:0,26,500,500
+Fire_Fx_1/RENDER HD 1280x720_00002
+bounds:958,535,500,474
+offsets:0,13,500,500
+Fire_Fx_1/RENDER HD 1280x720_00019
+bounds:605,1513,500,476
+offsets:0,12,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00020
+bounds:2,1199,500,476
+offsets:0,12,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00021
+bounds:480,1035,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00022
+bounds:2,697,500,476
+offsets:0,12,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00023
+bounds:982,1011,500,476
+offsets:0,12,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00024
+bounds:1083,1537,500,476
+offsets:0,12,500,500
+Fire_Fx_1/RENDER HD 1280x720_00025
+bounds:480,533,500,476
+offsets:0,12,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00026
+bounds:2,195,500,475
+offsets:0,13,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00027
+bounds:958,59,500,474
+offsets:0,13,500,500
+Fire_Fx_1/RENDER HD 1280x720_00028
+bounds:479,31,500,474
+offsets:0,13,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00029
+bounds:1460,1035,500,473
+offsets:0,14,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00030
+bounds:1460,533,500,459
+offsets:0,22,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00075
+bounds:1585,1572,411,441
+offsets:34,34,500,500
+R_Hand
+bounds:197,30,250,163
+offsets:1,1,254,266
+trolley
+bounds:2,1701,601,312
+offsets:1,3,603,323
+
+Trolley_Man_3.png
+size:2047,1911
+filter:Linear,Linear
+pma:true
+FX
+bounds:2,1433,391,320
+offsets:8,40,400,400
+F_wheel
+bounds:883,1718,191,193
+offsets:1,1,193,195
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00048
+bounds:2,120,397,417
+offsets:47,48,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00049
+bounds:421,94,397,416
+offsets:47,48,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00056
+bounds:1641,795,404,415
+offsets:42,51,500,500
+Fire_Fx_1/RENDER HD 1280x720_00092
+bounds:839,36,397,421
+offsets:28,54,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00093
+bounds:1262,2,397,420
+offsets:28,54,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00106
+bounds:2,519,427,387
+offsets:14,75,500,500
+Fire_Fx_1/RENDER HD 1280x720_00107
+bounds:431,493,429,387
+offsets:13,75,500,500
+Fire_Fx_1/RENDER HD 1280x720_00108
+bounds:774,882,431,386
+offsets:12,76,500,500
+Fire_Fx_1/RENDER HD 1280x720_00109
+bounds:862,435,432,387
+offsets:12,76,500,500
+Fire_Fx_1/RENDER HD 1280x720_00110
+bounds:1207,824,432,386
+offsets:13,76,500,500
+Fire_Fx_1/RENDER HD 1280x720_00111
+bounds:386,908,386,385
+offsets:34,76,500,500
+Fire_Fx_1/RENDER HD 1280x720_00112
+bounds:2,1049,382,382
+offsets:33,76,500,500
+Fire_Fx_1/RENDER HD 1280x720_00113
+bounds:1516,1212,391,376
+offsets:32,77,500,500
+Fire_Fx_1/RENDER HD 1280x720_00114
+bounds:1130,1270,384,370
+offsets:32,81,500,500
+Fire_Fx_1/RENDER HD 1280x720_00115
+bounds:757,1295,371,363
+offsets:31,81,500,500
+Fire_Fx_1/RENDER HD 1280x720_00116
+bounds:395,1419,333,360
+offsets:61,84,500,500
+rotate:90
+L_Aram_1
+bounds:203,1757,152,167
+offsets:18,0,172,176
+rotate:90
+L_Leg
+bounds:372,1755,154,351
+offsets:3,1,159,355
+rotate:90
+L_Shoulder
+bounds:725,1754,156,155
+offsets:10,5,220,226
+R_Leg
+bounds:1332,1642,267,320
+offsets:1,1,269,324
+rotate:90
+R_Shoulder
+bounds:2,1772,137,199
+offsets:24,4,223,203
+rotate:90
+barrel
+bounds:1296,401,392,437
+offsets:1,1,394,439
+rotate:90
+face
+bounds:1078,1660,249,252
+offsets:1,2,258,255
+rotate:90
+upper_body
+bounds:1654,1590,325,319
+offsets:75,0,525,343
+
+Trolley_Man_4.png
+size:1790,1802
+filter:Linear,Linear
+pma:true
+Fire_Fx_1/RENDER HD 1280x720_00031
+bounds:2,1357,500,443
+offsets:0,34,500,500
+Fire_Fx_1/RENDER HD 1280x720_00032
+bounds:504,1300,500,442
+offsets:0,34,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00033
+bounds:2,857,498,437
+offsets:0,36,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00034
+bounds:441,876,422,440
+offsets:41,34,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00035
+bounds:441,458,416,439
+offsets:39,36,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00037
+bounds:1305,439,413,435
+offsets:41,37,500,500
+Fire_Fx_1/RENDER HD 1280x720_00040
+bounds:420,22,413,434
+offsets:41,38,500,500
+Fire_Fx_1/RENDER HD 1280x720_00066
+bounds:1306,966,413,429
+offsets:37,44,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00067
+bounds:2,2,413,430
+offsets:36,43,500,500
+Fire_Fx_1/RENDER HD 1280x720_00071
+bounds:882,23,413,435
+offsets:35,39,500,500
+Fire_Fx_1/RENDER HD 1280x720_00079
+bounds:1297,24,413,414
+offsets:31,61,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00081
+bounds:1372,1387,413,416
+offsets:30,60,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00101
+bounds:882,460,414,421
+offsets:20,52,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00102
+bounds:2,434,416,421
+offsets:19,53,500,500
+Fire_Fx_1/RENDER HD 1280x720_00103
+bounds:948,1381,419,422
+offsets:18,52,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00104
+bounds:883,876,422,421
+offsets:16,53,500,500
+rotate:90
+
+Trolley_Man_5.png
+size:1657,1760
+filter:Linear,Linear
+pma:true
+Fire_Fx_1/RENDER HD 1280x720_00036
+bounds:2,2,412,435
+offsets:42,37,500,500
+Fire_Fx_1/RENDER HD 1280x720_00038
+bounds:413,883,412,434
+offsets:42,38,500,500
+Fire_Fx_1/RENDER HD 1280x720_00039
+bounds:414,1324,412,434
+offsets:42,38,500,500
+Fire_Fx_1/RENDER HD 1280x720_00041
+bounds:827,889,411,433
+offsets:42,39,500,500
+Fire_Fx_1/RENDER HD 1280x720_00042
+bounds:416,12,412,433
+offsets:41,39,500,500
+Fire_Fx_1/RENDER HD 1280x720_00043
+bounds:1238,456,410,431
+offsets:42,40,500,500
+Fire_Fx_1/RENDER HD 1280x720_00044
+bounds:1240,895,409,429
+offsets:42,41,500,500
+Fire_Fx_1/RENDER HD 1280x720_00064
+bounds:1244,28,411,426
+offsets:38,46,500,500
+Fire_Fx_1/RENDER HD 1280x720_00065
+bounds:1241,1330,412,428
+offsets:37,45,500,500
+Fire_Fx_1/RENDER HD 1280x720_00068
+bounds:828,1326,411,432
+offsets:36,42,500,500
+Fire_Fx_1/RENDER HD 1280x720_00069
+bounds:824,448,412,433
+offsets:36,41,500,500
+Fire_Fx_1/RENDER HD 1280x720_00070
+bounds:413,447,409,434
+offsets:36,40,500,500
+Fire_Fx_1/RENDER HD 1280x720_00072
+bounds:2,879,409,438
+offsets:35,37,500,500
+Fire_Fx_1/RENDER HD 1280x720_00073
+bounds:2,439,409,438
+offsets:35,37,500,500
+Fire_Fx_1/RENDER HD 1280x720_00074
+bounds:2,1319,410,439
+offsets:34,36,500,500
+Fire_Fx_1/RENDER HD 1280x720_00076
+bounds:830,15,412,431
+offsets:33,45,500,500
+
+Trolley_Man_6.png
+size:1657,1700
+filter:Linear,Linear
+pma:true
+Fire_Fx_1/RENDER HD 1280x720_00045
+bounds:415,1272,407,426
+offsets:43,44,500,500
+Fire_Fx_1/RENDER HD 1280x720_00046
+bounds:413,422,405,424
+offsets:44,45,500,500
+Fire_Fx_1/RENDER HD 1280x720_00047
+bounds:1252,434,402,420
+offsets:45,47,500,500
+Fire_Fx_1/RENDER HD 1280x720_00058
+bounds:413,2,407,418
+offsets:40,50,500,500
+Fire_Fx_1/RENDER HD 1280x720_00060
+bounds:1239,856,409,420
+offsets:39,49,500,500
+Fire_Fx_1/RENDER HD 1280x720_00061
+bounds:2,2,409,421
+offsets:39,48,500,500
+Fire_Fx_1/RENDER HD 1280x720_00062
+bounds:2,425,409,422
+offsets:39,48,500,500
+Fire_Fx_1/RENDER HD 1280x720_00063
+bounds:2,1274,411,424
+offsets:38,47,500,500
+Fire_Fx_1/RENDER HD 1280x720_00087
+bounds:822,35,410,419
+offsets:29,56,500,500
+Fire_Fx_1/RENDER HD 1280x720_00088
+bounds:825,856,412,419
+offsets:27,56,500,500
+Fire_Fx_1/RENDER HD 1280x720_00089
+bounds:1238,1278,412,420
+offsets:27,55,500,500
+Fire_Fx_1/RENDER HD 1280x720_00090
+bounds:824,1277,412,421
+offsets:25,54,500,500
+Fire_Fx_1/RENDER HD 1280x720_00091
+bounds:1234,26,406,421
+offsets:28,54,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00099
+bounds:415,848,408,422
+offsets:23,53,500,500
+Fire_Fx_1/RENDER HD 1280x720_00100
+bounds:2,849,411,423
+offsets:22,52,500,500
+Fire_Fx_1/RENDER HD 1280x720_00105
+bounds:825,456,425,398
+offsets:15,76,500,500
+
+Trolley_Man_7.png
+size:1667,2023
+filter:Linear,Linear
+pma:true
+Fire_Fx_1/RENDER HD 1280x720_00050
+bounds:1247,805,398,418
+offsets:46,47,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00051
+bounds:1236,2,399,417
+offsets:45,48,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00052
+bounds:826,805,399,419
+offsets:45,47,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00053
+bounds:1241,403,400,418
+offsets:44,48,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00057
+bounds:1248,1205,405,417
+offsets:41,50,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00059
+bounds:2,1602,408,419
+offsets:39,49,500,500
+Fire_Fx_1/RENDER HD 1280x720_00078
+bounds:412,1192,412,412
+offsets:32,62,500,500
+Fire_Fx_1/RENDER HD 1280x720_00080
+bounds:412,1606,412,415
+offsets:31,60,500,500
+Fire_Fx_1/RENDER HD 1280x720_00082
+bounds:411,773,407,417
+offsets:34,59,500,500
+Fire_Fx_1/RENDER HD 1280x720_00083
+bounds:2,759,407,418
+offsets:33,58,500,500
+Fire_Fx_1/RENDER HD 1280x720_00084
+bounds:826,1612,409,418
+offsets:31,58,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00085
+bounds:1246,1612,409,418
+offsets:31,58,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00086
+bounds:2,339,409,418
+offsets:30,57,500,500
+Fire_Fx_1/RENDER HD 1280x720_00094
+bounds:816,4,398,418
+offsets:27,56,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00095
+bounds:820,404,399,419
+offsets:27,55,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00096
+bounds:413,352,401,419
+offsets:26,55,500,500
+Fire_Fx_1/RENDER HD 1280x720_00097
+bounds:826,1206,404,420
+offsets:25,54,500,500
+rotate:90
+Fire_Fx_1/RENDER HD 1280x720_00098
+bounds:2,1179,406,421
+offsets:24,54,500,500
+
+Trolley_Man_8.png
+size:1222,421
+filter:Linear,Linear
+pma:true
+Fire_Fx_1/RENDER HD 1280x720_00054
+bounds:819,2,401,417
+offsets:44,49,500,500
+Fire_Fx_1/RENDER HD 1280x720_00055
+bounds:415,3,402,416
+offsets:43,50,500,500
+Fire_Fx_1/RENDER HD 1280x720_00077
+bounds:2,8,411,411
+offsets:33,63,500,500

@@ -20,6 +20,7 @@ public class ImageAnimation : MonoBehaviour
     public bool doLoopAnimation = true;
     
     public System.Action<int> onLoopComplete;
+    public System.Action<int> onFrameDisplayed;
     private int currentLoopCount = 0;
     
     [SerializeField] private bool StartOnAwake;
@@ -205,6 +206,7 @@ public class ImageAnimation : MonoBehaviour
         if (rendererDelegate != null)
         {
             rendererDelegate.sprite = sprites[indexOfTexture];
+            onFrameDisplayed?.Invoke(indexOfTexture);
         }
     }
 

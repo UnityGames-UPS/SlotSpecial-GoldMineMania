@@ -64067,7 +64067,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f37e6b2c4a14f758d02bb5a43d9e1c6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SlotFeatureVisualController
+  m_EditorClassIdentifier: Assembly-CSharp::SlotFeatureController
   animationRoot: {fileID: 964632433}
   twoSlotBarrelRoot: {fileID: 1720651058}
   threeSlotBarrelRoot: {fileID: 1863358036}

@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour
     internal bool isInGoldBurstRespins;
     private int pendingFreeSpins;
     private bool isCompletingGoldBurstRespins;
+    private bool isCompletingFreeSpins;
 
     internal bool isInitialized;
     internal bool initializationFailed;
@@ -758,6 +759,7 @@ public class GameManager : MonoBehaviour
     {
         isInGoldBurstRespins = true;
         isCompletingGoldBurstRespins = false;
+        uiManager.ShowGoodLuckDisplay();
         uiManager.HideFeatureSpinCount();
         uiManager.DisableControlsDuringWinAnimation();
 
@@ -809,7 +811,9 @@ public class GameManager : MonoBehaviour
     {
         if (slotView != null)
         {
-            yield return slotView.PlayGoldBurstFinalPresentation(prizes);
+            yield return slotView.PlayGoldBurstFinalPresentation(
+                prizes,
+                totalRoundWin);
             slotView.EndGoldBurstPresentation();
         }
 
@@ -852,6 +856,7 @@ public class GameManager : MonoBehaviour
 
         if (isInFreeSpins)
         {
+            uiManager.UpdateFreeSpinCumulativeWin(totalRoundWin);
             uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
 
             if (isRoundOver || freeSpinsRemaining <= 0)
@@ -886,6 +891,7 @@ public class GameManager : MonoBehaviour
     private void StartFreeSpins(int spins)
     {
         isInFreeSpins = true;
+        isCompletingFreeSpins = false;
         freeSpinsRemaining = spins;
         freeSpinsUsed = 0;
         waitingForFreeSpinStart = true;
@@ -903,8 +909,19 @@ public class GameManager : MonoBehaviour
         }
 
         uiManager.OnFreeSpinsStarted(spins);
+        currentState = GameState.Stopping;
+        StartCoroutine(BeginFreeSpinsSequence());
+    }
+
+    private IEnumerator BeginFreeSpinsSequence()
+    {
+        if (slotView != null)
+        {
+            yield return slotView.PlayFreeGamesStartPresentation(uiManager);
+        }
 
         currentState = GameState.Idle;
+        StartFirstFreeSpin();
     }
 
     internal void StartFirstFreeSpin()
@@ -936,12 +953,34 @@ public class GameManager : MonoBehaviour
 
     private void EndFreeSpins(double totalRoundWin, int totalSpinsUsed)
     {
+        if (isCompletingFreeSpins) return;
+
+        isCompletingFreeSpins = true;
+        waitingForFreeSpinStart = true;
+        currentState = GameState.Stopping;
+        StartCoroutine(CompleteFreeSpinsSequence(totalRoundWin, totalSpinsUsed));
+    }
+
+    private IEnumerator CompleteFreeSpinsSequence(
+        double totalRoundWin,
+        int totalSpinsUsed)
+    {
+        double finalWin = System.Math.Max(
+            totalRoundWin,
+            uiManager != null ? uiManager.GetFreeSpinCumulativeWin() : 0d);
+        if (slotView != null)
+        {
+            yield return slotView.PlayFreeGamesEndPresentation(
+                finalWin,
+                uiManager);
+        }
+
         isInFreeSpins = false;
         freeSpinsRemaining = 0;
+        waitingForFreeSpinStart = false;
+        isCompletingFreeSpins = false;
         AudioManager.Instance?.PlayMainBg();
-
-        uiManager.OnFreeSpinsEnded(totalRoundWin, totalSpinsUsed);
-
+        uiManager.OnFreeSpinsEnded(finalWin, totalSpinsUsed);
         currentState = GameState.Idle;
     }
 
@@ -958,6 +997,8 @@ public class GameManager : MonoBehaviour
         }
 
         wasAutoPlayingBeforeFreeSpins = false;
+        isCompletingFreeSpins = false;
+        waitingForFreeSpinStart = false;
         if (isAutoPlaying)
         {
             StopAutoPlay();
