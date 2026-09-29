@@ -14,7 +14,9 @@ using UnityEngine.UI;
 public sealed class PrizeTrailController : MonoBehaviour
 {
     [Header("Collection Target")]
-    [SerializeField] private RectTransform targetPosition;
+    [FormerlySerializedAs("targetPosition")]
+    [SerializeField] private RectTransform landscapeTargetPosition;
+    [SerializeField] private RectTransform portraitTargetPosition;
 
     [Header("Particle Stream")]
     [SerializeField, Min(1)] private int maxParticlesPerStream = 100;
@@ -55,7 +57,8 @@ public sealed class PrizeTrailController : MonoBehaviour
         CacheParticles();
         ResetParticles();
 
-        if (targetPosition == null || sources == null || particles.Count == 0)
+        RectTransform collectionTarget = GetCollectionTarget();
+        if (collectionTarget == null || sources == null || particles.Count == 0)
         {
             yield break;
         }
@@ -70,7 +73,7 @@ public sealed class PrizeTrailController : MonoBehaviour
             }
 
             Vector3 start = WorldCenterToPoolLocal(source);
-            Vector3 end = WorldCenterToPoolLocal(targetPosition);
+            Vector3 end = WorldCenterToPoolLocal(collectionTarget);
             int activeSourceIndex = sourceIndex;
             bool firstArrivalReported = false;
             Action reportFirstArrival = () =>
@@ -107,8 +110,24 @@ public sealed class PrizeTrailController : MonoBehaviour
         ResetParticles();
     }
 
+    private RectTransform GetCollectionTarget()
+    {
+        if (portraitTargetPosition != null &&
+            portraitTargetPosition.parent != null &&
+            portraitTargetPosition.parent.gameObject.activeInHierarchy)
+        {
+            return portraitTargetPosition;
+        }
+
+        return landscapeTargetPosition != null
+            ? landscapeTargetPosition
+            : portraitTargetPosition;
+    }
+
     internal void ResetParticles()
     {
+        if (this == null) return;
+
         CacheParticles();
         foreach (RectTransform particle in particles)
         {
@@ -130,6 +149,8 @@ public sealed class PrizeTrailController : MonoBehaviour
 
     private void CacheParticles()
     {
+        if (this == null) return;
+
         if (poolRoot == null)
         {
             poolRoot = transform as RectTransform;

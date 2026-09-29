@@ -15,6 +15,8 @@ using UnityEngine.UI;
 public class SlotView : MonoBehaviour
 {
     private const int DefaultReelCount = 5;
+    private const int MegaGoldBurstReelCount = 7;
+    private const int UltimateGoldBurstReelCount = MegaGoldBurstReelCount * 2;
     private const int DefaultRowCount = 3;
     private const int FirstGoldBurstLockedSymbolId = 11;
     private const int LastGoldBurstLockedSymbolId = 13;
@@ -28,6 +30,9 @@ public class SlotView : MonoBehaviour
     [SerializeField] private GameManager gameManager;
     [SerializeField] private SymbolInfoCard symbolInfoCard;
     [SerializeField] private SlotFeatureController featureVisualController;
+
+    [Header("Landscape 5x3-only UI")]
+    [SerializeField] private GameObject landscapeExtraUICanDeactivate;
 
     [Header("Symbol Sprites - Assign by Init Name")]
     [SerializeField] private Sprite spriteMiner;                       // 0
@@ -87,6 +92,12 @@ public class SlotView : MonoBehaviour
     [Header("Reels")]
     [Tooltip("Optional. If empty, 5x3SlotHolder (or Slots) is discovered automatically.")]
     [SerializeField] private Transform reelRoot;
+    [Tooltip("Optional. If empty, 7x3SlotHolder is discovered automatically.")]
+    [SerializeField] private Transform megaGoldBurstReelRoot;
+    [Tooltip("Optional. First authored reel holder inside Two7x3Slot.")]
+    [SerializeField] private Transform ultimateGoldBurstFirstReelRoot;
+    [Tooltip("Optional. Second authored reel holder inside Two7x3Slot.")]
+    [SerializeField] private Transform ultimateGoldBurstSecondReelRoot;
     [SerializeField] private Transform[] reelTransforms = Array.Empty<Transform>();
 
     [Header("Visible Result Slots")]
@@ -143,6 +154,20 @@ public class SlotView : MonoBehaviour
         new List<BarrelIdleAnimationRuntime>();
     private readonly Dictionary<Image, bool> barrelIdleSourceImageStates =
         new Dictionary<Image, bool>();
+    private readonly List<TwoSlotBarrelPlacement> preparedTwoSlotBarrels =
+        new List<TwoSlotBarrelPlacement>();
+    private readonly List<ThreeSlotBarrelPlacement> preparedThreeSlotBarrels =
+        new List<ThreeSlotBarrelPlacement>();
+    private readonly List<TrainPlacement> preparedTrains =
+        new List<TrainPlacement>();
+    private List<List<int>> preparedMegaGoldBurstMatrix;
+    private List<List<int>> preparedUltimateGoldBurstMatrix;
+    private Transform baseGameReelRoot;
+    private GameObject baseGameLayoutRoot;
+    private GameObject megaGoldBurstLayoutRoot;
+    private GameObject ultimateGoldBurstLayoutRoot;
+    private bool isUsingMegaGoldBurstLayout;
+    private bool isUsingUltimateGoldBurstLayout;
     private int winAnimationSession;
     private int requiredWinAnimationLoops;
     private bool firstWinAnimationLoopReported;
@@ -205,6 +230,9 @@ public class SlotView : MonoBehaviour
 
     private sealed class GoldBurstConversionRuntime
     {
+        internal Image baseImage;
+        internal bool baseImageWasEnabled;
+        internal bool baseImageHidden;
         internal RectTransform animationCell;
         internal bool usesBarrelVisual;
         internal Vector3 originalScale;
@@ -242,6 +270,8 @@ public class SlotView : MonoBehaviour
             ? symbolInfoCard
             : FindSceneComponent<SymbolInfoCard>();
 
+        CacheGoldBurstLayouts();
+        ActivateBaseGameLayout();
         BuildReelCache();
 
         featureVisualController = featureVisualController != null
@@ -252,14 +282,208 @@ public class SlotView : MonoBehaviour
             featureVisualController = gameObject.AddComponent<SlotFeatureController>();
         }
 
-        Transform featureSearchRoot = reelRoot != null ? reelRoot.parent : null;
-        featureVisualController.Initialize(featureSearchRoot, resultSlotsByReel);
+        InitializeFeatureLayout();
         symbolInfoCard?.HideCard();
     }
 
     private void Start()
     {
         EnsureConfiguration();
+    }
+
+    private void CacheGoldBurstLayouts()
+    {
+        baseGameReelRoot = reelRoot != null
+            ? reelRoot
+            : FindSceneTransform("5x3SlotHolder") ?? FindSceneTransform("Slots");
+        megaGoldBurstReelRoot = megaGoldBurstReelRoot != null
+            ? megaGoldBurstReelRoot
+            : FindSceneTransform("7x3SlotHolder");
+
+        Transform ultimateSlotContainer =
+            FindSceneTransformWithDirectChildren(
+                "Two7x3Slot",
+                "Two7x3SlotHolder",
+                "Two7x3SlotHolder (1)");
+        ultimateGoldBurstFirstReelRoot = ultimateGoldBurstFirstReelRoot != null
+            ? ultimateGoldBurstFirstReelRoot
+            : ultimateSlotContainer?.Find("Two7x3SlotHolder");
+        ultimateGoldBurstSecondReelRoot = ultimateGoldBurstSecondReelRoot != null
+            ? ultimateGoldBurstSecondReelRoot
+            : ultimateSlotContainer?.Find("Two7x3SlotHolder (1)");
+
+        baseGameLayoutRoot = FindLayoutRoot(baseGameReelRoot, "5x3Slot");
+        megaGoldBurstLayoutRoot = FindLayoutRoot(
+            megaGoldBurstReelRoot,
+            "7x3Slot");
+        ultimateGoldBurstLayoutRoot = FindLayoutRoot(
+            ultimateGoldBurstFirstReelRoot,
+            "Two7x3Slot");
+    }
+
+    private void ActivateBaseGameLayout()
+    {
+        if (baseGameLayoutRoot != null) baseGameLayoutRoot.SetActive(true);
+        if (megaGoldBurstLayoutRoot != null) megaGoldBurstLayoutRoot.SetActive(false);
+        if (ultimateGoldBurstLayoutRoot != null) ultimateGoldBurstLayoutRoot.SetActive(false);
+        SetLandscapeExtraUIForBaseLayout(true);
+        reelRoot = baseGameReelRoot;
+        isUsingMegaGoldBurstLayout = false;
+        isUsingUltimateGoldBurstLayout = false;
+    }
+
+    internal void ActivateMegaGoldBurstLayout()
+    {
+        if (isUsingMegaGoldBurstLayout) return;
+        if (megaGoldBurstReelRoot == null || megaGoldBurstLayoutRoot == null)
+        {
+            Debug.LogError(
+                "[SlotView] Mega Gold Burst requires the 7x3Slot and 7x3SlotHolder scene objects.",
+                this);
+            return;
+        }
+
+        StopWinningSymbolAnimations();
+        StopTrainSymbolAnimations();
+        StopGoldBurstConversionAnimations();
+        StopGoldBurstBarrelIdleAnimations();
+        KillAllTweens();
+        featureVisualController?.ResetFeatures();
+
+        if (baseGameLayoutRoot != null) baseGameLayoutRoot.SetActive(false);
+        if (ultimateGoldBurstLayoutRoot != null) ultimateGoldBurstLayoutRoot.SetActive(false);
+        megaGoldBurstLayoutRoot.SetActive(true);
+        SetLandscapeExtraUIForBaseLayout(false);
+        reelRoot = megaGoldBurstReelRoot;
+        isUsingMegaGoldBurstLayout = true;
+        isUsingUltimateGoldBurstLayout = false;
+
+        BuildReelCache(true);
+        InitializeFeatureLayout();
+        List<List<int>> megaMatrix = HasMatrixDimensions(
+                preparedMegaGoldBurstMatrix,
+                MegaGoldBurstReelCount,
+                GetRowCount())
+            ? preparedMegaGoldBurstMatrix
+            : currentDisplayMatrix;
+        if (IsValidMatrix(megaMatrix))
+        {
+            ApplyMatrix(megaMatrix);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[SlotView] Mega Gold Burst switched to 7x3 before a complete seven-reel matrix was available.",
+                this);
+        }
+
+        featureVisualController?.BeginGoldBurstTriggerPresentation();
+        ReapplyPreparedFeatures();
+    }
+
+    internal void ActivateUltimateGoldBurstLayout()
+    {
+        if (isUsingUltimateGoldBurstLayout) return;
+        if (ultimateGoldBurstFirstReelRoot == null ||
+            ultimateGoldBurstSecondReelRoot == null ||
+            ultimateGoldBurstLayoutRoot == null)
+        {
+            Debug.LogError(
+                "[SlotView] Ultimate Gold Burst requires Two7x3Slot and both authored reel holders.",
+                this);
+            return;
+        }
+
+        StopWinningSymbolAnimations();
+        StopTrainSymbolAnimations();
+        StopGoldBurstConversionAnimations();
+        StopGoldBurstBarrelIdleAnimations();
+        KillAllTweens();
+        featureVisualController?.ResetFeatures();
+
+        if (baseGameLayoutRoot != null) baseGameLayoutRoot.SetActive(false);
+        if (megaGoldBurstLayoutRoot != null) megaGoldBurstLayoutRoot.SetActive(false);
+        ultimateGoldBurstLayoutRoot.SetActive(true);
+        SetLandscapeExtraUIForBaseLayout(false);
+        reelRoot = ultimateGoldBurstFirstReelRoot;
+        isUsingMegaGoldBurstLayout = false;
+        isUsingUltimateGoldBurstLayout = true;
+
+        BuildReelCache(true);
+        InitializeFeatureLayout();
+        if (IsValidMatrix(preparedUltimateGoldBurstMatrix))
+        {
+            ApplyMatrix(preparedUltimateGoldBurstMatrix);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[SlotView] Ultimate Gold Burst switched to two 7x3 boards before both matrices were available.",
+                this);
+        }
+
+        featureVisualController?.BeginGoldBurstTriggerPresentation();
+        ReapplyPreparedFeatures();
+    }
+
+    private void SetLandscapeExtraUIForBaseLayout(bool isBaseLayoutActive)
+    {
+        if (landscapeExtraUICanDeactivate != null)
+        {
+            landscapeExtraUICanDeactivate.SetActive(isBaseLayoutActive);
+        }
+
+    }
+
+    private void InitializeFeatureLayout()
+    {
+        if (featureVisualController == null) return;
+
+        Transform featureSearchRoot = reelRoot != null ? reelRoot.parent : null;
+        featureVisualController.Initialize(
+            featureSearchRoot,
+            resultSlotsByReel,
+            Mathf.Max(1, reels.Count),
+            FindLayoutAnimationRoot(reelRoot));
+    }
+
+    private void ReapplyPreparedFeatures()
+    {
+        featureVisualController?.PrepareTwoSlotBarrels(preparedTwoSlotBarrels);
+        featureVisualController?.PrepareThreeSlotBarrels(preparedThreeSlotBarrels);
+        featureVisualController?.PrepareTrains(preparedTrains);
+    }
+
+    private static GameObject FindLayoutRoot(Transform holder, string layoutName)
+    {
+        GameObject layoutRoot = null;
+        for (Transform current = holder; current != null; current = current.parent)
+        {
+            if (current.name == layoutName)
+            {
+                layoutRoot = current.gameObject;
+            }
+        }
+
+        return layoutRoot;
+    }
+
+    private static RectTransform FindLayoutAnimationRoot(Transform holder)
+    {
+        Transform container = holder != null ? holder.parent : null;
+        if (container == null) return null;
+
+        for (int childIndex = 0; childIndex < container.childCount; childIndex++)
+        {
+            Transform child = container.GetChild(childIndex);
+            if (child is RectTransform rect &&
+                child.name.EndsWith("Animation", StringComparison.OrdinalIgnoreCase))
+            {
+                return rect;
+            }
+        }
+
+        return null;
     }
 
     private void OnDisable()
@@ -270,7 +494,10 @@ public class SlotView : MonoBehaviour
         StopGoldBurstBarrelIdleAnimations();
         StopViewCoroutines();
         KillAllTweens();
-        featureVisualController?.ResetFeatures();
+        if (featureVisualController != null)
+        {
+            featureVisualController.ResetFeatures();
+        }
         isSpinning = false;
     }
 
@@ -299,26 +526,20 @@ public class SlotView : MonoBehaviour
 
     #region Reel and symbol setup
 
-    private void BuildReelCache()
+    private void BuildReelCache(bool forceDiscoverResultSlots = false)
     {
         reels.Clear();
         reportedResultSlotIssues.Clear();
-        EnsureResultSlotArraySize();
 
         Transform discoveredRoot = reelRoot != null
             ? reelRoot
             : FindSceneTransform("5x3SlotHolder") ?? FindSceneTransform("Slots");
 
         List<RectTransform> candidates = new List<RectTransform>();
-        if (discoveredRoot != null)
+        AddReelCandidates(discoveredRoot, candidates);
+        if (isUsingUltimateGoldBurstLayout)
         {
-            for (int i = 0; i < discoveredRoot.childCount; i++)
-            {
-                if (discoveredRoot.GetChild(i) is RectTransform rect && HasDirectSymbolImages(rect))
-                {
-                    candidates.Add(rect);
-                }
-            }
+            AddReelCandidates(ultimateGoldBurstSecondReelRoot, candidates);
         }
 
         if (candidates.Count == 0 && reelTransforms != null)
@@ -328,7 +549,22 @@ public class SlotView : MonoBehaviour
                 .Where(HasDirectSymbolImages));
         }
 
-        foreach (RectTransform reelTransform in candidates.Take(DefaultReelCount))
+        int expectedReelCount = isUsingUltimateGoldBurstLayout
+            ? UltimateGoldBurstReelCount
+            : isUsingMegaGoldBurstLayout
+                ? MegaGoldBurstReelCount
+                : DefaultReelCount;
+        if (forceDiscoverResultSlots ||
+            !ResultSlotsMatchReels(resultSlotsByReel, candidates))
+        {
+            resultSlotsByReel = DiscoverResultSlots(candidates);
+        }
+        else
+        {
+            EnsureResultSlotArraySize(candidates.Count);
+        }
+
+        foreach (RectTransform reelTransform in candidates)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(reelTransform);
 
@@ -359,9 +595,11 @@ public class SlotView : MonoBehaviour
             return;
         }
 
-        if (reels.Count != DefaultReelCount)
+        if (reels.Count != expectedReelCount)
         {
-            Debug.LogError($"[SlotView] Found {reels.Count} reels; expected {DefaultReelCount}.", this);
+            Debug.LogError(
+                $"[SlotView] Found {reels.Count} reels; expected {expectedReelCount}.",
+                this);
         }
 
         reelRoot = discoveredRoot;
@@ -371,16 +609,113 @@ public class SlotView : MonoBehaviour
         BuildGoldBurstCellCache();
     }
 
-    private void EnsureResultSlotArraySize()
+    private static void AddReelCandidates(
+        Transform root,
+        ICollection<RectTransform> candidates)
     {
-        if (resultSlotsByReel != null && resultSlotsByReel.Length == DefaultReelCount) return;
+        if (root == null || candidates == null) return;
+
+        for (int childIndex = 0; childIndex < root.childCount; childIndex++)
+        {
+            if (root.GetChild(childIndex) is RectTransform rect &&
+                HasDirectSymbolImages(rect))
+            {
+                candidates.Add(rect);
+            }
+        }
+    }
+
+    private void EnsureResultSlotArraySize(int reelCount)
+    {
+        reelCount = Mathf.Max(0, reelCount);
+        if (resultSlotsByReel != null && resultSlotsByReel.Length == reelCount) return;
 
         ReelResultSlots[] previous = resultSlotsByReel;
-        resultSlotsByReel = new ReelResultSlots[DefaultReelCount];
+        resultSlotsByReel = new ReelResultSlots[reelCount];
         if (previous != null)
         {
             Array.Copy(previous, resultSlotsByReel, Mathf.Min(previous.Length, resultSlotsByReel.Length));
         }
+    }
+
+    private static bool ResultSlotsMatchReels(
+        IReadOnlyList<ReelResultSlots> configuredSlots,
+        IReadOnlyList<RectTransform> reelCandidates)
+    {
+        if (configuredSlots == null || reelCandidates == null ||
+            configuredSlots.Count != reelCandidates.Count)
+        {
+            return false;
+        }
+
+        for (int reelIndex = 0; reelIndex < reelCandidates.Count; reelIndex++)
+        {
+            ReelResultSlots slots = configuredSlots[reelIndex];
+            RectTransform reel = reelCandidates[reelIndex];
+            if (slots == null || reel == null)
+            {
+                return false;
+            }
+
+            for (int row = 0; row < DefaultRowCount; row++)
+            {
+                Image image = slots.Get(row);
+                if (image == null || !image.transform.IsChildOf(reel))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static ReelResultSlots[] DiscoverResultSlots(
+        IReadOnlyList<RectTransform> reelCandidates)
+    {
+        if (reelCandidates == null) return Array.Empty<ReelResultSlots>();
+
+        var discovered = new ReelResultSlots[reelCandidates.Count];
+        for (int reelIndex = 0; reelIndex < reelCandidates.Count; reelIndex++)
+        {
+            RectTransform reel = reelCandidates[reelIndex];
+            if (reel == null) continue;
+
+            var directImages = new List<Image>();
+            var maskedImages = new List<Image>();
+            for (int childIndex = 0; childIndex < reel.childCount; childIndex++)
+            {
+                Transform child = reel.GetChild(childIndex);
+                Image image = child.GetComponent<Image>();
+                if (image == null) continue;
+
+                directImages.Add(image);
+                if (child.GetComponentInChildren<Mask>(true) != null)
+                {
+                    maskedImages.Add(image);
+                }
+            }
+
+            List<Image> resultImages = maskedImages.Count >= DefaultRowCount
+                ? maskedImages
+                : directImages
+                    .Skip(Mathf.Max(0, directImages.Count - DefaultRowCount))
+                    .ToList();
+            resultImages = resultImages
+                .OrderByDescending(image => image.rectTransform.anchoredPosition.y)
+                .Take(DefaultRowCount)
+                .ToList();
+
+            if (resultImages.Count == DefaultRowCount)
+            {
+                discovered[reelIndex] = new ReelResultSlots(
+                    resultImages[0],
+                    resultImages[1],
+                    resultImages[2]);
+            }
+        }
+
+        return discovered;
     }
 
     private static bool HasDirectSymbolImages(RectTransform candidate)
@@ -451,11 +786,12 @@ public class SlotView : MonoBehaviour
                 Image symbolImage = GetResultSlotImage(reelIndex, row);
                 if (symbolImage == null) continue;
 
-                Transform maskTransform = symbolImage.transform.Find("Mask");
-                RectTransform spinner = maskTransform?.Find("SpinningSlot") as RectTransform;
-                if (maskTransform == null || spinner == null || spinner.childCount == 0) continue;
+                Mask mask = symbolImage.GetComponentInChildren<Mask>(true);
+                RectTransform spinner = mask != null
+                    ? mask.transform.Find("SpinningSlot") as RectTransform
+                    : null;
+                if (mask == null || spinner == null || spinner.childCount == 0) continue;
 
-                Mask mask = maskTransform.GetComponent<Mask>();
                 Image firstSpinnerImage = spinner.GetChild(0).GetComponent<Image>() ??
                                           spinner.GetChild(0).GetComponentInChildren<Image>(true);
                 Image lastSpinnerImage = spinner.GetChild(spinner.childCount - 1).GetComponent<Image>() ??
@@ -724,17 +1060,62 @@ public class SlotView : MonoBehaviour
 
     internal void PrepareTwoSlotBarrels(IReadOnlyList<TwoSlotBarrelPlacement> placements)
     {
+        preparedTwoSlotBarrels.Clear();
+        if (placements != null) preparedTwoSlotBarrels.AddRange(placements.Where(item => item != null));
         featureVisualController?.PrepareTwoSlotBarrels(placements);
     }
 
     internal void PrepareThreeSlotBarrels(IReadOnlyList<ThreeSlotBarrelPlacement> placements)
     {
+        preparedThreeSlotBarrels.Clear();
+        if (placements != null) preparedThreeSlotBarrels.AddRange(placements.Where(item => item != null));
         featureVisualController?.PrepareThreeSlotBarrels(placements);
     }
 
     internal void PrepareTrains(IReadOnlyList<TrainPlacement> placements)
     {
+        preparedTrains.Clear();
+        if (placements != null) preparedTrains.AddRange(placements.Where(item => item != null));
         featureVisualController?.PrepareTrains(placements);
+    }
+
+    internal void PrepareGoldBurstExpandedMatrices(
+        GoldBurstTier tier,
+        List<List<int>> firstExpandedMatrix,
+        List<List<int>> secondExpandedMatrix)
+    {
+        preparedMegaGoldBurstMatrix = null;
+        preparedUltimateGoldBurstMatrix = null;
+
+        if (tier == GoldBurstTier.Mega &&
+            HasMatrixDimensions(
+                firstExpandedMatrix,
+                MegaGoldBurstReelCount,
+                DefaultRowCount))
+        {
+            preparedMegaGoldBurstMatrix = CloneMatrix(firstExpandedMatrix);
+            return;
+        }
+
+        if (tier != GoldBurstTier.Ultimate ||
+            !HasMatrixDimensions(
+                firstExpandedMatrix,
+                MegaGoldBurstReelCount,
+                DefaultRowCount) ||
+            !HasMatrixDimensions(
+                secondExpandedMatrix,
+                MegaGoldBurstReelCount,
+                DefaultRowCount))
+        {
+            return;
+        }
+
+        preparedUltimateGoldBurstMatrix = new List<List<int>>(
+            UltimateGoldBurstReelCount);
+        preparedUltimateGoldBurstMatrix.AddRange(
+            CloneMatrix(firstExpandedMatrix));
+        preparedUltimateGoldBurstMatrix.AddRange(
+            CloneMatrix(secondExpandedMatrix));
     }
 
     internal void ConfigureGoldBurstTriggerBarrelMerge(bool shouldDefer)
@@ -797,10 +1178,15 @@ public class SlotView : MonoBehaviour
 
         foreach (int flatPosition in winningPositions)
         {
-            int row = flatPosition / DefaultReelCount;
-            int reelIndex = flatPosition % DefaultReelCount;
+            int matrixReelCount = Mathf.Max(
+                1,
+                currentDisplayMatrix != null && currentDisplayMatrix.Count > 0
+                    ? currentDisplayMatrix.Count
+                    : reels.Count);
+            int row = flatPosition / matrixReelCount;
+            int reelIndex = flatPosition % matrixReelCount;
             if (flatPosition < 0 ||
-                reelIndex < 0 || reelIndex >= DefaultReelCount ||
+                reelIndex < 0 || reelIndex >= reels.Count ||
                 row < 0 || row >= DefaultRowCount ||
                 currentDisplayMatrix == null ||
                 reelIndex >= currentDisplayMatrix.Count ||
@@ -871,7 +1257,6 @@ public class SlotView : MonoBehaviour
                 animation = animation
             };
             activeWinAnimations.Add(runtime);
-            baseImage.enabled = false;
 
             animation.onLoopComplete = loopCount =>
                 HandleWinAnimationLoop(session, runtime, loopCount);
@@ -886,6 +1271,13 @@ public class SlotView : MonoBehaviour
         foreach (WinAnimationRuntime runtime in activeWinAnimations)
         {
             runtime.animation.StartAnimation();
+            Image overlayImage = runtime.animation.rendererDelegate;
+            if (IsAnimationOverlayReady(runtime.animation, overlayImage) &&
+                runtime.baseImage != null &&
+                runtime.baseImage != overlayImage)
+            {
+                runtime.baseImage.enabled = false;
+            }
         }
     }
 
@@ -1027,7 +1419,6 @@ public class SlotView : MonoBehaviour
         animationCell.localScale =
             runtime.animationCellOriginalScale * trainSymbolScale;
 
-        baseImage.enabled = false;
         activeTrainAnimations.Add(runtime);
         animationCellImage.enabled = false;
         runtime.delayedStartRoutine = StartCoroutine(
@@ -1049,13 +1440,24 @@ public class SlotView : MonoBehaviour
         }
 
         runtime.delayedStartRoutine = null;
-        runtime.animationStarted = true;
         runtime.animationCellImage.enabled = true;
-        StartTrainSpriteAnimation(
+        runtime.animationStarted = StartTrainSpriteAnimation(
             runtime,
             animSpritesFreeGameScatter,
             true,
             loopCount => HandleTrainLandingAnimationLoop(runtime, loopCount));
+        if (!runtime.animationStarted)
+        {
+            activeTrainAnimations.Remove(runtime);
+            RestoreTrainAnimationRuntime(runtime);
+            yield break;
+        }
+
+        if (runtime.baseImage != null &&
+            runtime.baseImage != runtime.animationCellImage)
+        {
+            runtime.baseImage.enabled = false;
+        }
     }
 
     private void HandleTrainLandingAnimationLoop(
@@ -1110,7 +1512,7 @@ public class SlotView : MonoBehaviour
         yield return new WaitForSeconds(triggerDuration);
     }
 
-    private static void StartTrainSpriteAnimation(
+    private static bool StartTrainSpriteAnimation(
         TrainSymbolAnimationRuntime runtime,
         List<Sprite> frames,
         bool shouldLoop,
@@ -1120,7 +1522,7 @@ public class SlotView : MonoBehaviour
             runtime.animationCellImage == null ||
             frames == null || frames.Count == 0)
         {
-            return;
+            return false;
         }
 
         runtime.animation.StopAnimation();
@@ -1132,6 +1534,9 @@ public class SlotView : MonoBehaviour
             frames.Count / TrainAnimationFramesPerSecond);
         runtime.animation.onLoopComplete = onLoopComplete;
         runtime.animation.StartAnimation();
+        return IsAnimationOverlayReady(
+            runtime.animation,
+            runtime.animationCellImage);
     }
 
     private void StopTrainSymbolAnimations()
@@ -1197,7 +1602,13 @@ public class SlotView : MonoBehaviour
                 triggerBarrels,
                 2,
                 false);
-            yield return featureVisualController.PlayGoldBurstTriggerPresentation(tier);
+            Action activateExpandedLayout =
+                featureVisualController.GetGoldBurstLayoutActivation(
+                    tier,
+                    this);
+            yield return featureVisualController.PlayGoldBurstTriggerPresentation(
+                tier,
+                activateExpandedLayout);
             StartGoldBurstBarrelIdleAnimations();
         }
     }
@@ -1234,18 +1645,29 @@ public class SlotView : MonoBehaviour
         StopWinningSymbolAnimations();
         if (featureVisualController == null) yield break;
 
+        // Freeze every barrel before converting them. Leaving the idle animations
+        // running makes several barrels appear to blast while the actual prize
+        // conversion is being played one at a time.
+        StopGoldBurstBarrelIdleAnimations();
         featureVisualController.BeginGoldBurstPrizeReveal();
         List<GoldBurstPrizePlacement> orderedPrizes = prizes == null
             ? new List<GoldBurstPrizePlacement>()
             : prizes
                 .Where(IsValidGoldBurstPrize)
-                .OrderBy(prize => prize.startCol)
+                // Ultimate uses two authored 7x3 boards. Finish the complete top
+                // board before beginning the bottom board, then reveal each board
+                // from left to right and top to bottom.
+                .OrderBy(prize => isUsingUltimateGoldBurstLayout
+                    ? prize.startCol / MegaGoldBurstReelCount
+                    : 0)
+                .ThenBy(prize => isUsingUltimateGoldBurstLayout
+                    ? prize.startCol % MegaGoldBurstReelCount
+                    : prize.startCol)
                 .ThenBy(prize => prize.startRow)
                 .ToList();
 
         foreach (GoldBurstPrizePlacement prize in orderedPrizes)
         {
-            StopGoldBurstBarrelIdleAnimation(prize);
             yield return PlayGoldBurstConversionAnimations(
                 new[] { prize },
                 1,
@@ -1294,6 +1716,15 @@ public class SlotView : MonoBehaviour
         StopGoldBurstConversionAnimations();
         StopGoldBurstBarrelIdleAnimations();
         featureVisualController?.EndGoldBurstPresentation();
+        if (isUsingMegaGoldBurstLayout || isUsingUltimateGoldBurstLayout)
+        {
+            ActivateBaseGameLayout();
+            BuildReelCache(true);
+            InitializeFeatureLayout();
+            if (IsValidMatrix(currentDisplayMatrix)) ApplyMatrix(currentDisplayMatrix);
+        }
+        preparedMegaGoldBurstMatrix = null;
+        preparedUltimateGoldBurstMatrix = null;
     }
 
     private IEnumerator PlayGoldBurstConversionAnimations(
@@ -1345,6 +1776,9 @@ public class SlotView : MonoBehaviour
 
             var runtime = new GoldBurstConversionRuntime
             {
+                baseImage = prize.rowCount == 1
+                    ? GetResultSlotImage(prize.startCol, prize.startRow)
+                    : null,
                 animationCell = animationCell,
                 usesBarrelVisual = usesBarrelVisual,
                 originalScale = animationCell.localScale,
@@ -1407,13 +1841,13 @@ public class SlotView : MonoBehaviour
         StopGoldBurstConversionAnimations();
     }
 
-    private static bool IsValidGoldBurstPrize(GoldBurstPrizePlacement prize)
+    private bool IsValidGoldBurstPrize(GoldBurstPrizePlacement prize)
     {
         return prize != null &&
                prize.amount >= 0d &&
                prize.columnCount == 1 &&
                prize.rowCount >= 1 && prize.rowCount <= DefaultRowCount &&
-               prize.startCol >= 0 && prize.startCol < DefaultReelCount &&
+               prize.startCol >= 0 && prize.startCol < reels.Count &&
                prize.startRow >= 0 &&
                prize.startRow + prize.rowCount <= DefaultRowCount;
     }
@@ -1452,19 +1886,9 @@ public class SlotView : MonoBehaviour
         if (frames == null || frames.Count == 0) return false;
 
         ImageAnimation animation =
-            runtime.animationCell.GetComponent<ImageAnimation>() ??
-            runtime.animationCell.gameObject.AddComponent<ImageAnimation>();
+            runtime.animationCell.GetComponent<ImageAnimation>();
+        if (animation == null) return false;
         runtime.animation = animation;
-
-        if (!runtime.usesBarrelVisual &&
-            featureVisualController.TryGetGoldBurstAnimationCenter(
-                prize.startCol,
-                prize.startRow,
-                prize.rowCount,
-                out Vector3 blastCenter))
-        {
-            runtime.animationCell.position = blastCenter;
-        }
 
         animation.StopAnimation();
         animation.textureArray = frames;
@@ -1498,6 +1922,19 @@ public class SlotView : MonoBehaviour
             1f);
         runtime.animationImage.enabled = true;
         animation.StartAnimation();
+        if (!IsAnimationOverlayReady(animation, runtime.animationImage))
+        {
+            return false;
+        }
+
+        if (!runtime.usesBarrelVisual &&
+            runtime.baseImage != null &&
+            runtime.baseImage != runtime.animationImage)
+        {
+            runtime.baseImageWasEnabled = runtime.baseImage.enabled;
+            runtime.baseImage.enabled = false;
+            runtime.baseImageHidden = true;
+        }
         return true;
     }
 
@@ -1567,6 +2004,8 @@ public class SlotView : MonoBehaviour
                 runtime.animationImage.enabled = runtime.animationImageWasEnabled;
             }
 
+            RestoreGoldBurstConversionBaseImage(runtime);
+
             if (runtime.animationCell != null)
             {
                 runtime.animationCell.position = runtime.originalPosition;
@@ -1586,12 +2025,22 @@ public class SlotView : MonoBehaviour
     {
         if (runtime == null) return;
 
+        if (runtime.animation != null)
+        {
+            runtime.animation.onLoopComplete = null;
+            runtime.animation.doLoopAnimation = false;
+            runtime.animation.StopAnimation();
+            runtime.animation.ClearLoopDuration();
+        }
+
         if (runtime.animationImage != null)
         {
             runtime.animationImage.sprite = runtime.originalSprite;
             runtime.animationImage.color = runtime.originalColor;
             runtime.animationImage.enabled = runtime.animationImageWasEnabled;
         }
+
+        RestoreGoldBurstConversionBaseImage(runtime);
 
         if (runtime.animationCell != null)
         {
@@ -1605,13 +2054,22 @@ public class SlotView : MonoBehaviour
         }
     }
 
+    private static void RestoreGoldBurstConversionBaseImage(
+        GoldBurstConversionRuntime runtime)
+    {
+        if (runtime?.baseImage == null || !runtime.baseImageHidden) return;
+
+        runtime.baseImage.enabled = runtime.baseImageWasEnabled;
+        runtime.baseImageHidden = false;
+    }
+
     private void StartGoldBurstBarrelIdleAnimations()
     {
         StopGoldBurstBarrelIdleAnimations();
         if (featureVisualController == null || currentDisplayMatrix == null) return;
 
         var animatedImages = new HashSet<Image>();
-        for (int reelIndex = 0; reelIndex < DefaultReelCount; reelIndex++)
+        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
         {
             if (featureVisualController.TryGetGoldBurstBarrelAnimationTarget(
                     reelIndex,
@@ -1619,16 +2077,13 @@ public class SlotView : MonoBehaviour
                     3,
                     out RectTransform threeSlotBarrel))
             {
-                if (TryStartBarrelIdleAnimation(
+                TryStartBarrelIdleAnimation(
                         threeSlotBarrel.GetComponent<Image>(),
                         threeSlotBarrelIdleFrames,
                         animatedImages,
                         reelIndex: reelIndex,
                         startRow: 0,
-                        rowCount: 3))
-                {
-                    DisableBarrelIdleSourceImages(reelIndex, 0, 3);
-                }
+                        rowCount: 3);
             }
             else
             {
@@ -1643,16 +2098,13 @@ public class SlotView : MonoBehaviour
                         continue;
                     }
 
-                    if (TryStartBarrelIdleAnimation(
+                    TryStartBarrelIdleAnimation(
                             twoSlotBarrel.GetComponent<Image>(),
                             twoSlotBarrelIdleFrames,
                             animatedImages,
                             reelIndex: reelIndex,
                             startRow: startRow,
-                            rowCount: 2))
-                    {
-                        DisableBarrelIdleSourceImages(reelIndex, startRow, 2);
-                    }
+                            rowCount: 2);
                     break;
                 }
             }
@@ -1688,16 +2140,8 @@ public class SlotView : MonoBehaviour
 
             Image animationImage = animationCell.GetComponent<Image>();
             Vector3 animationCellOriginalPosition = animationCell.position;
-            if (featureVisualController.TryGetGoldBurstAnimationCenter(
-                    cell.reelIndex,
-                    cell.row,
-                    1,
-                    out Vector3 idleCenter))
-            {
-                animationCell.position = idleCenter;
-            }
 
-            if (TryStartBarrelIdleAnimation(
+            if (!TryStartBarrelIdleAnimation(
                     animationImage,
                     singleSlotBarrelIdleFrames,
                     animatedImages,
@@ -1706,10 +2150,6 @@ public class SlotView : MonoBehaviour
                     cell.reelIndex,
                     cell.row,
                     1))
-            {
-                DisableBarrelIdleSourceImages(cell.reelIndex, cell.row, 1);
-            }
-            else
             {
                 featureVisualController.ReleaseGoldBurstAnimationCell(animationCell);
             }
@@ -1732,8 +2172,8 @@ public class SlotView : MonoBehaviour
             return false;
         }
 
-        ImageAnimation animation = image.GetComponent<ImageAnimation>() ??
-                                   image.gameObject.AddComponent<ImageAnimation>();
+        ImageAnimation animation = image.GetComponent<ImageAnimation>();
+        if (animation == null) return false;
         var runtime = new BarrelIdleAnimationRuntime
         {
             reelIndex = reelIndex,
@@ -1764,7 +2204,26 @@ public class SlotView : MonoBehaviour
             frames.Count /
             (BarrelIdleSourceFramesPerSecond * Mathf.Max(0.1f, barrelIdlePlaybackSpeed)));
         animation.StartAnimation();
+        Image sourceImage = rowCount == 1 &&
+                            IsAnimationOverlayReady(animation, image)
+            ? GetResultSlotImage(reelIndex, startRow)
+            : null;
+        if (sourceImage != null && sourceImage != image)
+        {
+            DisableBarrelIdleSourceImages(reelIndex, startRow, 1);
+        }
         return true;
+    }
+
+    private static bool IsAnimationOverlayReady(
+        ImageAnimation animation,
+        Image overlayImage)
+    {
+        return animation != null &&
+               animation.currentAnimationState == ImageAnimation.ImageState.PLAYING &&
+               overlayImage != null &&
+               overlayImage.isActiveAndEnabled &&
+               overlayImage.gameObject.activeInHierarchy;
     }
 
     private void DisableBarrelIdleSourceImages(
@@ -2007,6 +2466,12 @@ public class SlotView : MonoBehaviour
     internal bool IsSpinning()
     {
         return isSpinning;
+    }
+
+    internal bool IsGoldBurstMergeInProgress()
+    {
+        return featureVisualController != null &&
+               featureVisualController.IsFeatureMergeInProgress();
     }
 
     internal void HideSymbolInfoCard()
@@ -2417,12 +2882,23 @@ public class SlotView : MonoBehaviour
 
     private bool IsValidMatrix(List<List<int>> matrix)
     {
-        if (matrix == null || matrix.Count < reels.Count || reels.Count == 0) return false;
+        return reels.Count > 0 &&
+               HasMatrixDimensions(matrix, reels.Count, GetRowCount());
+    }
 
-        int rowCount = GetRowCount();
-        for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
+    private static bool HasMatrixDimensions(
+        List<List<int>> matrix,
+        int reelCount,
+        int rowCount)
+    {
+        if (matrix == null || matrix.Count < reelCount) return false;
+
+        for (int reelIndex = 0; reelIndex < reelCount; reelIndex++)
         {
-            if (matrix[reelIndex] == null || matrix[reelIndex].Count < rowCount) return false;
+            if (matrix[reelIndex] == null || matrix[reelIndex].Count < rowCount)
+            {
+                return false;
+            }
         }
 
         return true;
@@ -2522,6 +2998,18 @@ public class SlotView : MonoBehaviour
                 candidate.name == objectName);
     }
 
+    private static Transform FindSceneTransformWithDirectChildren(
+        string objectName,
+        params string[] childNames)
+    {
+        return Resources.FindObjectsOfTypeAll<Transform>()
+            .FirstOrDefault(candidate =>
+                candidate != null &&
+                candidate.gameObject.scene.IsValid() &&
+                candidate.name == objectName &&
+                childNames.All(childName => candidate.Find(childName) != null));
+    }
+
     private static T FindSceneComponent<T>() where T : Component
     {
         return Resources.FindObjectsOfTypeAll<T>()
@@ -2538,6 +3026,17 @@ public class ReelResultSlots
     [SerializeField] private Image top;
     [SerializeField] private Image middle;
     [SerializeField] private Image bottom;
+
+    public ReelResultSlots()
+    {
+    }
+
+    public ReelResultSlots(Image top, Image middle, Image bottom)
+    {
+        this.top = top;
+        this.middle = middle;
+        this.bottom = bottom;
+    }
 
     public Image Get(int row)
     {

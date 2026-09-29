@@ -147,6 +147,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Game Rules Dynamic Texts")]
     [SerializeField] private TMP_Text totalLineCountText;
+    [SerializeField] private TMP_Text totalLineCountTextPortrait;
     [SerializeField] private TMP_Text ruleSymbol0Text;
     [SerializeField] private TMP_Text ruleSymbol1Text;
     [SerializeField] private TMP_Text ruleSymbol2Text;
@@ -161,6 +162,10 @@ public class UIManager : MonoBehaviour
     [Header("Free Spin Count Display - Game Screen")]
     [SerializeField] private GameObject freeSpinCountContainer;
     [SerializeField] private TMP_Text remainingFreeSpinsText;
+    [SerializeField] private GameObject freeSpinCountContainer7x3;
+    [SerializeField] private TMP_Text remainingFreeSpinsText7x3;
+    [SerializeField] private GameObject freeSpinCountContainerTwo7x3;
+    [SerializeField] private TMP_Text remainingFreeSpinsTextTwo7x3;
 
     [Header("Ping Display")]
     [SerializeField] private TMP_Text pingText;
@@ -177,6 +182,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text majorJackpotTextPortrait;
     [SerializeField] private TMP_Text minorJackpotTextPortrait;
     [SerializeField] private TMP_Text miniJackpotTextPortrait;
+
+    [Header("Platform Jackpot - Portrait Float")]
+    [SerializeField] private RectTransform grandJackpotPortrait;
+    [SerializeField] private RectTransform majorJackpotPortrait;
+    [SerializeField] private RectTransform minorJackpotPortrait;
+    [SerializeField] private RectTransform miniJackpotPortrait;
+    [SerializeField, Min(0f)] private float portraitJackpotFloatDistance = 4f;
+    [SerializeField, Min(0.1f)] private float portraitJackpotFloatDuration = 2.8f;
 
     [Header("Expand-Shrink Controls")]
     [SerializeField] private Button expandButton;
@@ -217,10 +230,24 @@ public class UIManager : MonoBehaviour
     private Tween uwpWinTween;
     private Tween freeGamesStartButtonTween;
     private Tween freeGamesStartButtonPortraitTween;
+    private RectTransform[] portraitJackpotRects;
+    private Vector2[] portraitJackpotStartPositions;
+    private Tween[] portraitJackpotFloatTweens;
     private Vector3 freeGamesStartButtonScale = Vector3.one;
     private Vector3 freeGamesStartButtonPortraitScale = Vector3.one;
     private SpinResult lastCountedFreeSpinResult;
     [SerializeField] private float uwpAutoCloseDelay = 5f;
+
+    private enum FeatureSpinCountLayout
+    {
+        FiveByThree,
+        SevenByThree,
+        TwoSevenByThree
+    }
+
+    private FeatureSpinCountLayout activeFeatureSpinCountLayout =
+        FeatureSpinCountLayout.FiveByThree;
+    private bool isFeatureSpinCountVisible;
 
     private void Awake()
     {
@@ -253,6 +280,7 @@ public class UIManager : MonoBehaviour
         SetupGuidePanel();
 
         InitializeExpandShrink();
+        StartPortraitJackpotFloat();
 
         if (gameScreen) gameScreen.SetActive(true);
         InitializeUI();
@@ -280,7 +308,7 @@ public class UIManager : MonoBehaviour
         if (starFountain != null) starFountain.StopStarBurst();
         if (universalWinPopup) universalWinPopup.SetActive(false);
 
-        if (freeSpinCountContainer) freeSpinCountContainer.SetActive(false);
+        HideFeatureSpinCount();
         if (transitionBackFilm) transitionBackFilm.gameObject.SetActive(false);
         UpdatePingDisplay("-- ms");
     }
@@ -1138,6 +1166,7 @@ public class UIManager : MonoBehaviour
         lastCountedFreeSpinResult = null;
 
         if (gameLogoObject) gameLogoObject.SetActive(false);
+        UseBaseFeatureSpinCountDisplay();
         UpdateFreeSpinCount(spins);
         ShowGoodLuckDisplay();
         SetBetControlsEnabled(false);
@@ -1225,6 +1254,15 @@ public class UIManager : MonoBehaviour
             false);
     }
 
+    internal void ShowDisabledSpinButtonForFreeGamesTransition()
+    {
+        HideFreeGamesStartButton();
+        SetButtonActive(stopButton, stopButtonPortrait, false);
+        SetButtonActive(autoSpinStopButton, autoSpinStopButtonPortrait, false);
+        SetButtonActive(spinButton, spinButtonPortrait, true);
+        SetButtonInteractable(spinButton, spinButtonPortrait, false);
+    }
+
     private void OnFreeGamesStartButtonClicked()
     {
         if (freeGamesStartCallback == null) return;
@@ -1292,7 +1330,7 @@ public class UIManager : MonoBehaviour
         }
 
         HideFreeGamesStartButton();
-        if (freeSpinCountContainer) freeSpinCountContainer.SetActive(false);
+        HideFeatureSpinCount();
         if (gameLogoObject) gameLogoObject.SetActive(true);
         ShowGoodLuckDisplay();
         SetSpinStopButtonStates(isSpinningState: false, isInteractable: true);
@@ -1307,16 +1345,63 @@ public class UIManager : MonoBehaviour
 
     internal void UpdateFreeSpinCount(int remainingSpins)
     {
-        if (freeSpinCountContainer) freeSpinCountContainer.SetActive(true);
-        if (remainingFreeSpinsText)
-        {
-            remainingFreeSpinsText.text = remainingSpins.ToString();
-        }
+        string countText = Mathf.Max(0, remainingSpins).ToString();
+        SetFeatureSpinCountText(remainingFreeSpinsText, countText);
+        SetFeatureSpinCountText(remainingFreeSpinsText7x3, countText);
+        SetFeatureSpinCountText(remainingFreeSpinsTextTwo7x3, countText);
+
+        isFeatureSpinCountVisible = true;
+        RefreshFeatureSpinCountVisibility();
     }
 
     internal void HideFeatureSpinCount()
     {
-        if (freeSpinCountContainer) freeSpinCountContainer.SetActive(false);
+        isFeatureSpinCountVisible = false;
+        RefreshFeatureSpinCountVisibility();
+    }
+
+    internal void UseBaseFeatureSpinCountDisplay()
+    {
+        activeFeatureSpinCountLayout = FeatureSpinCountLayout.FiveByThree;
+        RefreshFeatureSpinCountVisibility();
+    }
+
+    internal void UseGoldBurstFeatureSpinCountDisplay(GoldBurstTier tier)
+    {
+        activeFeatureSpinCountLayout = tier switch
+        {
+            GoldBurstTier.Mega => FeatureSpinCountLayout.SevenByThree,
+            GoldBurstTier.Ultimate => FeatureSpinCountLayout.TwoSevenByThree,
+            _ => FeatureSpinCountLayout.FiveByThree
+        };
+        RefreshFeatureSpinCountVisibility();
+    }
+
+    private void RefreshFeatureSpinCountVisibility()
+    {
+        if (freeSpinCountContainer != null)
+        {
+            freeSpinCountContainer.SetActive(
+                isFeatureSpinCountVisible &&
+                activeFeatureSpinCountLayout == FeatureSpinCountLayout.FiveByThree);
+        }
+        if (freeSpinCountContainer7x3 != null)
+        {
+            freeSpinCountContainer7x3.SetActive(
+                isFeatureSpinCountVisible &&
+                activeFeatureSpinCountLayout == FeatureSpinCountLayout.SevenByThree);
+        }
+        if (freeSpinCountContainerTwo7x3 != null)
+        {
+            freeSpinCountContainerTwo7x3.SetActive(
+                isFeatureSpinCountVisible &&
+                activeFeatureSpinCountLayout == FeatureSpinCountLayout.TwoSevenByThree);
+        }
+    }
+
+    private static void SetFeatureSpinCountText(TMP_Text target, string value)
+    {
+        if (target != null) target.text = value;
     }
 
     #endregion
@@ -1500,10 +1585,9 @@ public class UIManager : MonoBehaviour
     {
         if (gameManager.gameConfig == null) return;
 
-        if (totalLineCountText != null)
-        {
-            totalLineCountText.text = gameManager.gameConfig.paylineCount.ToString();
-        }
+        string totalLines = gameManager.gameConfig.paylineCount.ToString();
+        if (totalLineCountText != null) totalLineCountText.text = totalLines;
+        if (totalLineCountTextPortrait != null) totalLineCountTextPortrait.text = totalLines;
 
         TMP_Text[] symbolTexts = {
             ruleSymbol0Text, ruleSymbol1Text, ruleSymbol2Text, ruleSymbol3Text,
@@ -1544,8 +1628,83 @@ public class UIManager : MonoBehaviour
 
     #region Cleanup
 
+    private void StartPortraitJackpotFloat()
+    {
+        StopPortraitJackpotFloat(false);
+
+        portraitJackpotRects = new[]
+        {
+            grandJackpotPortrait,
+            majorJackpotPortrait,
+            minorJackpotPortrait,
+            miniJackpotPortrait
+        };
+        portraitJackpotStartPositions =
+            new Vector2[portraitJackpotRects.Length];
+        portraitJackpotFloatTweens =
+            new Tween[portraitJackpotRects.Length];
+
+        float distance = Mathf.Max(0f, portraitJackpotFloatDistance);
+        float duration = Mathf.Max(0.1f, portraitJackpotFloatDuration);
+        if (distance <= 0f) return;
+
+        for (int index = 0; index < portraitJackpotRects.Length; index++)
+        {
+            RectTransform jackpot = portraitJackpotRects[index];
+            if (jackpot == null) continue;
+
+            Vector2 startPosition = jackpot.anchoredPosition;
+            portraitJackpotStartPositions[index] = startPosition;
+
+            Sequence floatSequence = DOTween.Sequence()
+                .Append(jackpot
+                    .DOAnchorPosY(startPosition.y + distance, duration * 0.5f)
+                    .SetEase(Ease.InOutSine))
+                .Append(jackpot
+                    .DOAnchorPosY(startPosition.y - distance, duration)
+                    .SetEase(Ease.InOutSine))
+                .Append(jackpot
+                    .DOAnchorPosY(startPosition.y, duration * 0.5f)
+                    .SetEase(Ease.InOutSine))
+                .SetLoops(-1, LoopType.Restart)
+                .SetUpdate(true);
+            portraitJackpotFloatTweens[index] = floatSequence;
+        }
+    }
+
+    private void StopPortraitJackpotFloat(bool restorePositions)
+    {
+        if (portraitJackpotFloatTweens != null)
+        {
+            foreach (Tween tween in portraitJackpotFloatTweens)
+            {
+                tween?.Kill();
+            }
+        }
+
+        if (restorePositions &&
+            portraitJackpotRects != null &&
+            portraitJackpotStartPositions != null)
+        {
+            int count = Mathf.Min(
+                portraitJackpotRects.Length,
+                portraitJackpotStartPositions.Length);
+            for (int index = 0; index < count; index++)
+            {
+                if (portraitJackpotRects[index] != null)
+                {
+                    portraitJackpotRects[index].anchoredPosition =
+                        portraitJackpotStartPositions[index];
+                }
+            }
+        }
+
+        portraitJackpotFloatTweens = null;
+    }
+
     private void OnDestroy()
     {
+        StopPortraitJackpotFloat(true);
         if (balanceTween != null) balanceTween.Kill();
         if (winTween != null) winTween.Kill();
         freeGamesStartButtonTween?.Kill();

@@ -6,6 +6,8 @@ public class GameManager : MonoBehaviour
 {
     private const int FirstGoldBurstSymbolId = 11;
     private const int LastGoldBurstSymbolId = 13;
+    private const int ExpandedGoldBurstReelCount = 7;
+    private const int GoldBurstRowCount = 3;
 
     [Header("References")]
     [SerializeField] internal SocketIOManager socketManager;
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviour
     internal bool waitingForFreeSpinStart;
 
     internal bool isInGoldBurstRespins;
+    private GoldBurstTier activeGoldBurstTier = GoldBurstTier.Cold;
     private int pendingFreeSpins;
     private bool isCompletingGoldBurstRespins;
     private bool isCompletingFreeSpins;
@@ -348,7 +351,7 @@ public class GameManager : MonoBehaviour
         else
         {
             uiManager.OnSpinStopping(lastResult);
-            if (IsBaseGameFreeSpinsTriggered(lastResult))
+            if (IsFreeSpinsTriggered(lastResult))
             {
                 uiManager.DisableControlsDuringWinAnimation();
             }
@@ -387,7 +390,7 @@ public class GameManager : MonoBehaviour
     {
         if (lastResult != animationResult) return;
 
-        bool isFreeGameTrigger = IsBaseGameFreeSpinsTriggered(animationResult);
+        bool isFreeGameTrigger = IsFreeSpinsTriggered(animationResult);
         if (!isFreeGameTrigger)
         {
             currentState = GameState.Idle;
@@ -449,7 +452,7 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        if (IsBaseGameFreeSpinsTriggered(lastResult))
+        if (IsFreeSpinsTriggered(lastResult))
         {
             if (slotView != null)
             {
@@ -463,12 +466,11 @@ public class GameManager : MonoBehaviour
         ResumeAfterSpecialFeature();
     }
 
-    private bool IsBaseGameFreeSpinsTriggered(SpinResult result)
+    private bool IsFreeSpinsTriggered(SpinResult result)
     {
         return result != null &&
                result.freeSpinData != null &&
                result.freeSpinData.isTriggered &&
-               !isInFreeSpins &&
                !isInGoldBurstRespins;
     }
 
@@ -511,10 +513,20 @@ public class GameManager : MonoBehaviour
 
     internal void OnSpinResultReceived(SpinResult result)
     {
-        lastResult = result;
         bool isGoldBurstTrigger = !isInGoldBurstRespins &&
                                   result?.goldBurstData != null &&
                                   result.goldBurstData.triggered;
+        if (isInGoldBurstRespins && result?.goldBurstData != null)
+        {
+            List<List<int>> activeFeatureMatrix = GetActiveGoldBurstMatrix(
+                result.goldBurstData);
+            if (activeFeatureMatrix != null)
+            {
+                result.resultMatrix = activeFeatureMatrix;
+            }
+        }
+
+        lastResult = result;
         slotView?.ConfigureTrainLandingAnimations(!isGoldBurstTrigger);
         slotView?.ConfigureTrainLandingWinSequence(
             !isGoldBurstTrigger &&
@@ -525,6 +537,14 @@ public class GameManager : MonoBehaviour
         slotView?.PrepareTwoSlotBarrels(result.twoSlotBarrels);
         slotView?.PrepareThreeSlotBarrels(result.threeSlotBarrels);
         slotView?.PrepareTrains(result.trains);
+        if (isGoldBurstTrigger)
+        {
+            GoldBurstTier triggerTier = ResolveGoldBurstTier(result.resultMatrix);
+            slotView?.PrepareGoldBurstExpandedMatrices(
+                triggerTier,
+                result.goldBurstData.expandedMatrix,
+                result.goldBurstData.secondaryExpandedMatrix);
+        }
 
         if (result.winLines != null)
         {
@@ -610,8 +630,25 @@ public class GameManager : MonoBehaviour
         }
 
 
+        bool freeSpinsTriggered = lastResult.freeSpinData != null &&
+                                  lastResult.freeSpinData.isTriggered;
+
+        // A retrigger replays the complete Free Games entry sequence without
+        // resetting the server count or the accumulated Free Games win.
+        if (freeSpinsTriggered && isInFreeSpins)
+        {
+            lastResult = null;
+            waitingForFreeSpinStart = true;
+            currentState = GameState.Stopping;
+            StartCoroutine(ResumeFreeSpinsAfterRetrigger(
+                isRoundOver,
+                serverTotalRoundWin,
+                serverSpinsUsed));
+            return;
+        }
+
         // Check if free spins were just triggered (initial trigger from base game)
-        if (lastResult.freeSpinData != null && lastResult.freeSpinData.isTriggered && !isInFreeSpins)
+        if (freeSpinsTriggered)
         {
             StartFreeSpins(lastResult.freeSpinData.spinsAwarded);
             lastResult = null;
@@ -757,8 +794,10 @@ public class GameManager : MonoBehaviour
         int remainingRespins,
         GoldBurstTier tier)
     {
+        activeGoldBurstTier = tier;
         isInGoldBurstRespins = true;
         isCompletingGoldBurstRespins = false;
+        uiManager.UseGoldBurstFeatureSpinCountDisplay(tier);
         uiManager.ShowGoodLuckDisplay();
         uiManager.HideFeatureSpinCount();
         uiManager.DisableControlsDuringWinAnimation();
@@ -793,13 +832,17 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator DelayBeforeNextGoldBurstRespin()
     {
+        currentState = GameState.Stopping;
         yield return new WaitForSeconds(0.3f);
 
-        while (waitingForSpecialWin || uiManager.IsSpecialWinActive)
+        while (waitingForSpecialWin ||
+               uiManager.IsSpecialWinActive ||
+               (slotView != null && slotView.IsGoldBurstMergeInProgress()))
         {
             yield return null;
         }
 
+        currentState = GameState.Idle;
         RequestSpin();
     }
 
@@ -847,15 +890,101 @@ public class GameManager : MonoBehaviour
         };
     }
 
+    private List<List<int>> GetActiveGoldBurstMatrix(GoldBurstData goldBurst)
+    {
+        if (goldBurst == null) return null;
+
+        if (activeGoldBurstTier == GoldBurstTier.Ultimate)
+        {
+            return CombineGoldBurstMatrices(
+                goldBurst.expandedMatrix,
+                goldBurst.secondaryExpandedMatrix);
+        }
+
+        return activeGoldBurstTier == GoldBurstTier.Mega &&
+               HasMatrixDimensions(
+                   goldBurst.expandedMatrix,
+                   ExpandedGoldBurstReelCount,
+                   GoldBurstRowCount)
+            ? CloneMatrix(goldBurst.expandedMatrix)
+            : null;
+    }
+
+    private static List<List<int>> CombineGoldBurstMatrices(
+        List<List<int>> firstMatrix,
+        List<List<int>> secondMatrix)
+    {
+        if (!HasMatrixDimensions(
+                firstMatrix,
+                ExpandedGoldBurstReelCount,
+                GoldBurstRowCount) ||
+            !HasMatrixDimensions(
+                secondMatrix,
+                ExpandedGoldBurstReelCount,
+                GoldBurstRowCount))
+        {
+            return null;
+        }
+
+        var combined = new List<List<int>>(ExpandedGoldBurstReelCount * 2);
+        for (int reelIndex = 0;
+             reelIndex < ExpandedGoldBurstReelCount;
+             reelIndex++)
+        {
+            combined.Add(new List<int>(firstMatrix[reelIndex]));
+        }
+        for (int reelIndex = 0;
+             reelIndex < ExpandedGoldBurstReelCount;
+             reelIndex++)
+        {
+            combined.Add(new List<int>(secondMatrix[reelIndex]));
+        }
+
+        return combined;
+    }
+
+    private static bool HasMatrixDimensions(
+        List<List<int>> matrix,
+        int reelCount,
+        int rowCount)
+    {
+        if (matrix == null || matrix.Count < reelCount) return false;
+        for (int reelIndex = 0; reelIndex < reelCount; reelIndex++)
+        {
+            if (matrix[reelIndex] == null ||
+                matrix[reelIndex].Count < rowCount)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static List<List<int>> CloneMatrix(List<List<int>> matrix)
+    {
+        if (matrix == null) return null;
+
+        var clone = new List<List<int>>(matrix.Count);
+        foreach (List<int> column in matrix)
+        {
+            clone.Add(column != null ? new List<int>(column) : new List<int>());
+        }
+
+        return clone;
+    }
+
     private void EndGoldBurstRespins(double totalRoundWin, int totalSpinsUsed, bool isRoundOver)
     {
         slotView?.EndGoldBurstPresentation();
         isCompletingGoldBurstRespins = false;
         isInGoldBurstRespins = false;
+        activeGoldBurstTier = GoldBurstTier.Cold;
         currentState = GameState.Idle;
 
         if (isInFreeSpins)
         {
+            uiManager.UseBaseFeatureSpinCountDisplay();
             uiManager.UpdateFreeSpinCumulativeWin(totalRoundWin);
             uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
 
@@ -871,6 +1000,7 @@ public class GameManager : MonoBehaviour
         }
 
         uiManager.HideFeatureSpinCount();
+        uiManager.UseBaseFeatureSpinCountDisplay();
 
         if (pendingFreeSpins > 0)
         {
@@ -922,6 +1052,28 @@ public class GameManager : MonoBehaviour
 
         currentState = GameState.Idle;
         StartFirstFreeSpin();
+    }
+
+    private IEnumerator ResumeFreeSpinsAfterRetrigger(
+        bool isRoundOver,
+        double totalRoundWin,
+        int totalSpinsUsed)
+    {
+        if (slotView != null)
+        {
+            yield return slotView.PlayFreeGamesStartPresentation(uiManager);
+        }
+
+        waitingForFreeSpinStart = false;
+
+        if (isRoundOver || freeSpinsRemaining <= 0)
+        {
+            EndFreeSpins(totalRoundWin, totalSpinsUsed);
+            yield break;
+        }
+
+        currentState = GameState.Idle;
+        StartCoroutine(DelayBeforeNextFreeSpin());
     }
 
     internal void StartFirstFreeSpin()

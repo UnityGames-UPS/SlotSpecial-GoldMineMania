@@ -255,6 +255,8 @@ public class ServerGoldBurstResult
     public bool triggered;
     public bool inRespin;
     public int remainingRespins;
+    public List<List<string>> matrixSet1;
+    public List<List<string>> matrixSet2;
 
     [JsonExtensionData]
     public IDictionary<string, JToken> additionalData;
@@ -407,7 +409,7 @@ public class WinLine
 {
     public int lineId;
     public int symbolId;
-    public List<int> positions;  // Flat list: [row * 5 + col]
+    public List<int> positions;  // Flat list: [row * reel count + col]
     public double winAmount;
 }
 
@@ -464,6 +466,8 @@ public class GoldBurstData
     public bool triggered;
     public bool inRespin;
     public int remainingRespins;
+    public List<List<int>> expandedMatrix;
+    public List<List<int>> secondaryExpandedMatrix;
     public List<GoldBurstPrizePlacement> prizes = new List<GoldBurstPrizePlacement>();
 }
 
@@ -569,6 +573,9 @@ public enum WinPopupType
 /// </summary>
 public static class InitDataConverter
 {
+    private const int GoldBurstMatrixReelCount = 7;
+    private const int MaxSupportedGoldBurstReels = GoldBurstMatrixReelCount * 2;
+
     internal static GameConfig ConvertToGameConfig(InitData serverData)
     {
         var config = new GameConfig
@@ -732,13 +739,40 @@ public static class InitDataConverter
             out List<TrainPlacement> trains);
         List<GoldBurstPrizePlacement> goldBurstPrizes =
             ConvertGoldBurstPrizePlacements(serverResponse);
+        List<List<int>> resultMatrix = ConvertReelsToMatrix(
+            serverResponse.payload.reels,
+            serverResponse.matrix,
+            serverResponse.payload.waysWins,
+            gameConfig);
+        List<List<int>> expandedGoldBurstMatrix =
+            serverResponse.payload.goldBurst?.matrixSet1 != null &&
+            serverResponse.payload.goldBurst.matrixSet1.Count > 0
+                ? ConvertReelsToMatrix(
+                    null,
+                    serverResponse.payload.goldBurst.matrixSet1,
+                    null,
+                    gameConfig)
+                : null;
+        List<List<int>> secondaryExpandedGoldBurstMatrix =
+            serverResponse.payload.goldBurst?.matrixSet2 != null &&
+            serverResponse.payload.goldBurst.matrixSet2.Count > 0
+                ? ConvertReelsToMatrix(
+                    null,
+                    serverResponse.payload.goldBurst.matrixSet2,
+                    null,
+                    gameConfig)
+                : null;
 
         var result = new SpinResult
         {
-            resultMatrix = ConvertReelsToMatrix(serverResponse.payload.reels, serverResponse.matrix, serverResponse.payload.waysWins, gameConfig),
+            resultMatrix = resultMatrix,
             winAmount = winAmountVal,
             grandTotalWin = grandTotalWinVal,
-            winLines = ConvertWinningLines(serverResponse.payload.waysWins, gameConfig),
+            winLines = ConvertWinningLines(
+                serverResponse.payload.waysWins,
+                resultMatrix != null && resultMatrix.Count > 0
+                    ? resultMatrix.Count
+                    : gameConfig?.reelCount ?? 5),
 
             playerData = new PlayerData
             {
@@ -805,6 +839,8 @@ public static class InitDataConverter
                     triggered = serverResponse.payload.goldBurst.triggered,
                     inRespin = serverResponse.payload.goldBurst.inRespin,
                     remainingRespins = serverResponse.payload.goldBurst.remainingRespins,
+                    expandedMatrix = expandedGoldBurstMatrix,
+                    secondaryExpandedMatrix = secondaryExpandedGoldBurstMatrix,
                     prizes = goldBurstPrizes
                 }
                 : null,
@@ -915,6 +951,7 @@ public static class InitDataConverter
         startCol = 0;
         rowCount = 0;
         columnCount = 0;
+        int columnOffset = ReadGoldBurstSetColumnOffset(objectToken);
 
         JToken positionsToken = GetPropertyValue(
             objectToken,
@@ -947,12 +984,14 @@ public static class InitDataConverter
 
             if (rows.Count > 0 && columns.Count > 0 &&
                 rows[0] >= 0 && rows[rows.Count - 1] < 3 &&
-                columns[0] >= 0 && columns[columns.Count - 1] < 5 &&
+                columns[0] >= 0 &&
+                columns[columns.Count - 1] + columnOffset <
+                    MaxSupportedGoldBurstReels &&
                 positions.Count == rows.Count * columns.Count &&
                 AreConsecutive(rows) && AreConsecutive(columns))
             {
                 startRow = rows[0];
-                startCol = columns[0];
+                startCol = columns[0] + columnOffset;
                 rowCount = rows.Count;
                 columnCount = columns.Count;
                 return true;
@@ -993,17 +1032,32 @@ public static class InitDataConverter
             }
         }
 
+        int absoluteColumn = (col ?? -1) + columnOffset;
         if (!row.HasValue || !col.HasValue ||
-            row.Value < 0 || row.Value >= 3 || col.Value < 0 || col.Value >= 5)
+            row.Value < 0 || row.Value >= 3 || col.Value < 0 ||
+            absoluteColumn >= MaxSupportedGoldBurstReels)
         {
             return false;
         }
 
         startRow = row.Value;
-        startCol = col.Value;
+        startCol = absoluteColumn;
         rowCount = Math.Max(1, ReadNullableInt(objectToken, "rowCount", "height", "rows") ?? 1);
         columnCount = Math.Max(1, ReadNullableInt(objectToken, "columnCount", "colCount", "width", "columns") ?? 1);
-        return startRow + rowCount <= 3 && startCol + columnCount <= 5;
+        return startRow + rowCount <= 3 &&
+               startCol + columnCount <= MaxSupportedGoldBurstReels;
+    }
+
+    private static int ReadGoldBurstSetColumnOffset(JObject objectToken)
+    {
+        int setIndex = Math.Max(
+            0,
+            ReadNullableInt(
+                objectToken,
+                "setIndex",
+                "matrixSetIndex",
+                "boardIndex") ?? 0);
+        return setIndex * GoldBurstMatrixReelCount;
     }
 
     private static bool TryReadGoldBurstAmount(JObject objectToken, out double amount)
@@ -1232,10 +1286,15 @@ public static class InitDataConverter
             .Distinct()
             .OrderBy(column => column)
             .ToList();
+        int columnOffset = ReadGoldBurstSetColumnOffset(placementData);
+        columns = columns
+            .Select(column => column + columnOffset)
+            .ToList();
 
         if (rows.Count == 0 || columns.Count == 0 ||
             rows[0] < 0 || rows[rows.Count - 1] >= 3 ||
-            columns[0] < 0 || columns[columns.Count - 1] >= 5 ||
+            columns[0] < 0 ||
+            columns[columns.Count - 1] >= MaxSupportedGoldBurstReels ||
             positions.Count != rows.Count * columns.Count ||
             !AreConsecutive(rows) || !AreConsecutive(columns))
         {
@@ -1387,7 +1446,9 @@ public static class InitDataConverter
         return matrix;
     }
 
-    private static List<WinLine> ConvertWinningLines(List<ServerWaysWin> serverWaysWins, GameConfig gameConfig)
+    private static List<WinLine> ConvertWinningLines(
+        List<ServerWaysWin> serverWaysWins,
+        int reelCount)
     {
         var winLines = new List<WinLine>();
         if (serverWaysWins == null) return winLines;
@@ -1400,7 +1461,7 @@ public static class InitDataConverter
             {
                 foreach (var pos in waysWin.matchedPositions)
                 {
-                    int flatIndex = pos.row * 5 + pos.col;
+                    int flatIndex = pos.row * Math.Max(1, reelCount) + pos.col;
                     flatPositions.Add(flatIndex);
                 }
             }

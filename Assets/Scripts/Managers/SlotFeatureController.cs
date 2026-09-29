@@ -11,13 +11,23 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+internal interface IGoldBurstRespinController
+{
+    GoldBurstTier Tier { get; }
+    IEnumerator PlayIntro(SlotFeatureController sharedController);
+    void ResetIntro(SlotFeatureController sharedController);
+    Action GetLayoutActivation(SlotView slotView);
+}
+
 /// <summary>
 /// Owns feature visuals that sit on top of the reel presentation.
 /// Handles reusable 2x1 and 3x1 barrels and pooled train visuals.
 /// </summary>
 public class SlotFeatureController : MonoBehaviour
 {
-    private const int ReelCount = 5;
+    private const int BaseReelCount = 5;
+    private const int ExpandedReelCount = 7;
+    private const int UltimateReelCount = ExpandedReelCount * 2;
     private const int RowCount = 3;
     private const int FirstGoldBurstSymbolId = 11;
     private const int LastGoldBurstSymbolId = 13;
@@ -86,9 +96,10 @@ public class SlotFeatureController : MonoBehaviour
 
     [Header("Gold Burst Presentation")]
     [SerializeField] private GameObject darkBackground;
-    [SerializeField] private GameObject coldBurstRespin;
-    [SerializeField] private GameObject megaGoldBurstRespin;
-    [SerializeField] private GameObject ultimateGoldBurstRespin;
+    [SerializeField] private GameObject landscapeExtraUI;
+    [SerializeField] private ColdGoldBurstRespinController coldBurstController;
+    [SerializeField] private MegaGoldBurstRespinController megaGoldBurstController;
+    [SerializeField] private UltimateGoldBurstRespinController ultimateGoldBurstController;
     [SerializeField] private GameObject track;
     [SerializeField] private GameObject trolleyMan;
     [SerializeField] private RectTransform oneSlotGoldBoxRoot;
@@ -106,6 +117,30 @@ public class SlotFeatureController : MonoBehaviour
     [SerializeField] private Button goldBurstResultCollectButton;
     [SerializeField, Min(0.01f)] private float goldBurstResultPopupDuration = 0.35f;
     [SerializeField, Min(1f)] private float goldBurstResultHeartbeatScale = 1.08f;
+
+    [Header("Gold Burst Result Portrait Layout")]
+    [SerializeField] private Vector2 portraitGoldBurstResultPanelPosition = Vector2.zero;
+    [SerializeField] private Vector2 portraitGoldBurstResultPanelSize = new Vector2(80f, 80f);
+    [SerializeField] private Vector3 portraitGoldBurstResultPanelScale =
+        new Vector3(1.3f, 1.3f, 1.3f);
+    [SerializeField] private Vector2 portraitGoldBurstResultWinBoxPosition =
+        new Vector2(0f, -37f);
+    [SerializeField] private Vector2 portraitGoldBurstResultWinBoxSize =
+        new Vector2(600f, 250f);
+    [SerializeField] private Vector3 portraitGoldBurstResultWinBoxScale =
+        new Vector3(1.017801f, 1.017801f, 1.017801f);
+    [SerializeField] private Vector2 portraitGoldBurstResultAmountPosition =
+        new Vector2(0f, 7.1f);
+    [SerializeField] private Vector2 portraitGoldBurstResultAmountSize =
+        new Vector2(272.428f, 88.447f);
+    [SerializeField, Min(1f)] private float portraitGoldBurstResultAmountFontSize = 65f;
+    [SerializeField] private FontStyles portraitGoldBurstResultAmountFontStyle =
+        FontStyles.Bold;
+    [SerializeField] private Vector2 portraitGoldBurstResultCollectPosition =
+        new Vector2(0f, -200f);
+    [SerializeField] private Vector2 portraitGoldBurstResultCollectSize =
+        new Vector2(240f, 80f);
+    [SerializeField] private Vector3 portraitGoldBurstResultCollectScale = Vector3.one;
 
     [Header("Free Games Presentation")]
     [SerializeField] private GameObject freeGamesStartPanel;
@@ -132,6 +167,17 @@ public class SlotFeatureController : MonoBehaviour
     [SerializeField] private RectTransform trainJourneyGoldenTrain;
     [SerializeField] private RectTransform trainJourneyActor;
     [SerializeField] private RectTransform trainJourneySecondActor;
+    [SerializeField] private OrientationChange trainJourneyOrientation;
+    [SerializeField] private Vector2 portraitTrainJourneyActorPosition =
+        new Vector2(-503f, -95f);
+    [SerializeField] private Vector2 portraitTrainJourneyActorSize =
+        new Vector2(600f, 600f);
+    [SerializeField] private Vector3 portraitTrainJourneyActorScale = Vector3.one;
+    [SerializeField] private Vector2 portraitTrainJourneySecondActorPosition =
+        new Vector2(497f, -58f);
+    [SerializeField] private Vector2 portraitTrainJourneySecondActorSize =
+        new Vector2(500f, 500f);
+    [SerializeField] private Vector3 portraitTrainJourneySecondActorScale = Vector3.one;
     [SerializeField] private RectTransform trainJourneyWinBox;
     [SerializeField] private TMP_Text[] trainJourneyWagonAmounts = new TMP_Text[4];
     [SerializeField] private TMP_Text[] trainJourneyPurpleWagonAmounts = new TMP_Text[4];
@@ -167,7 +213,7 @@ public class SlotFeatureController : MonoBehaviour
 
     [Header("Animation Grid")]
     [SerializeField] private AnimationColumnReferences[] animationGrid =
-        new AnimationColumnReferences[ReelCount];
+        new AnimationColumnReferences[BaseReelCount];
 
     [Header("2x1 Barrel Positions")]
     [SerializeField] private float topAndMiddleY = 110f;
@@ -239,12 +285,14 @@ public class SlotFeatureController : MonoBehaviour
     private readonly HashSet<GameObject> activeGoldBurstAnimationCells = new HashSet<GameObject>();
     private readonly HashSet<CanvasGroup> conversionCanvasGroups = new HashSet<CanvasGroup>();
     private readonly List<GoldBoxRuntime> allGoldBoxes = new List<GoldBoxRuntime>();
-    private readonly List<GoldBoxRuntime>[] oneSlotGoldBoxesByReel =
-        new List<GoldBoxRuntime>[ReelCount];
+    private List<GoldBoxRuntime>[] oneSlotGoldBoxesByReel =
+        new List<GoldBoxRuntime>[BaseReelCount];
     private readonly List<GoldBoxRuntime> twoSlotGoldBoxes = new List<GoldBoxRuntime>();
     private readonly List<GoldBoxRuntime> threeSlotGoldBoxes = new List<GoldBoxRuntime>();
     private readonly HashSet<CanvasGroup> hiddenGoldBurstSources = new HashSet<CanvasGroup>();
     private readonly HashSet<RectTransform> hiddenGoldBurstFeatures = new HashSet<RectTransform>();
+    private readonly HashSet<RectTransform> goldBurstSourceAnimationCells =
+        new HashSet<RectTransform>();
     private readonly Dictionary<RectTransform, int> animationColumnSiblingIndices =
         new Dictionary<RectTransform, int>();
     private readonly Dictionary<TrainVisualType, RectTransform> trainJourneyTrains =
@@ -258,6 +306,7 @@ public class SlotFeatureController : MonoBehaviour
 
     private Transform searchRoot;
     private IReadOnlyList<ReelResultSlots> conversionSourceSlots;
+    private int activeReelCount = BaseReelCount;
     private bool isInitialized;
     private bool configurationWarningShown;
     private bool isGoldBurstPresentationActive;
@@ -277,6 +326,12 @@ public class SlotFeatureController : MonoBehaviour
     private TMP_Text activeTrainJourneyTransferAmount;
     private Vector2 trainJourneyActorStartPosition;
     private Vector2 trainJourneySecondActorStartPosition;
+    private Vector2 trainJourneyActorStartSize;
+    private Vector2 trainJourneySecondActorStartSize;
+    private Vector3 trainJourneyActorStartScale;
+    private Vector3 trainJourneySecondActorStartScale;
+    private Vector2 activeTrainJourneyActorStartPosition;
+    private Vector2 activeTrainJourneySecondActorStartPosition;
     private bool hasCapturedTrainJourneyState;
     private bool trainJourneyOwnsDarkBackground;
     private RectTransform trolleyManRect;
@@ -285,7 +340,24 @@ public class SlotFeatureController : MonoBehaviour
     private Vector3 trolleyManStartScale;
     private bool hasCapturedTrolleyManState;
     private SkeletonGraphic goldBurstResultSkeleton;
+    private RectTransform goldBurstResultPanelRect;
+    private RectTransform goldBurstResultCollectRect;
+    private Vector2 goldBurstResultPanelBasePosition;
+    private Vector2 goldBurstResultPanelBaseSize;
+    private Vector3 goldBurstResultPanelBaseScale;
+    private Vector2 goldBurstResultWinBoxBasePosition;
+    private Vector2 goldBurstResultWinBoxBaseSize;
+    private Vector3 goldBurstResultWinBoxAuthoredScale;
     private Vector3 goldBurstResultWinBoxBaseScale;
+    private Vector2 goldBurstResultAmountBasePosition;
+    private Vector2 goldBurstResultAmountBaseSize;
+    private float goldBurstResultAmountBaseFontSize;
+    private float goldBurstResultAmountBaseFontSizeMax;
+    private FontStyles goldBurstResultAmountBaseFontStyle;
+    private bool goldBurstResultAmountBaseAutoSizing;
+    private Vector2 goldBurstResultCollectBasePosition;
+    private Vector2 goldBurstResultCollectBaseSize;
+    private Vector3 goldBurstResultCollectAuthoredScale;
     private Vector3 goldBurstResultCollectBaseScale;
     private bool hasCapturedGoldBurstResultState;
     private Tween goldBurstResultPopupTween;
@@ -310,12 +382,165 @@ public class SlotFeatureController : MonoBehaviour
     private int trainTrackSiblingIndex;
     private bool hasCapturedTrainTrackSiblingIndex;
 
-    internal void Initialize(Transform slotRoot, IReadOnlyList<ReelResultSlots> resultSlotsByReel)
+    internal void Initialize(
+        Transform slotRoot,
+        IReadOnlyList<ReelResultSlots> resultSlotsByReel,
+        int reelCount = BaseReelCount,
+        RectTransform configuredAnimationRoot = null)
     {
+        if (isInitialized)
+        {
+            ResetFeatures();
+        }
+
         searchRoot = slotRoot != null ? slotRoot : searchRoot;
         conversionSourceSlots = resultSlotsByReel;
+        activeReelCount = Mathf.Max(1, reelCount);
+        oneSlotGoldBoxesByReel = new List<GoldBoxRuntime>[activeReelCount];
+        if (configuredAnimationRoot != null)
+        {
+            ConfigureLayoutReferences(configuredAnimationRoot);
+        }
+
+        isInitialized = false;
+        configurationWarningShown = false;
         CacheSceneObjects();
         ResetFeatures();
+    }
+
+    private void ConfigureLayoutReferences(RectTransform configuredAnimationRoot)
+    {
+        animationRoot = configuredAnimationRoot;
+        twoSlotBarrelRoot = FindDescendant(animationRoot, "2SlotBarrels") as RectTransform;
+        threeSlotBarrelRoot = FindDescendant(animationRoot, "3SlotBarrels") as RectTransform;
+        greenTrainRoot = FindDescendant(animationRoot, "GreenTrains") as RectTransform;
+        redTrainRoot = FindDescendant(animationRoot, "RedTrains") as RectTransform;
+        horizontalPurpleTrainRoot =
+            FindDescendant(animationRoot, "HorizontalPurpleTrains") as RectTransform;
+        verticalPurpleTrainRoot =
+            FindDescendant(animationRoot, "VerticalPurpleTrains") as RectTransform;
+        goldenTrainRoot = FindDescendant(animationRoot, "GoldenTrains") as RectTransform;
+        oneSlotGoldBoxRoot =
+            FindDescendantStartingWith(animationRoot, "1SlotGoldBox") as RectTransform;
+        twoSlotGoldBoxRoot =
+            FindDescendantStartingWith(animationRoot, "2SlotGoldBox") as RectTransform;
+        threeSlotGoldBoxRoot =
+            FindDescendantStartingWith(animationRoot, "3SlotGoldBox") as RectTransform;
+
+        animationGrid = DiscoverAnimationGrid(animationRoot);
+        greenTrainVisuals = DiscoverTrainVisualReferences(greenTrainRoot);
+        redTrainVisuals = DiscoverTrainVisualReferences(redTrainRoot);
+        horizontalPurpleTrainVisuals =
+            DiscoverTrainVisualReferences(horizontalPurpleTrainRoot);
+        verticalPurpleTrainVisuals =
+            DiscoverTrainVisualReferences(verticalPurpleTrainRoot);
+        goldenTrainVisuals = DiscoverTrainVisualReferences(goldenTrainRoot);
+    }
+
+    private static AnimationColumnReferences[] DiscoverAnimationGrid(
+        RectTransform root)
+    {
+        if (root == null) return Array.Empty<AnimationColumnReferences>();
+
+        var columns = new List<RectTransform>();
+        List<RectTransform> holders = GetChildrenInHierarchyOrder(root)
+            .Where(holder =>
+                holder.name.IndexOf(
+                    "SlotHolder",
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+            .ToList();
+        if (holders.Count > 0)
+        {
+            foreach (RectTransform holder in holders)
+            {
+                columns.AddRange(
+                    GetChildrenInHierarchyOrder(holder)
+                        .Where(IsAnimationColumn));
+            }
+        }
+        else
+        {
+            columns.AddRange(
+                GetSortedChildren(root, true)
+                    .Where(IsAnimationColumn));
+        }
+
+        var discovered = new List<AnimationColumnReferences>();
+        foreach (RectTransform column in columns)
+        {
+            List<RectTransform> cells = GetSortedChildren(column, false)
+                .Where(child =>
+                    child.GetComponent<Image>() != null &&
+                    child.name.StartsWith("Slot", StringComparison.OrdinalIgnoreCase))
+                .Take(RowCount)
+                .ToList();
+            if (cells.Count != RowCount) continue;
+
+            List<RectTransform> winboxes = GetSortedChildren(column, false)
+                .Where(child =>
+                    child.name.StartsWith("Winbox", StringComparison.OrdinalIgnoreCase))
+                .Take(RowCount)
+                .ToList();
+            var rows = new AnimationCellReferences[RowCount];
+            for (int row = 0; row < RowCount; row++)
+            {
+                rows[row] = new AnimationCellReferences
+                {
+                    slot = cells[row],
+                    winbox = row < winboxes.Count ? winboxes[row] : null
+                };
+            }
+
+            discovered.Add(new AnimationColumnReferences
+            {
+                column = column,
+                rows = rows
+            });
+        }
+
+        return discovered.ToArray();
+    }
+
+    private static bool IsAnimationColumn(RectTransform candidate)
+    {
+        return candidate != null &&
+               (string.Equals(
+                    candidate.name,
+                    "Slot",
+                    StringComparison.OrdinalIgnoreCase) ||
+                candidate.name.StartsWith(
+                    "Slot (",
+                    StringComparison.OrdinalIgnoreCase));
+    }
+
+    private TrainVisualReferences[] DiscoverTrainVisualReferences(
+        RectTransform root)
+    {
+        if (root == null) return Array.Empty<TrainVisualReferences>();
+
+        return GetLayoutOrderedChildren(root)
+            .Select(visual =>
+            {
+                Transform[] descendants =
+                    visual.GetComponentsInChildren<Transform>(true);
+                Transform mask = descendants.FirstOrDefault(candidate =>
+                    candidate != visual &&
+                    candidate.name.Trim().StartsWith(
+                        "Mask",
+                        StringComparison.OrdinalIgnoreCase));
+                Transform pressPlay = descendants.FirstOrDefault(candidate =>
+                    candidate != visual &&
+                    candidate.name.Replace(" ", string.Empty).StartsWith(
+                        "PressPlay",
+                        StringComparison.OrdinalIgnoreCase));
+                return new TrainVisualReferences
+                {
+                    visual = visual,
+                    mask = mask != null ? mask.gameObject : null,
+                    pressPlay = pressPlay as RectTransform
+                };
+            })
+            .ToArray();
     }
 
     internal void PrepareTwoSlotBarrels(IReadOnlyList<TwoSlotBarrelPlacement> placements)
@@ -328,7 +553,7 @@ public class SlotFeatureController : MonoBehaviour
         foreach (TwoSlotBarrelPlacement placement in placements)
         {
             if (placement == null ||
-                placement.reelIndex < 0 || placement.reelIndex >= ReelCount ||
+                placement.reelIndex < 0 || placement.reelIndex >= activeReelCount ||
                 placement.startRow < 0 || placement.startRow >= RowCount - 1)
             {
                 continue;
@@ -347,7 +572,7 @@ public class SlotFeatureController : MonoBehaviour
 
         foreach (ThreeSlotBarrelPlacement placement in placements)
         {
-            if (placement == null || placement.reelIndex < 0 || placement.reelIndex >= ReelCount)
+            if (placement == null || placement.reelIndex < 0 || placement.reelIndex >= activeReelCount)
             {
                 continue;
             }
@@ -368,7 +593,10 @@ public class SlotFeatureController : MonoBehaviour
             if (placement == null ||
                 placement.startRow < 0 || placement.startCol < 0 ||
                 placement.startRow + placement.rowCount > RowCount ||
-                placement.startCol + placement.columnCount > ReelCount ||
+                placement.startCol + placement.columnCount > activeReelCount ||
+                !IsPlacementWithinOneExpandedBoard(
+                    placement.startCol,
+                    placement.columnCount) ||
                 pendingTrains.Any(existing =>
                     existing.type == placement.type &&
                     existing.startRow == placement.startRow &&
@@ -446,9 +674,16 @@ public class SlotFeatureController : MonoBehaviour
         if (!HasTwoSlotConfiguration()) return;
 
         RectTransform barrel = twoSlotBarrels[reelIndex];
-        Vector2 barrelPosition = barrel.anchoredPosition;
-        barrelPosition.y = startRow == 0 ? topAndMiddleY : middleAndBottomY;
-        barrel.anchoredPosition = barrelPosition;
+        if (activeReelCount > BaseReelCount)
+        {
+            TryPlaceVisualAtConversionCenter(barrel, reelIndex, 1, startRow, 2);
+        }
+        else
+        {
+            Vector2 barrelPosition = barrel.anchoredPosition;
+            barrelPosition.y = startRow == 0 ? topAndMiddleY : middleAndBottomY;
+            barrel.anchoredPosition = barrelPosition;
+        }
 
         PlayConversionFade(reelIndex, 1, startRow, 2, barrel);
         visibleFeatures[(TwoSlotFeatureType, startRow, reelIndex, 2, 1)] = barrel;
@@ -458,24 +693,37 @@ public class SlotFeatureController : MonoBehaviour
     {
         if (!HasThreeSlotConfiguration()) return;
 
+        RectTransform barrel = threeSlotBarrels[reelIndex];
+        if (activeReelCount > BaseReelCount)
+        {
+            TryPlaceVisualAtConversionCenter(barrel, reelIndex, 1, 0, RowCount);
+        }
         PlayConversionFade(
             reelIndex,
             1,
             0,
             RowCount,
-            threeSlotBarrels[reelIndex]);
+            barrel);
         visibleFeatures[(ThreeSlotFeatureType, 0, reelIndex, RowCount, 1)] =
-            threeSlotBarrels[reelIndex];
+            barrel;
     }
 
     private void RevealTrain(TrainPlacement train)
     {
         RectTransform trainRoot = GetTrainRoot(train.type);
-        TrainVisualReferences trainReferences = GetAvailableTrainVisual(train.type);
+        TrainVisualReferences trainReferences = GetAvailableTrainVisual(train);
         RectTransform trainVisual = trainReferences?.visual;
-        if (trainVisual == null || trainRoot == null ||
-            !TryGetTrainPosition(train, out Vector2 position) ||
-            !HasCompleteAnimationGrid())
+        bool hasPosition = trainVisual != null &&
+                           (activeReelCount > BaseReelCount
+                               ? TryPlaceVisualAtConversionCenter(
+                                   trainVisual,
+                                   train.startCol,
+                                   train.columnCount,
+                                   train.startRow,
+                                   train.rowCount)
+                               : TryGetTrainPosition(train, out _));
+        if (trainVisual == null || trainRoot == null || !hasPosition ||
+            !HasCompleteConversionSourceGrid())
         {
             ReportConfigurationWarning(
                 $"No reusable {train.type} train visual or position is available for " +
@@ -484,8 +732,20 @@ public class SlotFeatureController : MonoBehaviour
         }
 
         PrepareTrainVisualForReveal(trainReferences);
-        trainVisual.anchoredPosition = position;
-        trainVisualRestingPositions[trainVisual] = position;
+        if (activeReelCount > BaseReelCount)
+        {
+            TryPlaceVisualAtConversionCenter(
+                trainVisual,
+                train.startCol,
+                train.columnCount,
+                train.startRow,
+                train.rowCount);
+        }
+        else if (TryGetTrainPosition(train, out Vector2 position))
+        {
+            trainVisual.anchoredPosition = position;
+        }
+        trainVisualRestingPositions[trainVisual] = trainVisual.anchoredPosition;
         var trainKey = ((int)train.type, train.startRow, train.startCol,
             train.rowCount, train.columnCount);
         PlayConversionFade(
@@ -514,6 +774,11 @@ public class SlotFeatureController : MonoBehaviour
         }
     }
 
+    internal bool IsFeatureMergeInProgress()
+    {
+        return featureRevealRoutine != null || DOTween.IsTweening(this);
+    }
+
     private IEnumerator RevealAfterTrainConversion()
     {
         yield return new WaitForSecondsRealtime(TrainConversionMoveDuration);
@@ -526,7 +791,7 @@ public class SlotFeatureController : MonoBehaviour
     private void RevealPreparedFeatures(bool showPressPlay = true)
     {
 
-        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
+        for (int reelIndex = 0; reelIndex < activeReelCount; reelIndex++)
         {
             RevealFeaturesForReel(reelIndex);
         }
@@ -576,9 +841,12 @@ public class SlotFeatureController : MonoBehaviour
         ClearAllVisibleTrains();
         deferGoldBurstTriggerBarrelMerge = true;
         isGoldBurstPresentationActive = true;
+        SetDarkBackgroundActive(true);
     }
 
-    internal IEnumerator PlayGoldBurstTriggerPresentation(GoldBurstTier tier)
+    internal IEnumerator PlayGoldBurstTriggerPresentation(
+        GoldBurstTier tier,
+        Action afterTrolley = null)
     {
         EnsureInitialized();
         if (!isGoldBurstPresentationActive)
@@ -586,21 +854,18 @@ public class SlotFeatureController : MonoBehaviour
             BeginGoldBurstTriggerPresentation();
         }
 
-        if (darkBackground != null) darkBackground.SetActive(true);
+        SetDarkBackgroundActive(true);
 
-        GameObject intro = tier switch
+        IGoldBurstRespinController respinController =
+            GetGoldBurstRespinController(tier);
+        if (respinController != null)
         {
-            GoldBurstTier.Mega => megaGoldBurstRespin,
-            GoldBurstTier.Ultimate => ultimateGoldBurstRespin,
-            _ => coldBurstRespin
-        };
-        if (intro != null)
-        {
-            yield return PlayOneShotImageAnimation(intro);
+            yield return respinController.PlayIntro(this);
         }
 
         yield return PlayTrolleyManAnimation();
-        if (darkBackground != null) darkBackground.SetActive(false);
+        afterTrolley?.Invoke();
+        SetDarkBackgroundActive(false);
 
         if (goldBurstMergeDelayAfterTrolley > 0f)
         {
@@ -610,7 +875,7 @@ public class SlotFeatureController : MonoBehaviour
         deferGoldBurstTriggerBarrelMerge = false;
         bool hasPreparedBarrelMerge = pendingThreeSlotReels.Count > 0 ||
                                       pendingStartRowByReel.Count > 0;
-        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
+        for (int reelIndex = 0; reelIndex < activeReelCount; reelIndex++)
         {
             RevealBarrelForReel(reelIndex);
         }
@@ -622,12 +887,20 @@ public class SlotFeatureController : MonoBehaviour
         }
     }
 
+    internal Action GetGoldBurstLayoutActivation(
+        GoldBurstTier tier,
+        SlotView slotView)
+    {
+        return GetGoldBurstRespinController(tier)
+            ?.GetLayoutActivation(slotView);
+    }
+
     internal IEnumerator PlayGoldBurstOutroPresentation()
     {
         EnsureInitialized();
-        if (darkBackground != null) darkBackground.SetActive(true);
+        SetDarkBackgroundActive(true);
         yield return PlayTrolleyManAnimation();
-        if (darkBackground != null) darkBackground.SetActive(false);
+        SetDarkBackgroundActive(false);
     }
 
     internal IEnumerator PlayFreeGamesStartPresentation(UIManager uiManager)
@@ -635,11 +908,11 @@ public class SlotFeatureController : MonoBehaviour
         EnsureInitialized();
         ResetFreeGamesStartPresentation();
 
-        if (darkBackground != null) darkBackground.SetActive(true);
+        SetDarkBackgroundActive(true);
         if (freeGamesStartPanel == null || freeGamesStartSkeleton == null)
         {
             yield return PlayFreeGamesTrackAnimation();
-            if (darkBackground != null) darkBackground.SetActive(false);
+            SetDarkBackgroundActive(false);
             yield break;
         }
 
@@ -651,6 +924,13 @@ public class SlotFeatureController : MonoBehaviour
         {
             if (startRequested) return;
             startRequested = true;
+            if (freeGamesStartButton != null)
+            {
+                SetButtonInteractableWithoutAlphaChange(
+                    freeGamesStartButton,
+                    false);
+            }
+            uiManager?.ShowDisabledSpinButtonForFreeGamesTransition();
         };
 
         if (freeGamesStartButton != null)
@@ -664,6 +944,14 @@ public class SlotFeatureController : MonoBehaviour
                 requestStart();
             };
             freeGamesStartButton.onClick.AddListener(freeGamesStartButtonListener);
+        }
+
+        float introDuration = PlaySpineAnimation(
+            freeGamesStartSkeleton,
+            FreeGamesStartIntroAnimation,
+            false);
+        if (freeGamesStartButton != null)
+        {
             freeGamesStartButtonTween = freeGamesStartButton.transform
                 .DOScale(
                     freeGamesStartButtonBaseScale,
@@ -671,16 +959,19 @@ public class SlotFeatureController : MonoBehaviour
                 .SetEase(Ease.OutBack)
                 .SetUpdate(true);
         }
-
         bool hasBottomStartButton = uiManager != null &&
                                     uiManager.ShowFreeGamesStartButton(requestStart);
-        float introDuration = PlaySpineAnimation(
-            freeGamesStartSkeleton,
-            FreeGamesStartIntroAnimation,
-            false);
-        if (introDuration > 0f)
+        float buttonPopupDuration = freeGamesStartButton != null ||
+                                    hasBottomStartButton
+            ? Mathf.Max(freeGamesStartButtonPopupDuration, 0.35f)
+            : 0f;
+        float startPresentationDuration = Mathf.Max(
+            introDuration,
+            buttonPopupDuration);
+        if (startPresentationDuration > 0f)
         {
-            yield return new WaitForSecondsRealtime(introDuration);
+            yield return new WaitForSecondsRealtime(
+                startPresentationDuration);
         }
 
         PlaySpineAnimation(
@@ -732,10 +1023,14 @@ public class SlotFeatureController : MonoBehaviour
             yield return new WaitForSecondsRealtime(exitDuration);
         }
 
+        if (freeGamesStartButton != null)
+        {
+            freeGamesStartButton.transform.localScale = Vector3.zero;
+        }
         freeGamesStartPanel.SetActive(false);
         RestoreFreeGamesStartHierarchy();
         yield return PlayFreeGamesTrackAnimation();
-        if (darkBackground != null) darkBackground.SetActive(false);
+        SetDarkBackgroundActive(false);
     }
 
     internal IEnumerator PlayFreeGamesEndPresentation(
@@ -745,7 +1040,7 @@ public class SlotFeatureController : MonoBehaviour
         yield return PlayGoldBurstResultPresentation(totalWin, uiManager);
         yield return PlayFreeGamesTrackAnimation();
         RestoreGoldBurstResultHierarchy();
-        if (darkBackground != null) darkBackground.SetActive(false);
+        SetDarkBackgroundActive(false);
     }
 
     private IEnumerator PlayTrolleyManAnimation()
@@ -791,11 +1086,11 @@ public class SlotFeatureController : MonoBehaviour
     {
         EnsureInitialized();
         var placements = new List<GoldBurstPrizePlacement>();
-        var coveredCells = new bool[ReelCount, RowCount];
+        var coveredCells = new bool[activeReelCount, RowCount];
 
         foreach (int reelIndex in pendingThreeSlotReels.OrderBy(index => index))
         {
-            if (reelIndex < 0 || reelIndex >= ReelCount) continue;
+            if (reelIndex < 0 || reelIndex >= activeReelCount) continue;
 
             for (int row = 0; row < RowCount; row++)
             {
@@ -815,7 +1110,7 @@ public class SlotFeatureController : MonoBehaviour
         {
             int reelIndex = barrel.Key;
             int startRow = barrel.Value;
-            if (reelIndex < 0 || reelIndex >= ReelCount ||
+            if (reelIndex < 0 || reelIndex >= activeReelCount ||
                 startRow < 0 || startRow + 1 >= RowCount ||
                 coveredCells[reelIndex, startRow] ||
                 coveredCells[reelIndex, startRow + 1])
@@ -839,7 +1134,7 @@ public class SlotFeatureController : MonoBehaviour
         if (matrix == null) return placements;
 
         for (int reelIndex = 0;
-             reelIndex < Mathf.Min(ReelCount, matrix.Count);
+             reelIndex < Mathf.Min(activeReelCount, matrix.Count);
              reelIndex++)
         {
             List<int> column = matrix[reelIndex];
@@ -871,7 +1166,10 @@ public class SlotFeatureController : MonoBehaviour
     internal void BeginGoldBurstPrizeReveal()
     {
         EnsureInitialized();
-        goldBurstCollectionParticles?.ResetParticles();
+        if (goldBurstCollectionParticles != null)
+        {
+            goldBurstCollectionParticles.ResetParticles();
+        }
         HideAllTrainPressPlayButtons();
         HideAllGoldBoxes();
     }
@@ -1049,8 +1347,9 @@ public class SlotFeatureController : MonoBehaviour
         }
 
         ResetGoldBurstResultPresentation();
+        ApplyGoldBurstResultLayout();
         activeGoldBurstResultUi = uiManager;
-        if (darkBackground != null) darkBackground.SetActive(true);
+        SetDarkBackgroundActive(true);
         RaiseGoldBurstResultHierarchy();
 
         if (goldBurstResultWinAmount != null)
@@ -1103,6 +1402,9 @@ public class SlotFeatureController : MonoBehaviour
         float introDuration = PlayGoldBurstResultSpineAnimation(
             GoldBurstResultIntroAnimation,
             false);
+        StartGoldBurstResultCount(
+            totalWin,
+            GoldBurstResultCountDuration);
 
         float introElapsed = 0f;
         while (!collectRequested && introElapsed < introDuration)
@@ -1115,11 +1417,14 @@ public class SlotFeatureController : MonoBehaviour
             GoldBurstResultLoopAnimation,
             true);
         StartGoldBurstResultHeartbeat(loopDuration);
-        StartGoldBurstResultCount(
-            totalWin,
-            GoldBurstResultCountDuration);
 
-        yield return new WaitForSecondsRealtime(GoldBurstResultCountDuration);
+        float remainingCountDuration = Mathf.Max(
+            0f,
+            GoldBurstResultCountDuration - introElapsed);
+        if (remainingCountDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(remainingCountDuration);
+        }
         CompleteGoldBurstResultAmount(totalWin);
         if (goldBurstResultCollectButton != null)
         {
@@ -1376,24 +1681,38 @@ public class SlotFeatureController : MonoBehaviour
         out RectTransform animationCell)
     {
         EnsureInitialized();
-        if (!TryGetUsableAnimationCell(
+        if (TryGetUsableAnimationCell(
                 reelIndex,
                 row,
                 false,
                 out animationCell,
-                out RectTransform column) ||
-            !animationCell.IsChildOf(animationRoot))
+                out RectTransform column) &&
+            animationCell.IsChildOf(animationRoot))
+        {
+            activeGoldBurstAnimationCells.Add(animationCell.gameObject);
+            SetWinboxActive(animationCell, false);
+            animationRoot.gameObject.SetActive(true);
+            column.gameObject.SetActive(true);
+            column.SetAsLastSibling();
+            animationCell.gameObject.SetActive(true);
+            return true;
+        }
+
+        animationCell = GetConversionSourceCell(reelIndex, row);
+        if (animationCell == null)
         {
             return false;
         }
 
-        activeGoldBurstAnimationCells.Add(animationCell.gameObject);
-        SetWinboxActive(animationCell, false);
-        animationRoot.gameObject.SetActive(true);
-        column.gameObject.SetActive(true);
-        column.SetAsLastSibling();
+        goldBurstSourceAnimationCells.Add(animationCell);
         animationCell.gameObject.SetActive(true);
         return true;
+    }
+
+    internal bool IsGoldBurstSourceAnimationCell(RectTransform animationCell)
+    {
+        return animationCell != null &&
+               goldBurstSourceAnimationCells.Contains(animationCell);
     }
 
     internal bool TryGetGoldBurstBarrelAnimationTarget(
@@ -1405,7 +1724,7 @@ public class SlotFeatureController : MonoBehaviour
         EnsureInitialized();
         barrel = null;
 
-        if (reelIndex < 0 || reelIndex >= ReelCount ||
+        if (reelIndex < 0 || reelIndex >= activeReelCount ||
             startRow < 0 || startRow + rowCount > RowCount)
         {
             return false;
@@ -1432,7 +1751,7 @@ public class SlotFeatureController : MonoBehaviour
     internal bool IsGoldBurstCellCoveredByFeature(int reelIndex, int row)
     {
         EnsureInitialized();
-        return reelIndex >= 0 && reelIndex < ReelCount &&
+        return reelIndex >= 0 && reelIndex < activeReelCount &&
                row >= 0 && row < RowCount &&
                IsCellCoveredByPendingFeature(reelIndex, row);
     }
@@ -1440,6 +1759,11 @@ public class SlotFeatureController : MonoBehaviour
     internal void ReleaseGoldBurstAnimationCell(RectTransform animationCell)
     {
         if (animationCell == null) return;
+        if (goldBurstSourceAnimationCells.Remove(animationCell))
+        {
+            animationCell.gameObject.SetActive(true);
+            return;
+        }
 
         activeGoldBurstAnimationCells.Remove(animationCell.gameObject);
         bool keepCellActive = activeWinAnimationCells.Contains(animationCell.gameObject) ||
@@ -1458,31 +1782,6 @@ public class SlotFeatureController : MonoBehaviour
         }
 
         RefreshAnimationHierarchy();
-    }
-
-    internal bool TryGetGoldBurstAnimationCenter(
-        int reelIndex,
-        int startRow,
-        int rowCount,
-        out Vector3 worldCenter)
-    {
-        EnsureInitialized();
-        worldCenter = Vector3.zero;
-
-        int endRow = startRow + rowCount - 1;
-        if (!HasCompleteAnimationGrid() ||
-            reelIndex < 0 || reelIndex >= ReelCount ||
-            startRow < 0 || endRow < startRow || endRow >= RowCount)
-        {
-            return false;
-        }
-
-        RectTransform firstCell = GetAnimationCell(reelIndex, startRow);
-        RectTransform lastCell = GetAnimationCell(reelIndex, endRow);
-        if (firstCell == null || lastCell == null) return false;
-
-        worldCenter = (firstCell.position + lastCell.position) * 0.5f;
-        return true;
     }
 
     internal bool TryAcquireWinAnimationCell(
@@ -1561,7 +1860,7 @@ public class SlotFeatureController : MonoBehaviour
         column = null;
         if (animationRoot == null ||
             !HasCompleteAnimationGrid() ||
-            reelIndex < 0 || reelIndex >= ReelCount ||
+            reelIndex < 0 || reelIndex >= activeReelCount ||
             row < 0 || row >= RowCount ||
             (rejectCoveredFeature &&
              IsCellCoveredByPendingFeature(reelIndex, row)))
@@ -1711,7 +2010,12 @@ public class SlotFeatureController : MonoBehaviour
         if (twoSlotBarrelRoot != null)
         {
             twoSlotBarrels.AddRange(
-                GetSortedChildren(twoSlotBarrelRoot, true));
+                GetLayoutOrderedChildren(twoSlotBarrelRoot));
+            foreach (RectTransform barrel in twoSlotBarrels)
+            {
+                if (barrel != null) barrel.gameObject.SetActive(false);
+            }
+            twoSlotBarrelRoot.gameObject.SetActive(false);
             CaptureAuthoredVerticalPositions();
         }
 
@@ -1719,7 +2023,12 @@ public class SlotFeatureController : MonoBehaviour
         if (threeSlotBarrelRoot != null)
         {
             threeSlotBarrels.AddRange(
-                GetSortedChildren(threeSlotBarrelRoot, true));
+                GetLayoutOrderedChildren(threeSlotBarrelRoot));
+            foreach (RectTransform barrel in threeSlotBarrels)
+            {
+                if (barrel != null) barrel.gameObject.SetActive(false);
+            }
+            threeSlotBarrelRoot.gameObject.SetActive(false);
         }
 
         CacheTrainVisuals();
@@ -1738,15 +2047,18 @@ public class SlotFeatureController : MonoBehaviour
         darkBackground = darkBackground != null
             ? darkBackground
             : FindSceneGameObject("DarkBackground");
-        coldBurstRespin = coldBurstRespin != null
-            ? coldBurstRespin
-            : FindSceneGameObject("ColdBurstRespin");
-        megaGoldBurstRespin = megaGoldBurstRespin != null
-            ? megaGoldBurstRespin
-            : FindSceneGameObject("MegaGoldBurstRespin");
-        ultimateGoldBurstRespin = ultimateGoldBurstRespin != null
-            ? ultimateGoldBurstRespin
-            : FindSceneGameObject("UltimateGoldBurstRespin");
+        landscapeExtraUI = landscapeExtraUI != null
+            ? landscapeExtraUI
+            : FindSceneGameObject("Landscape ExtraUI");
+        coldBurstController = FindGoldBurstRespinController(
+            coldBurstController,
+            "ColdBurstRespin");
+        megaGoldBurstController = FindGoldBurstRespinController(
+            megaGoldBurstController,
+            "MegaGoldBurstRespin");
+        ultimateGoldBurstController = FindGoldBurstRespinController(
+            ultimateGoldBurstController,
+            "UltimateGoldBurstRespin");
         track = track != null ? track : FindSceneGameObject("Track");
         trolleyMan = trolleyMan != null ? trolleyMan : FindSceneGameObject("TrolleyMan");
         CaptureTrolleyManState();
@@ -1774,6 +2086,31 @@ public class SlotFeatureController : MonoBehaviour
                     particlePool.GetComponent<PrizeTrailController>();
             }
         }
+    }
+
+    private T FindGoldBurstRespinController<T>(
+        T controller,
+        string presentationObjectName)
+        where T : Component
+    {
+        if (controller != null) return controller;
+
+        GameObject presentationObject =
+            FindSceneGameObject(presentationObjectName);
+        if (presentationObject == null) return null;
+
+        return presentationObject.GetComponent<T>();
+    }
+
+    private IGoldBurstRespinController GetGoldBurstRespinController(
+        GoldBurstTier tier)
+    {
+        return tier switch
+        {
+            GoldBurstTier.Mega => megaGoldBurstController,
+            GoldBurstTier.Ultimate => ultimateGoldBurstController,
+            _ => coldBurstController
+        };
     }
 
     private void CaptureTrolleyManState()
@@ -1830,6 +2167,8 @@ public class SlotFeatureController : MonoBehaviour
 
         goldBurstResultSkeleton =
             goldBurstResultPanel.GetComponent<SkeletonGraphic>();
+        goldBurstResultPanelRect =
+            goldBurstResultPanel.transform as RectTransform;
         goldBurstResultContainer = goldBurstResultPanel.transform.parent;
         if (goldBurstResultContainer != null)
         {
@@ -1866,16 +2205,134 @@ public class SlotFeatureController : MonoBehaviour
                 ? collect.GetComponent<Button>()
                 : null;
         }
+        goldBurstResultCollectRect = goldBurstResultCollectButton != null
+            ? goldBurstResultCollectButton.transform as RectTransform
+            : null;
 
         if (!hasCapturedGoldBurstResultState)
         {
+            if (goldBurstResultPanelRect != null)
+            {
+                goldBurstResultPanelBasePosition =
+                    goldBurstResultPanelRect.anchoredPosition;
+                goldBurstResultPanelBaseSize =
+                    goldBurstResultPanelRect.sizeDelta;
+                goldBurstResultPanelBaseScale =
+                    goldBurstResultPanelRect.localScale;
+            }
+            if (goldBurstResultWinBox != null)
+            {
+                goldBurstResultWinBoxBasePosition =
+                    goldBurstResultWinBox.anchoredPosition;
+                goldBurstResultWinBoxBaseSize =
+                    goldBurstResultWinBox.sizeDelta;
+            }
             goldBurstResultWinBoxBaseScale = goldBurstResultWinBox != null
                 ? goldBurstResultWinBox.localScale
                 : Vector3.one;
+            goldBurstResultWinBoxAuthoredScale =
+                goldBurstResultWinBoxBaseScale;
+            if (goldBurstResultWinAmount != null)
+            {
+                goldBurstResultAmountBasePosition =
+                    goldBurstResultWinAmount.rectTransform.anchoredPosition;
+                goldBurstResultAmountBaseSize =
+                    goldBurstResultWinAmount.rectTransform.sizeDelta;
+                goldBurstResultAmountBaseFontSize =
+                    goldBurstResultWinAmount.fontSize;
+                goldBurstResultAmountBaseFontSizeMax =
+                    goldBurstResultWinAmount.fontSizeMax;
+                goldBurstResultAmountBaseFontStyle =
+                    goldBurstResultWinAmount.fontStyle;
+                goldBurstResultAmountBaseAutoSizing =
+                    goldBurstResultWinAmount.enableAutoSizing;
+            }
+            if (goldBurstResultCollectRect != null)
+            {
+                goldBurstResultCollectBasePosition =
+                    goldBurstResultCollectRect.anchoredPosition;
+                goldBurstResultCollectBaseSize =
+                    goldBurstResultCollectRect.sizeDelta;
+            }
             goldBurstResultCollectBaseScale = goldBurstResultCollectButton != null
                 ? goldBurstResultCollectButton.transform.localScale
                 : Vector3.one;
+            goldBurstResultCollectAuthoredScale =
+                goldBurstResultCollectBaseScale;
             hasCapturedGoldBurstResultState = true;
+        }
+    }
+
+    private void ApplyGoldBurstResultLayout()
+    {
+        bool usePortraitLayout = trainJourneyOrientation != null &&
+            trainJourneyOrientation.CurrentMode ==
+                OrientationChange.OrientationMode.MobilePortrait;
+
+        if (goldBurstResultPanelRect != null)
+        {
+            goldBurstResultPanelRect.anchoredPosition = usePortraitLayout
+                ? portraitGoldBurstResultPanelPosition
+                : goldBurstResultPanelBasePosition;
+            goldBurstResultPanelRect.sizeDelta = usePortraitLayout
+                ? portraitGoldBurstResultPanelSize
+                : goldBurstResultPanelBaseSize;
+            goldBurstResultPanelRect.localScale = usePortraitLayout
+                ? portraitGoldBurstResultPanelScale
+                : goldBurstResultPanelBaseScale;
+        }
+
+        if (goldBurstResultWinBox != null)
+        {
+            goldBurstResultWinBox.anchoredPosition = usePortraitLayout
+                ? portraitGoldBurstResultWinBoxPosition
+                : goldBurstResultWinBoxBasePosition;
+            goldBurstResultWinBox.sizeDelta = usePortraitLayout
+                ? portraitGoldBurstResultWinBoxSize
+                : goldBurstResultWinBoxBaseSize;
+            goldBurstResultWinBoxBaseScale = usePortraitLayout
+                ? portraitGoldBurstResultWinBoxScale
+                : goldBurstResultWinBoxAuthoredScale;
+            goldBurstResultWinBox.localScale =
+                goldBurstResultWinBoxBaseScale;
+        }
+
+        if (goldBurstResultWinAmount != null)
+        {
+            RectTransform amountRect =
+                goldBurstResultWinAmount.rectTransform;
+            amountRect.anchoredPosition = usePortraitLayout
+                ? portraitGoldBurstResultAmountPosition
+                : goldBurstResultAmountBasePosition;
+            amountRect.sizeDelta = usePortraitLayout
+                ? portraitGoldBurstResultAmountSize
+                : goldBurstResultAmountBaseSize;
+            goldBurstResultWinAmount.enableAutoSizing = usePortraitLayout ||
+                goldBurstResultAmountBaseAutoSizing;
+            goldBurstResultWinAmount.fontSize = usePortraitLayout
+                ? portraitGoldBurstResultAmountFontSize
+                : goldBurstResultAmountBaseFontSize;
+            goldBurstResultWinAmount.fontSizeMax = usePortraitLayout
+                ? portraitGoldBurstResultAmountFontSize
+                : goldBurstResultAmountBaseFontSizeMax;
+            goldBurstResultWinAmount.fontStyle = usePortraitLayout
+                ? portraitGoldBurstResultAmountFontStyle
+                : goldBurstResultAmountBaseFontStyle;
+        }
+
+        if (goldBurstResultCollectRect != null)
+        {
+            goldBurstResultCollectRect.anchoredPosition = usePortraitLayout
+                ? portraitGoldBurstResultCollectPosition
+                : goldBurstResultCollectBasePosition;
+            goldBurstResultCollectRect.sizeDelta = usePortraitLayout
+                ? portraitGoldBurstResultCollectSize
+                : goldBurstResultCollectBaseSize;
+            goldBurstResultCollectBaseScale = usePortraitLayout
+                ? portraitGoldBurstResultCollectScale
+                : goldBurstResultCollectAuthoredScale;
+            goldBurstResultCollectRect.localScale =
+                goldBurstResultCollectBaseScale;
         }
     }
 
@@ -2145,16 +2602,17 @@ public class SlotFeatureController : MonoBehaviour
         allGoldBoxes.Clear();
         twoSlotGoldBoxes.Clear();
         threeSlotGoldBoxes.Clear();
-        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
+        for (int reelIndex = 0; reelIndex < activeReelCount; reelIndex++)
         {
             oneSlotGoldBoxesByReel[reelIndex] = new List<GoldBoxRuntime>();
         }
 
         if (oneSlotGoldBoxRoot != null)
         {
-            List<RectTransform> reelColumns = GetSortedChildren(oneSlotGoldBoxRoot, true);
+            List<RectTransform> reelColumns =
+                GetLayoutOrderedChildren(oneSlotGoldBoxRoot);
             for (int reelIndex = 0;
-                 reelIndex < Mathf.Min(ReelCount, reelColumns.Count);
+                 reelIndex < Mathf.Min(activeReelCount, reelColumns.Count);
                  reelIndex++)
             {
                 List<RectTransform> rowVisuals = GetSortedChildren(reelColumns[reelIndex], false);
@@ -2180,7 +2638,8 @@ public class SlotFeatureController : MonoBehaviour
     {
         if (root == null) return;
 
-        foreach (RectTransform child in GetSortedChildren(root, true).Take(ReelCount))
+        foreach (RectTransform child in
+                 GetLayoutOrderedChildren(root).Take(activeReelCount))
         {
             GoldBoxRuntime runtime = CreateGoldBoxRuntime(child);
             if (runtime == null) continue;
@@ -2194,9 +2653,19 @@ public class SlotFeatureController : MonoBehaviour
         RectTransform root,
         bool sortLeftToRight)
     {
-        if (root == null) return new List<RectTransform>();
+        List<RectTransform> children = GetChildrenInHierarchyOrder(root);
 
+        return sortLeftToRight
+            ? children.OrderBy(child => child.anchoredPosition.x).ToList()
+            : children.OrderByDescending(child => child.anchoredPosition.y).ToList();
+    }
+
+    private static List<RectTransform> GetChildrenInHierarchyOrder(
+        RectTransform root)
+    {
         var children = new List<RectTransform>();
+        if (root == null) return children;
+
         for (int index = 0; index < root.childCount; index++)
         {
             if (root.GetChild(index) is RectTransform child)
@@ -2205,9 +2674,25 @@ public class SlotFeatureController : MonoBehaviour
             }
         }
 
-        return sortLeftToRight
-            ? children.OrderBy(child => child.anchoredPosition.x).ToList()
-            : children.OrderByDescending(child => child.anchoredPosition.y).ToList();
+        return children;
+    }
+
+    private List<RectTransform> GetLayoutOrderedChildren(RectTransform root)
+    {
+        if (root == null) return new List<RectTransform>();
+
+        List<RectTransform> children = GetChildrenInHierarchyOrder(root);
+
+        if (activeReelCount == UltimateReelCount)
+        {
+            // The authored Two7x3Animation hierarchy is intentional: its first
+            // half belongs to the top board and its second half to the bottom.
+            return children;
+        }
+
+        return children
+            .OrderBy(child => child.anchoredPosition.x)
+            .ToList();
     }
 
     private static GoldBoxRuntime CreateGoldBoxRuntime(RectTransform visual)
@@ -2742,12 +3227,22 @@ public class SlotFeatureController : MonoBehaviour
             {
                 trainJourneyActorStartPosition =
                     trainJourneyActor.anchoredPosition;
+                trainJourneyActorStartSize = trainJourneyActor.sizeDelta;
+                trainJourneyActorStartScale = trainJourneyActor.localScale;
             }
             if (trainJourneySecondActor != null)
             {
                 trainJourneySecondActorStartPosition =
                     trainJourneySecondActor.anchoredPosition;
+                trainJourneySecondActorStartSize =
+                    trainJourneySecondActor.sizeDelta;
+                trainJourneySecondActorStartScale =
+                    trainJourneySecondActor.localScale;
             }
+            activeTrainJourneyActorStartPosition =
+                trainJourneyActorStartPosition;
+            activeTrainJourneySecondActorStartPosition =
+                trainJourneySecondActorStartPosition;
             hasCapturedTrainJourneyState = true;
         }
 
@@ -2811,6 +3306,7 @@ public class SlotFeatureController : MonoBehaviour
             {
                 if (trainReferences?.visual == null) continue;
 
+                trainReferences.visual.gameObject.SetActive(false);
                 visuals.Add(trainReferences);
                 trainReferencesByVisual[trainReferences.visual] = trainReferences;
                 trainVisualRestingPositions[trainReferences.visual] =
@@ -2839,15 +3335,45 @@ public class SlotFeatureController : MonoBehaviour
         trainVisuals[type] = visuals;
     }
 
-    private TrainVisualReferences GetAvailableTrainVisual(TrainVisualType type)
+    private TrainVisualReferences GetAvailableTrainVisual(TrainPlacement placement)
     {
-        if (!trainVisuals.TryGetValue(type, out List<TrainVisualReferences> visuals))
+        if (placement == null ||
+            !trainVisuals.TryGetValue(
+                placement.type,
+                out List<TrainVisualReferences> visuals))
         {
             return null;
         }
 
-        int reusableCount = Mathf.Min(GetMaximumVisibleTrainCount(type), visuals.Count);
-        for (int index = 0; index < reusableCount; index++)
+        if (activeReelCount > BaseReelCount)
+        {
+            int boardIndex = activeReelCount == UltimateReelCount
+                ? placement.startCol / ExpandedReelCount
+                : 0;
+            int localStartColumn = activeReelCount == UltimateReelCount
+                ? placement.startCol % ExpandedReelCount
+                : placement.startCol;
+            int visualsPerBoard = activeReelCount == UltimateReelCount
+                ? visuals.Count / 2
+                : visuals.Count;
+            int visualIndex = boardIndex * visualsPerBoard + localStartColumn;
+
+            if (boardIndex < 0 || boardIndex > 1 ||
+                localStartColumn < 0 ||
+                localStartColumn >= visualsPerBoard ||
+                visualIndex < 0 || visualIndex >= visuals.Count)
+            {
+                return null;
+            }
+
+            TrainVisualReferences mappedVisual = visuals[visualIndex];
+            return mappedVisual?.visual != null &&
+                   !mappedVisual.visual.gameObject.activeSelf
+                ? mappedVisual
+                : null;
+        }
+
+        for (int index = 0; index < visuals.Count; index++)
         {
             TrainVisualReferences trainReferences = visuals[index];
             if (trainReferences?.visual != null &&
@@ -2858,6 +3384,19 @@ public class SlotFeatureController : MonoBehaviour
         }
 
         return null;
+    }
+
+    private bool IsPlacementWithinOneExpandedBoard(
+        int startColumn,
+        int columnCount)
+    {
+        if (activeReelCount != UltimateReelCount) return true;
+
+        int boardStart = startColumn < ExpandedReelCount
+            ? 0
+            : ExpandedReelCount;
+        return startColumn >= boardStart &&
+               startColumn + columnCount <= boardStart + ExpandedReelCount;
     }
 
     private void PrepareTrainVisualForReveal(TrainVisualReferences trainReferences)
@@ -3109,7 +3648,7 @@ public class SlotFeatureController : MonoBehaviour
             : Vector3.one;
     }
 
-    private IEnumerator PlayOneShotImageAnimation(GameObject animationObject)
+    internal IEnumerator PlayGoldBurstIntroAnimation(GameObject animationObject)
     {
         if (animationObject == null) yield break;
 
@@ -3155,7 +3694,7 @@ public class SlotFeatureController : MonoBehaviour
     {
         goldBox = null;
         if (prize == null || prize.columnCount != 1 ||
-            prize.startCol < 0 || prize.startCol >= ReelCount ||
+            prize.startCol < 0 || prize.startCol >= activeReelCount ||
             prize.startRow < 0 || prize.startRow >= RowCount)
         {
             return false;
@@ -3176,9 +3715,23 @@ public class SlotFeatureController : MonoBehaviour
                 }
 
                 goldBox = twoSlotGoldBoxes[prize.startCol];
-                Vector2 twoSlotPosition = goldBox.visual.anchoredPosition;
-                twoSlotPosition.y = prize.startRow == 0 ? topAndMiddleY : middleAndBottomY;
-                goldBox.visual.anchoredPosition = twoSlotPosition;
+                if (activeReelCount > BaseReelCount)
+                {
+                    TryPlaceVisualAtConversionCenter(
+                        goldBox.visual,
+                        prize.startCol,
+                        1,
+                        prize.startRow,
+                        2);
+                }
+                else
+                {
+                    Vector2 twoSlotPosition = goldBox.visual.anchoredPosition;
+                    twoSlotPosition.y = prize.startRow == 0
+                        ? topAndMiddleY
+                        : middleAndBottomY;
+                    goldBox.visual.anchoredPosition = twoSlotPosition;
+                }
                 break;
 
             case 3:
@@ -3187,6 +3740,15 @@ public class SlotFeatureController : MonoBehaviour
                     return false;
                 }
                 goldBox = threeSlotGoldBoxes[prize.startCol];
+                if (activeReelCount > BaseReelCount)
+                {
+                    TryPlaceVisualAtConversionCenter(
+                        goldBox.visual,
+                        prize.startCol,
+                        1,
+                        0,
+                        RowCount);
+                }
                 break;
         }
 
@@ -3277,17 +3839,20 @@ public class SlotFeatureController : MonoBehaviour
     {
         ResetTrainJourneyPresentation();
         ResetGoldBurstResultPresentation();
-        goldBurstCollectionParticles?.ResetParticles();
+        if (goldBurstCollectionParticles != null)
+        {
+            goldBurstCollectionParticles.ResetParticles();
+        }
         isGoldBurstPresentationActive = false;
         deferGoldBurstTriggerBarrelMerge = false;
         isTrainJourneyPlaying = false;
         completedTrainJourneys.Clear();
         goldBurstPressPlayCallback = null;
 
-        StopAndHideImageAnimation(coldBurstRespin);
-        StopAndHideImageAnimation(megaGoldBurstRespin);
-        StopAndHideImageAnimation(ultimateGoldBurstRespin);
-        if (darkBackground != null) darkBackground.SetActive(false);
+        coldBurstController?.ResetIntro(this);
+        megaGoldBurstController?.ResetIntro(this);
+        ultimateGoldBurstController?.ResetIntro(this);
+        SetDarkBackgroundActive(false);
         if (track != null) track.SetActive(false);
         ResetTrolleyMan();
 
@@ -3323,6 +3888,7 @@ public class SlotFeatureController : MonoBehaviour
             }
         }
         activeGoldBurstAnimationCells.Clear();
+        goldBurstSourceAnimationCells.Clear();
 
         foreach (KeyValuePair<RectTransform, int> entry in animationColumnSiblingIndices)
         {
@@ -3342,6 +3908,11 @@ public class SlotFeatureController : MonoBehaviour
             imageAnimation.ClearLoopDuration();
         }
         animationObject.SetActive(false);
+    }
+
+    internal void ResetGoldBurstIntroAnimation(GameObject animationObject)
+    {
+        StopAndHideImageAnimation(animationObject);
     }
 
     private void OnGoldBurstPressPlayClicked(
@@ -3438,6 +4009,7 @@ public class SlotFeatureController : MonoBehaviour
         Action onComplete)
     {
         ResetTrainJourneyVisuals();
+        ApplyTrainJourneyActorLayout();
         if (!TryGetTrainJourneyVisual(
                 train.type,
                 out activeTrainJourneyTrain,
@@ -3459,7 +4031,7 @@ public class SlotFeatureController : MonoBehaviour
 
         if (darkBackground != null && !darkBackground.activeSelf)
         {
-            darkBackground.SetActive(true);
+            SetDarkBackgroundActive(true);
             trainJourneyOwnsDarkBackground = true;
         }
 
@@ -3855,12 +4427,12 @@ public class SlotFeatureController : MonoBehaviour
         hasExitTween |= AppendTrainJourneyActorExit(
             exitSequence,
             trainJourneyActor,
-            trainJourneyActorStartPosition,
+            activeTrainJourneyActorStartPosition,
             exitDuration);
         hasExitTween |= AppendTrainJourneyActorExit(
             exitSequence,
             trainJourneySecondActor,
-            trainJourneySecondActorStartPosition,
+            activeTrainJourneySecondActorStartPosition,
             exitDuration);
 
         if (hasExitTween)
@@ -4024,8 +4596,21 @@ public class SlotFeatureController : MonoBehaviour
     {
         if (!trainJourneyOwnsDarkBackground || darkBackground == null) return;
 
-        darkBackground.SetActive(false);
+        SetDarkBackgroundActive(false);
         trainJourneyOwnsDarkBackground = false;
+    }
+
+    private void SetDarkBackgroundActive(bool isActive)
+    {
+        if (darkBackground != null)
+        {
+            darkBackground.SetActive(isActive);
+        }
+
+        if (landscapeExtraUI != null)
+        {
+            landscapeExtraUI.SetActive(!isActive);
+        }
     }
 
     private void DestroyTrainJourneyTransferAmount()
@@ -4146,10 +4731,14 @@ public class SlotFeatureController : MonoBehaviour
 
         ResetTrainJourneyActor(
             trainJourneyActor,
-            trainJourneyActorStartPosition);
+            trainJourneyActorStartPosition,
+            trainJourneyActorStartSize,
+            trainJourneyActorStartScale);
         ResetTrainJourneyActor(
             trainJourneySecondActor,
-            trainJourneySecondActorStartPosition);
+            trainJourneySecondActorStartPosition,
+            trainJourneySecondActorStartSize,
+            trainJourneySecondActorStartScale);
 
         if (trainJourneyWinBox != null)
         {
@@ -4164,7 +4753,9 @@ public class SlotFeatureController : MonoBehaviour
 
     private void ResetTrainJourneyActor(
         RectTransform actor,
-        Vector2 startPosition)
+        Vector2 startPosition,
+        Vector2 startSize,
+        Vector3 startScale)
     {
         if (actor == null) return;
 
@@ -4172,6 +4763,8 @@ public class SlotFeatureController : MonoBehaviour
         if (hasCapturedTrainJourneyState)
         {
             actor.anchoredPosition = startPosition;
+            actor.sizeDelta = startSize;
+            actor.localScale = startScale;
         }
 
         SkeletonGraphic actorGraphic = actor.GetComponent<SkeletonGraphic>();
@@ -4186,6 +4779,73 @@ public class SlotFeatureController : MonoBehaviour
             actorGraphic.freeze = true;
         }
         actor.gameObject.SetActive(false);
+    }
+
+    private void ApplyTrainJourneyActorLayout()
+    {
+        bool usePortraitLayout = trainJourneyOrientation != null &&
+            trainJourneyOrientation.CurrentMode ==
+                OrientationChange.OrientationMode.MobilePortrait;
+
+        activeTrainJourneyActorStartPosition = usePortraitLayout
+            ? portraitTrainJourneyActorPosition
+            : trainJourneyActorStartPosition;
+        activeTrainJourneySecondActorStartPosition = usePortraitLayout
+            ? portraitTrainJourneySecondActorPosition
+            : trainJourneySecondActorStartPosition;
+
+        if (trainJourneyActor != null)
+        {
+            trainJourneyActor.anchoredPosition =
+                activeTrainJourneyActorStartPosition;
+            trainJourneyActor.sizeDelta = usePortraitLayout
+                ? portraitTrainJourneyActorSize
+                : trainJourneyActorStartSize;
+            trainJourneyActor.localScale = usePortraitLayout
+                ? portraitTrainJourneyActorScale
+                : trainJourneyActorStartScale;
+        }
+
+        if (trainJourneySecondActor != null)
+        {
+            trainJourneySecondActor.anchoredPosition =
+                activeTrainJourneySecondActorStartPosition;
+            trainJourneySecondActor.sizeDelta = usePortraitLayout
+                ? portraitTrainJourneySecondActorSize
+                : trainJourneySecondActorStartSize;
+            trainJourneySecondActor.localScale = usePortraitLayout
+                ? portraitTrainJourneySecondActorScale
+                : trainJourneySecondActorStartScale;
+        }
+    }
+
+    private bool TryPlaceVisualAtConversionCenter(
+        RectTransform visual,
+        int startReel,
+        int reelCount,
+        int startRow,
+        int rowCount)
+    {
+        if (visual == null || reelCount <= 0 || rowCount <= 0) return false;
+
+        Vector3 worldPositionTotal = Vector3.zero;
+        int sourceCount = 0;
+        for (int reelIndex = startReel;
+             reelIndex < startReel + reelCount;
+             reelIndex++)
+        {
+            for (int row = startRow; row < startRow + rowCount; row++)
+            {
+                RectTransform source = GetConversionSourceCell(reelIndex, row);
+                if (source == null) continue;
+                worldPositionTotal += source.position;
+                sourceCount++;
+            }
+        }
+
+        if (sourceCount == 0) return false;
+        visual.position = worldPositionTotal / sourceCount;
+        return true;
     }
 
     private bool TryGetTrainPosition(TrainPlacement train, out Vector2 position)
@@ -4302,6 +4962,7 @@ public class SlotFeatureController : MonoBehaviour
         for (int row = startRow; row < startRow + count; row++)
         {
             RectTransform animationCell = GetAnimationCell(reelIndex, row);
+            if (animationCell == null) continue;
             GameObject coveredCell = animationCell.gameObject;
             SetWinboxActive(animationCell, false);
             coveredCell.SetActive(false);
@@ -4314,7 +4975,7 @@ public class SlotFeatureController : MonoBehaviour
         if (animationRoot == null) return;
 
         bool hasActiveAnimationCell = false;
-        for (int reelIndex = 0; reelIndex < ReelCount; reelIndex++)
+        for (int reelIndex = 0; reelIndex < activeReelCount; reelIndex++)
         {
             RectTransform column = GetAnimationColumn(reelIndex);
             bool hasActiveCell = false;
@@ -4362,13 +5023,13 @@ public class SlotFeatureController : MonoBehaviour
     private bool HasTwoSlotConfiguration()
     {
         bool isComplete = twoSlotBarrelRoot != null &&
-                          twoSlotBarrels.Count == ReelCount &&
-                          HasCompleteAnimationGrid();
+                          twoSlotBarrels.Count >= activeReelCount &&
+                          HasCompleteConversionSourceGrid();
 
         if (!isComplete)
         {
             ReportConfigurationWarning(
-                "The 2x1 barrel setup requires five barrels and five animation columns with three cells each.");
+                $"The 2x1 barrel setup requires {activeReelCount} barrels and three result cells per reel.");
         }
 
         return isComplete;
@@ -4377,13 +5038,13 @@ public class SlotFeatureController : MonoBehaviour
     private bool HasThreeSlotConfiguration()
     {
         bool isComplete = threeSlotBarrelRoot != null &&
-                          threeSlotBarrels.Count == ReelCount &&
-                          HasCompleteAnimationGrid();
+                            threeSlotBarrels.Count >= activeReelCount &&
+                            HasCompleteConversionSourceGrid();
 
         if (!isComplete)
         {
             ReportConfigurationWarning(
-                "The 3x1 barrel setup requires five barrels and five animation columns with three cells each.");
+                $"The 3x1 barrel setup requires {activeReelCount} barrels and three result cells per reel.");
         }
 
         return isComplete;
@@ -4392,14 +5053,35 @@ public class SlotFeatureController : MonoBehaviour
     private bool HasCompleteAnimationGrid()
     {
         return animationGrid != null &&
-               animationGrid.Length == ReelCount &&
+               animationGrid.Length == activeReelCount &&
                animationGrid.All(column =>
                    column != null &&
                    column.column != null &&
-                   column.rows != null &&
-                   column.rows.Length == RowCount &&
-                   column.rows.All(cell =>
-                       cell != null && cell.slot != null && cell.winbox != null));
+                    column.rows != null &&
+                    column.rows.Length == RowCount &&
+                    column.rows.All(cell =>
+                        cell != null && cell.slot != null));
+    }
+
+    private bool HasCompleteConversionSourceGrid()
+    {
+        if (conversionSourceSlots == null ||
+            conversionSourceSlots.Count < activeReelCount)
+        {
+            return false;
+        }
+
+        for (int reelIndex = 0; reelIndex < activeReelCount; reelIndex++)
+        {
+            ReelResultSlots slots = conversionSourceSlots[reelIndex];
+            if (slots == null) return false;
+            for (int row = 0; row < RowCount; row++)
+            {
+                if (slots.Get(row) == null) return false;
+            }
+        }
+
+        return true;
     }
 
     private void EnsureInitialized()
@@ -4423,6 +5105,29 @@ public class SlotFeatureController : MonoBehaviour
         for (int index = 0; index < root.childCount; index++)
         {
             Transform result = FindDescendant(root.GetChild(index), objectName);
+            if (result != null) return result;
+        }
+
+        return null;
+    }
+
+    private static Transform FindDescendantStartingWith(
+        Transform root,
+        string objectNamePrefix)
+    {
+        if (root == null) return null;
+        if (root.name.StartsWith(
+                objectNamePrefix,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return root;
+        }
+
+        for (int index = 0; index < root.childCount; index++)
+        {
+            Transform result = FindDescendantStartingWith(
+                root.GetChild(index),
+                objectNamePrefix);
             if (result != null) return result;
         }
 

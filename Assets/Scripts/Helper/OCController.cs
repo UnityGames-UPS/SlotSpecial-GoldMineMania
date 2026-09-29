@@ -8,7 +8,7 @@ public class OCController : MonoBehaviour
     [Header("References")]
     [SerializeField] private OrientationChange orientationChange;
     [SerializeField] private CanvasScaler canvasScaler;
-    [SerializeField] private Transform slotObject;
+    [SerializeField, InspectorName("Slot BG")] private Transform slotObject;
     [SerializeField] private List<RectTransform> resizedObjects = new List<RectTransform>();
     [SerializeField] private List<RectTransform> squareResizedObjects = new List<RectTransform>();
 
@@ -22,6 +22,10 @@ public class OCController : MonoBehaviour
     [SerializeField] private GameObject wheelLandscapeBackground;
     [SerializeField] private GameObject wheelPortraitBackground;
 
+    [Header("Feature Dark Background")]
+    [SerializeField] private RectTransform featureDarkBackground;
+    [SerializeField] private Vector2 portraitFeatureDarkBackgroundSize = new Vector2(3000f, 4000f);
+
     [Header("Canvas Scaler Resolutions")]
     [SerializeField] private Vector2 landscapeReferenceResolution = new Vector2(1920f, 1080f);
     [SerializeField] private Vector2 portraitReferenceResolution = new Vector2(1080f, 1920f);
@@ -34,16 +38,19 @@ public class OCController : MonoBehaviour
     [SerializeField] private Vector2 landscapeSquareResizedObjectSize = new Vector2(1920f, 1080f);
     [SerializeField] private Vector2 portraitSquareResizedObjectSize = new Vector2(1920f, 1920f);
 
-    [Header("Slot Object Settings")]
-    [SerializeField] private Vector3 portraitSlotScale = new Vector3(0.73f, 0.73f, 0.73f);
-    [SerializeField] private Vector3 portraitSlotPosition = new Vector3(0f, -150f, 0f);
+    [Header("Portrait Slot Settings")]
+    [SerializeField] private Vector2 portrait5x3Position = new Vector2(0f, -380f);
+    [SerializeField, Min(0.01f)] private float portrait5x3Scale = 0.78f;
+    [SerializeField] private Vector2 portrait7x3Position = new Vector2(0f, -380f);
+    [SerializeField, Min(0.01f)] private float portrait7x3Scale = 0.8f;
+    [SerializeField] private Vector2 portraitTwo7x3Position = new Vector2(0f, -380f);
+    [SerializeField, Min(0.01f)] private float portraitTwo7x3Scale = 1f;
 
-    [Header("Logo Object Settings")]
-    [SerializeField] private RectTransform logoObject;
-    [SerializeField] private Vector3 landscapeLogoScale = Vector3.one;
-    [SerializeField] private Vector3 portraitLogoScale = new Vector3(1.27f, 1.27f, 1.27f);
-    [SerializeField] private Vector2 landscapeLogoPosition = new Vector2(0f, 355f);
-    [SerializeField] private Vector2 portraitLogoPosition = new Vector2(0f, 500f);
+    // These scene references are already wired and are only used to detect
+    // which scale to apply. They do not need to clutter the Inspector.
+    [SerializeField, HideInInspector] private RectTransform portraitBaseSlotLayout;
+    [SerializeField, HideInInspector] private RectTransform portraitMegaSlotLayout;
+    [SerializeField, HideInInspector] private RectTransform portraitUltimateSlotLayout;
 
     [Header("Info Page & Guide Settings")]
     [SerializeField] private RectTransform infoPageScrollObject;
@@ -55,7 +62,18 @@ public class OCController : MonoBehaviour
     private List<Tween> activeTweens = new List<Tween>();
     private Vector3 authoredLandscapeSlotScale;
     private Vector3 authoredLandscapeSlotPosition;
+    private Vector2 authoredLandscapeFeatureDarkBackgroundSize;
     private bool slotWasAdjustedForPortrait;
+    private bool isMobilePortraitLayoutActive;
+    private bool hasAppliedPortraitSlotLayout;
+    private PortraitSlotLayout appliedPortraitSlotLayout;
+
+    private enum PortraitSlotLayout
+    {
+        BaseFiveByThree,
+        MegaSevenByThree,
+        UltimateTwoSevenByThree
+    }
 
     private void Awake()
     {
@@ -77,23 +95,34 @@ public class OCController : MonoBehaviour
             authoredLandscapeSlotScale = slotObject.localScale;
             authoredLandscapeSlotPosition = slotObject.localPosition;
         }
+
+        if (featureDarkBackground != null)
+        {
+            authoredLandscapeFeatureDarkBackgroundSize = featureDarkBackground.sizeDelta;
+        }
     }
 
     private void OnEnable()
     {
-        OrientationChange.OnOrientationChanged += HandleOrientationChange;
         if (orientationChange != null)
         {
             orientationChange.OnOrientationChangedInstance += HandleOrientationChange;
+        }
+        else
+        {
+            OrientationChange.OnOrientationChanged += HandleOrientationChange;
         }
     }
 
     private void OnDisable()
     {
-        OrientationChange.OnOrientationChanged -= HandleOrientationChange;
         if (orientationChange != null)
         {
             orientationChange.OnOrientationChangedInstance -= HandleOrientationChange;
+        }
+        else
+        {
+            OrientationChange.OnOrientationChanged -= HandleOrientationChange;
         }
     }
 
@@ -102,6 +131,7 @@ public class OCController : MonoBehaviour
         KillActiveTweens();
 
         bool isMobilePortrait = (mode == OrientationChange.OrientationMode.MobilePortrait);
+        isMobilePortraitLayoutActive = isMobilePortrait;
 
         // 1. Toggle Landscape vs Portrait Panel Objects
         if (landscapePanelObject != null)
@@ -131,6 +161,25 @@ public class OCController : MonoBehaviour
         if (wheelPortraitBackground != null)
         {
             wheelPortraitBackground.SetActive(isMobilePortrait);
+        }
+
+        if (featureDarkBackground != null)
+        {
+            Vector2 darkBackgroundSize = isMobilePortrait
+                ? portraitFeatureDarkBackgroundSize
+                : authoredLandscapeFeatureDarkBackgroundSize;
+
+            if (transitionDuration > 0f)
+            {
+                Tween darkBackgroundTween = featureDarkBackground
+                    .DOSizeDelta(darkBackgroundSize, transitionDuration)
+                    .SetEase(Ease.OutCubic);
+                activeTweens.Add(darkBackgroundTween);
+            }
+            else
+            {
+                featureDarkBackground.sizeDelta = darkBackgroundSize;
+            }
         }
 
         // 3. Update Canvas Scaler Reference Resolution
@@ -188,37 +237,25 @@ public class OCController : MonoBehaviour
         {
             if (isMobilePortrait)
             {
-                ApplySlotTransform(portraitSlotScale, portraitSlotPosition);
+                PortraitSlotLayout activeLayout = ResolveActivePortraitSlotLayout();
+                GetPortraitSlotTransform(
+                    activeLayout,
+                    out Vector3 targetScale,
+                    out Vector3 targetPosition);
+                ApplySlotTransform(targetScale, targetPosition);
                 slotWasAdjustedForPortrait = true;
+                appliedPortraitSlotLayout = activeLayout;
+                hasAppliedPortraitSlotLayout = true;
             }
             else if (slotWasAdjustedForPortrait)
             {
                 ApplySlotTransform(authoredLandscapeSlotScale, authoredLandscapeSlotPosition);
                 slotWasAdjustedForPortrait = false;
+                hasAppliedPortraitSlotLayout = false;
             }
         }
 
-        // 6. Update Logo Object Scale and Position
-        if (logoObject != null)
-        {
-            Vector3 targetScale = isMobilePortrait ? portraitLogoScale : landscapeLogoScale;
-            Vector2 targetPosition = isMobilePortrait ? portraitLogoPosition : landscapeLogoPosition;
-
-            if (transitionDuration > 0)
-            {
-                Tween scaleTween = logoObject.DOScale(targetScale, transitionDuration).SetEase(Ease.OutCubic);
-                Tween posTween = logoObject.DOAnchorPos(targetPosition, transitionDuration).SetEase(Ease.OutCubic);
-                activeTweens.Add(scaleTween);
-                activeTweens.Add(posTween);
-            }
-            else
-            {
-                logoObject.localScale = targetScale;
-                logoObject.anchoredPosition = targetPosition;
-            }
-        }
-
-        // 7. Update Info Page Scroll Object Height (1080 for Landscape, 1920 for Mobile Portrait)
+        // 6. Update Info Page Scroll Object Height (1080 for Landscape, 1920 for Mobile Portrait)
         if (infoPageScrollObject != null)
         {
             float targetHeight = isMobilePortrait ? 1920f : 1080f;
@@ -234,7 +271,7 @@ public class OCController : MonoBehaviour
             }
         }
 
-        // 8. Update Guide Scroll Object Height (1080 for Landscape, 1920 for Mobile Portrait)
+        // 7. Update Guide Scroll Object Height (1080 for Landscape, 1920 for Mobile Portrait)
         if (guideScrollObject != null)
         {
             float targetHeight = isMobilePortrait ? 1920f : 1080f;
@@ -249,6 +286,95 @@ public class OCController : MonoBehaviour
                 guideScrollObject.sizeDelta = targetScrollSize;
             }
         }
+    }
+
+    private void LateUpdate()
+    {
+        if (!isMobilePortraitLayoutActive || slotObject == null) return;
+
+        PortraitSlotLayout activeLayout = ResolveActivePortraitSlotLayout();
+        if (hasAppliedPortraitSlotLayout &&
+            activeLayout == appliedPortraitSlotLayout)
+        {
+            return;
+        }
+
+        KillActiveTweens();
+        GetPortraitSlotTransform(
+            activeLayout,
+            out Vector3 targetScale,
+            out Vector3 targetPosition);
+        ApplySlotTransform(targetScale, targetPosition);
+        appliedPortraitSlotLayout = activeLayout;
+        hasAppliedPortraitSlotLayout = true;
+        slotWasAdjustedForPortrait = true;
+    }
+
+    private PortraitSlotLayout ResolveActivePortraitSlotLayout()
+    {
+        if (portraitUltimateSlotLayout != null &&
+            portraitUltimateSlotLayout.gameObject.activeSelf)
+        {
+            return PortraitSlotLayout.UltimateTwoSevenByThree;
+        }
+
+        if (portraitMegaSlotLayout != null &&
+            portraitMegaSlotLayout.gameObject.activeSelf)
+        {
+            return PortraitSlotLayout.MegaSevenByThree;
+        }
+
+        if (portraitBaseSlotLayout != null &&
+            portraitBaseSlotLayout.gameObject.activeSelf)
+        {
+            return PortraitSlotLayout.BaseFiveByThree;
+        }
+
+        if (hasAppliedPortraitSlotLayout)
+        {
+            return appliedPortraitSlotLayout;
+        }
+
+        return PortraitSlotLayout.BaseFiveByThree;
+    }
+
+    private void GetPortraitSlotTransform(
+        PortraitSlotLayout activeLayout,
+        out Vector3 targetScale,
+        out Vector3 targetPosition)
+    {
+        float fittedScale = GetCustomPortraitSlotScale(activeLayout);
+        Vector2 slotPosition = GetCustomPortraitSlotPosition(activeLayout);
+        targetScale = new Vector3(
+            fittedScale,
+            fittedScale,
+            authoredLandscapeSlotScale.z);
+        targetPosition = new Vector3(
+            slotPosition.x,
+            slotPosition.y,
+            authoredLandscapeSlotPosition.z);
+    }
+
+    private float GetCustomPortraitSlotScale(PortraitSlotLayout layout)
+    {
+        return Mathf.Max(
+            0.01f,
+            layout switch
+            {
+                PortraitSlotLayout.MegaSevenByThree => portrait7x3Scale,
+                PortraitSlotLayout.UltimateTwoSevenByThree => portraitTwo7x3Scale,
+                _ => portrait5x3Scale
+            });
+    }
+
+    private Vector2 GetCustomPortraitSlotPosition(PortraitSlotLayout layout)
+    {
+        return layout switch
+        {
+            PortraitSlotLayout.MegaSevenByThree => portrait7x3Position,
+            PortraitSlotLayout.UltimateTwoSevenByThree => portraitTwo7x3Position,
+            _ => portrait5x3Position
+        };
     }
 
     private void ApplySlotTransform(Vector3 targetScale, Vector3 targetPosition)
