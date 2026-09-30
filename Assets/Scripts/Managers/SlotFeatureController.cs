@@ -110,7 +110,7 @@ public class SlotFeatureController : MonoBehaviour
     [SerializeField, Min(0f)] private float goldBurstMergeDelayAfterTrolley = 0.5f;
     [SerializeField, Min(0f)] private float goldBoxHoldWithoutTrain = 1.2f;
 
-    [Header("Gold Burst Result Presentation")]
+    [Header("Shared Free Games / Gold Burst Result Presentation")]
     [SerializeField] private GameObject goldBurstResultPanel;
     [SerializeField] private RectTransform goldBurstResultWinBox;
     [SerializeField] private TMP_Text goldBurstResultWinAmount;
@@ -118,7 +118,7 @@ public class SlotFeatureController : MonoBehaviour
     [SerializeField, Min(0.01f)] private float goldBurstResultPopupDuration = 0.35f;
     [SerializeField, Min(1f)] private float goldBurstResultHeartbeatScale = 1.08f;
 
-    [Header("Gold Burst Result Portrait Layout")]
+    [Header("Shared Result Portrait Layout")]
     [SerializeField] private Vector2 portraitGoldBurstResultPanelPosition = Vector2.zero;
     [SerializeField] private Vector2 portraitGoldBurstResultPanelSize = new Vector2(80f, 80f);
     [SerializeField] private Vector3 portraitGoldBurstResultPanelScale =
@@ -168,6 +168,7 @@ public class SlotFeatureController : MonoBehaviour
     [SerializeField] private RectTransform trainJourneyActor;
     [SerializeField] private RectTransform trainJourneySecondActor;
     [SerializeField] private OrientationChange trainJourneyOrientation;
+    [SerializeField] private OCController orientationLayoutController;
     [SerializeField] private Vector2 portraitTrainJourneyActorPosition =
         new Vector2(-503f, -95f);
     [SerializeField] private Vector2 portraitTrainJourneyActorSize =
@@ -301,6 +302,8 @@ public class SlotFeatureController : MonoBehaviour
         new Dictionary<TrainVisualType, TMP_Text[]>();
     private readonly Dictionary<RectTransform, Vector2> trainJourneyStartPositions =
         new Dictionary<RectTransform, Vector2>();
+    private readonly Dictionary<RectTransform, Vector3> trainJourneyStartScales =
+        new Dictionary<RectTransform, Vector3>();
     private readonly Dictionary<RectTransform, bool> trainJourneyOriginalLoops =
         new Dictionary<RectTransform, bool>();
 
@@ -312,6 +315,7 @@ public class SlotFeatureController : MonoBehaviour
     private bool isGoldBurstPresentationActive;
     private bool deferGoldBurstTriggerBarrelMerge;
     private bool isTrainJourneyPlaying;
+    private bool areBigWinActorsActive;
     private Action goldBurstPressPlayCallback;
     private Coroutine trainJourneyRoutine;
     private Coroutine trainJourneyCountRoutine;
@@ -323,6 +327,13 @@ public class SlotFeatureController : MonoBehaviour
     private Image trainJourneyWinBoxImage;
     private Color trainJourneyWinBoxBaseColor;
     private bool hasCapturedTrainJourneyWinBoxColor;
+    private RectTransform trainJourneyTrackRect;
+    private Vector2 trainJourneyTrackStartPosition;
+    private Vector3 trainJourneyTrackStartScale;
+    private bool hasCapturedTrainJourneyTrackPosition;
+    private Vector2 trainJourneyWinBoxStartPosition;
+    private Vector3 trainJourneyWinBoxStartScale;
+    private bool hasCapturedTrainJourneyWinBoxTransform;
     private TMP_Text activeTrainJourneyTransferAmount;
     private Vector2 trainJourneyActorStartPosition;
     private Vector2 trainJourneySecondActorStartPosition;
@@ -332,6 +343,7 @@ public class SlotFeatureController : MonoBehaviour
     private Vector3 trainJourneySecondActorStartScale;
     private Vector2 activeTrainJourneyActorStartPosition;
     private Vector2 activeTrainJourneySecondActorStartPosition;
+    private float activeTrainJourneyScaleCompensation = 1f;
     private bool hasCapturedTrainJourneyState;
     private bool trainJourneyOwnsDarkBackground;
     private RectTransform trolleyManRect;
@@ -841,7 +853,6 @@ public class SlotFeatureController : MonoBehaviour
         ClearAllVisibleTrains();
         deferGoldBurstTriggerBarrelMerge = true;
         isGoldBurstPresentationActive = true;
-        SetDarkBackgroundActive(true);
     }
 
     internal IEnumerator PlayGoldBurstTriggerPresentation(
@@ -854,15 +865,15 @@ public class SlotFeatureController : MonoBehaviour
             BeginGoldBurstTriggerPresentation();
         }
 
-        SetDarkBackgroundActive(true);
-
         IGoldBurstRespinController respinController =
             GetGoldBurstRespinController(tier);
         if (respinController != null)
         {
+            SetDarkBackgroundActive(true);
             yield return respinController.PlayIntro(this);
         }
 
+        SetDarkBackgroundActive(true, showInLandscape: true);
         yield return PlayTrolleyManAnimation();
         afterTrolley?.Invoke();
         SetDarkBackgroundActive(false);
@@ -898,7 +909,7 @@ public class SlotFeatureController : MonoBehaviour
     internal IEnumerator PlayGoldBurstOutroPresentation()
     {
         EnsureInitialized();
-        SetDarkBackgroundActive(true);
+        SetDarkBackgroundActive(true, showInLandscape: true);
         yield return PlayTrolleyManAnimation();
         SetDarkBackgroundActive(false);
     }
@@ -908,7 +919,7 @@ public class SlotFeatureController : MonoBehaviour
         EnsureInitialized();
         ResetFreeGamesStartPresentation();
 
-        SetDarkBackgroundActive(true);
+        SetDarkBackgroundActive(true, showInLandscape: true);
         if (freeGamesStartPanel == null || freeGamesStartSkeleton == null)
         {
             yield return PlayFreeGamesTrackAnimation();
@@ -1037,7 +1048,10 @@ public class SlotFeatureController : MonoBehaviour
         double totalWin,
         UIManager uiManager)
     {
-        yield return PlayGoldBurstResultPresentation(totalWin, uiManager);
+        yield return PlayGoldBurstResultPresentation(
+            totalWin,
+            uiManager,
+            showDarkBackgroundInLandscape: true);
         yield return PlayFreeGamesTrackAnimation();
         RestoreGoldBurstResultHierarchy();
         SetDarkBackgroundActive(false);
@@ -1046,6 +1060,7 @@ public class SlotFeatureController : MonoBehaviour
     private IEnumerator PlayTrolleyManAnimation()
     {
         ResetTrolleyMan();
+        ApplyTrackAndTrolleyLayout();
         if (track != null) track.SetActive(true);
         if (trolleyMan != null)
         {
@@ -1338,7 +1353,8 @@ public class SlotFeatureController : MonoBehaviour
 
     internal IEnumerator PlayGoldBurstResultPresentation(
         double totalWin,
-        UIManager uiManager)
+        UIManager uiManager,
+        bool showDarkBackgroundInLandscape = false)
     {
         EnsureInitialized();
         if (goldBurstResultPanel == null || goldBurstResultSkeleton == null)
@@ -1349,7 +1365,9 @@ public class SlotFeatureController : MonoBehaviour
         ResetGoldBurstResultPresentation();
         ApplyGoldBurstResultLayout();
         activeGoldBurstResultUi = uiManager;
-        SetDarkBackgroundActive(true);
+        SetDarkBackgroundActive(
+            true,
+            showDarkBackgroundInLandscape);
         RaiseGoldBurstResultHierarchy();
 
         if (goldBurstResultWinAmount != null)
@@ -1836,7 +1854,7 @@ public class SlotFeatureController : MonoBehaviour
         }
 
         activeTrainAnimationCells.Add(animationCell.gameObject);
-        SetWinboxActive(animationCell, true);
+        SetWinboxActive(animationCell, false);
         if (!activeWinAnimationCells.Contains(animationCell.gameObject))
         {
             Image trainImage = animationCell.GetComponent<Image>();
@@ -2044,6 +2062,12 @@ public class SlotFeatureController : MonoBehaviour
 
     private void CacheGoldBurstSceneObjects()
     {
+        if (orientationLayoutController == null)
+        {
+            orientationLayoutController =
+                UnityEngine.Object.FindFirstObjectByType<OCController>();
+        }
+
         darkBackground = darkBackground != null
             ? darkBackground
             : FindSceneGameObject("DarkBackground");
@@ -2268,17 +2292,22 @@ public class SlotFeatureController : MonoBehaviour
         bool usePortraitLayout = trainJourneyOrientation != null &&
             trainJourneyOrientation.CurrentMode ==
                 OrientationChange.OrientationMode.MobilePortrait;
+        float overlayCompensation = usePortraitLayout
+            ? GetSharedPortraitOverlayCompensation()
+            : 1f;
 
         if (goldBurstResultPanelRect != null)
         {
             goldBurstResultPanelRect.anchoredPosition = usePortraitLayout
-                ? portraitGoldBurstResultPanelPosition
+                ? portraitGoldBurstResultPanelPosition * overlayCompensation
                 : goldBurstResultPanelBasePosition;
             goldBurstResultPanelRect.sizeDelta = usePortraitLayout
                 ? portraitGoldBurstResultPanelSize
                 : goldBurstResultPanelBaseSize;
             goldBurstResultPanelRect.localScale = usePortraitLayout
-                ? portraitGoldBurstResultPanelScale
+                ? ScalePortraitOverlay(
+                    portraitGoldBurstResultPanelScale,
+                    overlayCompensation)
                 : goldBurstResultPanelBaseScale;
         }
 
@@ -2459,6 +2488,10 @@ public class SlotFeatureController : MonoBehaviour
             yield break;
         }
 
+        bool ownsDarkBackground = darkBackground != null &&
+                                  !darkBackground.activeSelf;
+        SetDarkBackgroundActive(true, showInLandscape: true);
+
         Transform trackTransform = trainTrackAnimation.transform;
         Transform trackParent = trackTransform.parent;
         if (trackParent != null)
@@ -2488,6 +2521,10 @@ public class SlotFeatureController : MonoBehaviour
                 trainTrackSiblingIndex,
                 0,
                 trackParent.childCount - 1));
+        }
+        if (ownsDarkBackground)
+        {
+            SetDarkBackgroundActive(false);
         }
     }
 
@@ -3179,6 +3216,18 @@ public class SlotFeatureController : MonoBehaviour
         trainJourneyTrains.Clear();
         trainJourneyAmountsByType.Clear();
 
+        trainJourneyTrackRect = track != null
+            ? track.transform as RectTransform
+            : null;
+        if (trainJourneyTrackRect != null &&
+            !hasCapturedTrainJourneyTrackPosition)
+        {
+            trainJourneyTrackStartPosition =
+                trainJourneyTrackRect.anchoredPosition;
+            trainJourneyTrackStartScale = trainJourneyTrackRect.localScale;
+            hasCapturedTrainJourneyTrackPosition = true;
+        }
+
         trainJourneyWinBoxImage = trainJourneyWinBox != null
             ? trainJourneyWinBox.GetComponent<Image>()
             : null;
@@ -3187,6 +3236,14 @@ public class SlotFeatureController : MonoBehaviour
         {
             trainJourneyWinBoxBaseColor = trainJourneyWinBoxImage.color;
             hasCapturedTrainJourneyWinBoxColor = true;
+        }
+        if (trainJourneyWinBox != null &&
+            !hasCapturedTrainJourneyWinBoxTransform)
+        {
+            trainJourneyWinBoxStartPosition =
+                trainJourneyWinBox.anchoredPosition;
+            trainJourneyWinBoxStartScale = trainJourneyWinBox.localScale;
+            hasCapturedTrainJourneyWinBoxTransform = true;
         }
 
         trainJourneyLineAnimation = FindDescendant(
@@ -3284,6 +3341,7 @@ public class SlotFeatureController : MonoBehaviour
         if (!trainJourneyStartPositions.ContainsKey(journeyTrain))
         {
             trainJourneyStartPositions[journeyTrain] = journeyTrain.anchoredPosition;
+            trainJourneyStartScales[journeyTrain] = journeyTrain.localScale;
             ImageAnimation trainAnimation = journeyTrain.GetComponent<ImageAnimation>();
             trainJourneyOriginalLoops[journeyTrain] =
                 trainAnimation != null && trainAnimation.doLoopAnimation;
@@ -4009,7 +4067,6 @@ public class SlotFeatureController : MonoBehaviour
         Action onComplete)
     {
         ResetTrainJourneyVisuals();
-        ApplyTrainJourneyActorLayout();
         if (!TryGetTrainJourneyVisual(
                 train.type,
                 out activeTrainJourneyTrain,
@@ -4019,6 +4076,7 @@ public class SlotFeatureController : MonoBehaviour
             onComplete?.Invoke();
             yield break;
         }
+        ApplyTrainJourneyLayout();
 
         double totalPayout = GetTrainPayout(train);
         SetTrainJourneyWagonAmounts(train.trainJourney);
@@ -4031,7 +4089,7 @@ public class SlotFeatureController : MonoBehaviour
 
         if (darkBackground != null && !darkBackground.activeSelf)
         {
-            SetDarkBackgroundActive(true);
+            SetDarkBackgroundActive(true, showInLandscape: true);
             trainJourneyOwnsDarkBackground = true;
         }
 
@@ -4055,9 +4113,17 @@ public class SlotFeatureController : MonoBehaviour
         Vector2 startPosition = trainJourneyStartPositions.TryGetValue(
             activeTrainJourneyTrain,
             out Vector2 capturedStartPosition)
-                ? capturedStartPosition
+                ? GetSharedPortraitOverlayPosition(capturedStartPosition)
                 : activeTrainJourneyTrain.anchoredPosition;
         activeTrainJourneyTrain.anchoredPosition = startPosition;
+        if (trainJourneyStartScales.TryGetValue(
+                activeTrainJourneyTrain,
+                out Vector3 capturedStartScale))
+        {
+            activeTrainJourneyTrain.localScale = ScalePortraitOverlay(
+                capturedStartScale,
+                activeTrainJourneyScaleCompensation);
+        }
 
         if (trainJourneySettleDelay > 0f)
         {
@@ -4068,7 +4134,10 @@ public class SlotFeatureController : MonoBehaviour
         trainAnimation?.PlayAnimation();
 
         Tween travelTween = activeTrainJourneyTrain
-            .DOAnchorPosX(trainJourneyExitX, travelDuration)
+            .DOAnchorPosX(
+                GetSharedPortraitOverlayPosition(
+                    new Vector2(trainJourneyExitX, 0f)).x,
+                travelDuration)
             .SetEase(Ease.Linear)
             .SetUpdate(true);
 
@@ -4191,7 +4260,8 @@ public class SlotFeatureController : MonoBehaviour
 
         Vector3 exitWorldPosition = activeTrainJourneyTrain.parent.TransformPoint(
             new Vector3(
-                trainJourneyExitX,
+                GetSharedPortraitOverlayPosition(
+                    new Vector2(trainJourneyExitX, 0f)).x,
                 activeTrainJourneyTrain.anchoredPosition.y,
                 activeTrainJourneyTrain.localPosition.z));
         return Mathf.Abs(exitWorldPosition.x - activeTrainJourneyTrain.position.x) /
@@ -4371,6 +4441,88 @@ public class SlotFeatureController : MonoBehaviour
     {
         float inverse = 1f - value;
         return 1f - inverse * inverse * inverse;
+    }
+
+    internal void ShowBigWinActors()
+    {
+        EnsureInitialized();
+
+        bool usePortraitLayout = trainJourneyOrientation != null &&
+            trainJourneyOrientation.CurrentMode ==
+                OrientationChange.OrientationMode.MobilePortrait;
+        activeTrainJourneyScaleCompensation = usePortraitLayout
+            ? GetSharedPortraitOverlayCompensation()
+            : 1f;
+        ApplyTrainJourneyActorLayout(usePortraitLayout);
+
+        PlayTrainJourneyActor(trainJourneyActor);
+        PlayTrainJourneyActor(trainJourneySecondActor);
+        areBigWinActorsActive = true;
+    }
+
+    internal void HideBigWinActors()
+    {
+        if (!areBigWinActorsActive) return;
+
+        ResetTrainJourneyActor(
+            trainJourneyActor,
+            trainJourneyActorStartPosition,
+            trainJourneyActorStartSize,
+            trainJourneyActorStartScale);
+        ResetTrainJourneyActor(
+            trainJourneySecondActor,
+            trainJourneySecondActorStartPosition,
+            trainJourneySecondActorStartSize,
+            trainJourneySecondActorStartScale);
+        areBigWinActorsActive = false;
+    }
+
+    internal IEnumerator PlayBigWinActorsExit()
+    {
+        if (!areBigWinActorsActive) yield break;
+
+        float donkeyJumpDuration = PlayTrainJourneyActorJump(
+            trainJourneyActor,
+            true);
+        float manJumpDuration = PlayTrainJourneyActorJump(
+            trainJourneySecondActor,
+            true);
+        float jumpLoopDuration = Mathf.Max(
+            donkeyJumpDuration,
+            manJumpDuration);
+        if (jumpLoopDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(jumpLoopDuration);
+        }
+
+        if (!areBigWinActorsActive) yield break;
+
+        float exitDuration = Mathf.Max(
+            0.01f,
+            trainJourneyActorExitLeadTime);
+        var exitSequence = DOTween.Sequence().SetUpdate(true);
+        bool hasExitTween = false;
+        hasExitTween |= AppendTrainJourneyActorExit(
+            exitSequence,
+            trainJourneyActor,
+            activeTrainJourneyActorStartPosition,
+            exitDuration);
+        hasExitTween |= AppendTrainJourneyActorExit(
+            exitSequence,
+            trainJourneySecondActor,
+            activeTrainJourneySecondActorStartPosition,
+            exitDuration);
+
+        if (hasExitTween)
+        {
+            yield return exitSequence.WaitForCompletion();
+        }
+        else
+        {
+            yield return new WaitForSecondsRealtime(exitDuration);
+        }
+
+        HideBigWinActors();
     }
 
     private static void PlayTrainJourneyActor(RectTransform actor)
@@ -4600,16 +4752,29 @@ public class SlotFeatureController : MonoBehaviour
         trainJourneyOwnsDarkBackground = false;
     }
 
-    private void SetDarkBackgroundActive(bool isActive)
+    private void SetDarkBackgroundActive(
+        bool isActive,
+        bool showInLandscape = false)
     {
+        if (trainJourneyOrientation == null)
+        {
+            trainJourneyOrientation =
+                UnityEngine.Object.FindFirstObjectByType<OrientationChange>();
+        }
+
+        bool isPortrait = trainJourneyOrientation != null &&
+                          trainJourneyOrientation.CurrentMode ==
+                              OrientationChange.OrientationMode.MobilePortrait;
+        bool showDarkBackground = isActive &&
+                                  (isPortrait || showInLandscape);
         if (darkBackground != null)
         {
-            darkBackground.SetActive(isActive);
+            darkBackground.SetActive(showDarkBackground);
         }
 
         if (landscapeExtraUI != null)
         {
-            landscapeExtraUI.SetActive(!isActive);
+            landscapeExtraUI.SetActive(!showDarkBackground);
         }
     }
 
@@ -4634,7 +4799,9 @@ public class SlotFeatureController : MonoBehaviour
         }
     }
 
-    private static float PlayTrainJourneyActorJump(RectTransform actor)
+    private static float PlayTrainJourneyActorJump(
+        RectTransform actor,
+        bool shouldLoop = false)
     {
         if (actor == null || !actor.gameObject.activeInHierarchy) return 0f;
 
@@ -4651,7 +4818,10 @@ public class SlotFeatureController : MonoBehaviour
         if (jumpAnimation == null) return 0f;
 
         actorGraphic.freeze = false;
-        actorGraphic.AnimationState.SetAnimation(0, jumpAnimation.Name, false);
+        actorGraphic.AnimationState.SetAnimation(
+            0,
+            jumpAnimation.Name,
+            shouldLoop);
         return jumpAnimation.Duration;
     }
 
@@ -4667,7 +4837,8 @@ public class SlotFeatureController : MonoBehaviour
         }
 
         DOTween.Kill(actor);
-        float exitY = startPosition.y - trainJourneyActorExitDistance;
+        float exitY = startPosition.y -
+            trainJourneyActorExitDistance * activeTrainJourneyScaleCompensation;
         sequence.Join(
             actor.DOAnchorPosY(exitY, duration)
                 .SetEase(Ease.InQuad)
@@ -4723,6 +4894,12 @@ public class SlotFeatureController : MonoBehaviour
             {
                 journeyTrain.anchoredPosition = startPosition;
             }
+            if (trainJourneyStartScales.TryGetValue(
+                    journeyTrain,
+                    out Vector3 startScale))
+            {
+                journeyTrain.localScale = startScale;
+            }
             journeyTrain.gameObject.SetActive(false);
         }
 
@@ -4739,9 +4916,16 @@ public class SlotFeatureController : MonoBehaviour
             trainJourneySecondActorStartPosition,
             trainJourneySecondActorStartSize,
             trainJourneySecondActorStartScale);
+        areBigWinActorsActive = false;
 
         if (trainJourneyWinBox != null)
         {
+            if (hasCapturedTrainJourneyWinBoxTransform)
+            {
+                trainJourneyWinBox.anchoredPosition =
+                    trainJourneyWinBoxStartPosition;
+                trainJourneyWinBox.localScale = trainJourneyWinBoxStartScale;
+            }
             RestoreTrainJourneyWinBoxImage();
             StopAndHideTrainJourneyEffect(trainJourneyLineAnimation);
             StopAndHideTrainJourneyEffect(trainJourneyBoxAnimation);
@@ -4781,18 +4965,47 @@ public class SlotFeatureController : MonoBehaviour
         actor.gameObject.SetActive(false);
     }
 
-    private void ApplyTrainJourneyActorLayout()
+    private void ApplyTrainJourneyLayout()
     {
         bool usePortraitLayout = trainJourneyOrientation != null &&
             trainJourneyOrientation.CurrentMode ==
                 OrientationChange.OrientationMode.MobilePortrait;
+        activeTrainJourneyScaleCompensation = usePortraitLayout
+            ? GetSharedPortraitOverlayCompensation()
+            : 1f;
 
-        activeTrainJourneyActorStartPosition = usePortraitLayout
+        ApplyTrainJourneyTrackLayout();
+
+        ApplyTrainJourneyActorLayout(usePortraitLayout);
+
+        if (trainJourneyWinBox != null &&
+            hasCapturedTrainJourneyWinBoxTransform)
+        {
+            trainJourneyWinBox.anchoredPosition =
+                GetSharedPortraitOverlayPosition(
+                    trainJourneyWinBoxStartPosition);
+            trainJourneyWinBox.localScale = ScalePortraitOverlay(
+                trainJourneyWinBoxStartScale,
+                activeTrainJourneyScaleCompensation);
+        }
+    }
+
+    private void ApplyTrainJourneyActorLayout(bool usePortraitLayout)
+    {
+        if (!hasCapturedTrainJourneyState) return;
+
+        // Position and scale are both converted independently into the active
+        // SlotBG coordinates so their final screen-space values match 5x3.
+        Vector2 actorPosition = usePortraitLayout
             ? portraitTrainJourneyActorPosition
             : trainJourneyActorStartPosition;
-        activeTrainJourneySecondActorStartPosition = usePortraitLayout
+        Vector2 secondActorPosition = usePortraitLayout
             ? portraitTrainJourneySecondActorPosition
             : trainJourneySecondActorStartPosition;
+        activeTrainJourneyActorStartPosition =
+            GetSharedPortraitOverlayPosition(actorPosition);
+        activeTrainJourneySecondActorStartPosition =
+            GetSharedPortraitOverlayPosition(secondActorPosition);
 
         if (trainJourneyActor != null)
         {
@@ -4802,7 +5015,9 @@ public class SlotFeatureController : MonoBehaviour
                 ? portraitTrainJourneyActorSize
                 : trainJourneyActorStartSize;
             trainJourneyActor.localScale = usePortraitLayout
-                ? portraitTrainJourneyActorScale
+                ? ScalePortraitOverlay(
+                    portraitTrainJourneyActorScale,
+                    activeTrainJourneyScaleCompensation)
                 : trainJourneyActorStartScale;
         }
 
@@ -4814,9 +5029,85 @@ public class SlotFeatureController : MonoBehaviour
                 ? portraitTrainJourneySecondActorSize
                 : trainJourneySecondActorStartSize;
             trainJourneySecondActor.localScale = usePortraitLayout
-                ? portraitTrainJourneySecondActorScale
+                ? ScalePortraitOverlay(
+                    portraitTrainJourneySecondActorScale,
+                    activeTrainJourneyScaleCompensation)
                 : trainJourneySecondActorStartScale;
         }
+    }
+
+    private void ApplyTrainJourneyTrackLayout()
+    {
+        if (trainJourneyTrackRect == null ||
+            !hasCapturedTrainJourneyTrackPosition)
+        {
+            return;
+        }
+
+        trainJourneyTrackRect.anchoredPosition =
+            GetSharedPortraitOverlayPosition(trainJourneyTrackStartPosition);
+        trainJourneyTrackRect.localScale = ScalePortraitOverlay(
+            trainJourneyTrackStartScale,
+            activeTrainJourneyScaleCompensation);
+    }
+
+    private void ApplyTrackAndTrolleyLayout()
+    {
+        bool usePortraitLayout = trainJourneyOrientation != null &&
+            trainJourneyOrientation.CurrentMode ==
+                OrientationChange.OrientationMode.MobilePortrait;
+        activeTrainJourneyScaleCompensation = usePortraitLayout
+            ? GetSharedPortraitOverlayCompensation()
+            : 1f;
+        ApplyTrainJourneyTrackLayout();
+
+        if (trolleyManRect == null || !hasCapturedTrolleyManState)
+        {
+            return;
+        }
+
+        trolleyManRect.anchoredPosition =
+            GetSharedPortraitOverlayPosition(trolleyManStartPosition);
+        trolleyManRect.localScale = ScalePortraitOverlay(
+            trolleyManStartScale,
+            activeTrainJourneyScaleCompensation);
+    }
+
+    private float GetSharedPortraitOverlayCompensation()
+    {
+        if (orientationLayoutController == null)
+        {
+            orientationLayoutController =
+                UnityEngine.Object.FindFirstObjectByType<OCController>();
+        }
+
+        return orientationLayoutController != null
+            ? orientationLayoutController.GetSharedPortraitOverlayCompensation()
+            : 1f;
+    }
+
+    private Vector2 GetSharedPortraitOverlayPosition(Vector2 referencePosition)
+    {
+        if (orientationLayoutController == null)
+        {
+            orientationLayoutController =
+                UnityEngine.Object.FindFirstObjectByType<OCController>();
+        }
+
+        return orientationLayoutController != null
+            ? orientationLayoutController.GetSharedPortraitOverlayPosition(
+                referencePosition)
+            : referencePosition;
+    }
+
+    private static Vector3 ScalePortraitOverlay(
+        Vector3 authoredScale,
+        float compensation)
+    {
+        return new Vector3(
+            authoredScale.x * compensation,
+            authoredScale.y * compensation,
+            authoredScale.z);
     }
 
     private bool TryPlaceVisualAtConversionCenter(

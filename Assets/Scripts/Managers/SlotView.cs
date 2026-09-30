@@ -24,7 +24,7 @@ public class SlotView : MonoBehaviour
     private const float BarrelBlastSourceFramesPerSecond = 30f;
     private const int GoldBoxRevealFramesBeforeBlastEnd = 5;
     private const float BarrelIdleSourceFramesPerSecond = 30f;
-    private const int TrainLandingLoopsBeforeWins = 1;
+    private const int DefaultTrainLandingLoopsBeforeWins = 1;
 
     [Header("References")]
     [SerializeField] private GameManager gameManager;
@@ -122,7 +122,7 @@ public class SlotView : MonoBehaviour
     [SerializeField, Min(0.01f)] private float stopOvershootDuration = 0.2f;
     [SerializeField, Min(0.01f)] private float stopSettleDuration = 0.3f;
 
-    [Header("Free Game Scatter Anticipation Timing")]
+    [Header("Reel Anticipation Timing")]
     [SerializeField, Min(0f)] private float scatterAnticipationDuration = 1.5f;
     [SerializeField, Min(1f)] private float scatterAnticipationSpeedMultiplier = 1.15f;
 
@@ -130,6 +130,10 @@ public class SlotView : MonoBehaviour
 
     private readonly List<ReelRuntime> reels = new List<ReelRuntime>();
     private readonly List<GoldBurstCellRuntime> goldBurstCells = new List<GoldBurstCellRuntime>();
+    private readonly Dictionary<int, ImageAnimation> anticipationAnimationsByReel =
+        new Dictionary<int, ImageAnimation>();
+    private RectTransform anticipationAnimationRoot;
+    private bool anticipationOwnsAnimationRoot;
     private readonly List<Tween> activeTweens = new List<Tween>();
     private readonly Dictionary<int, Sprite> spritesByServerId = new Dictionary<int, Sprite>();
     private readonly Dictionary<int, List<Sprite>> winAnimationFramesByServerId =
@@ -175,6 +179,10 @@ public class SlotView : MonoBehaviour
     private Action winAnimationCompleteCallback;
     private bool stopTrainLandingAnimationsBeforeWins;
     private bool trainLandingAnimationsEnabled = true;
+    private int requiredTrainLandingLoopsBeforeWins =
+        DefaultTrainLandingLoopsBeforeWins;
+    private bool deferTrainLandingAnimationsUntilReelsStop;
+    private bool trainLandingAnimationsReleased = true;
 
     private sealed class ReelRuntime
     {
@@ -528,6 +536,10 @@ public class SlotView : MonoBehaviour
 
     private void BuildReelCache(bool forceDiscoverResultSlots = false)
     {
+        StopAnticipationAnimations();
+        anticipationAnimationsByReel.Clear();
+        anticipationAnimationRoot = null;
+        anticipationOwnsAnimationRoot = false;
         reels.Clear();
         reportedResultSlotIssues.Clear();
 
@@ -607,6 +619,7 @@ public class SlotView : MonoBehaviour
 
         SetupSymbolButtons(GetRowCount());
         BuildGoldBurstCellCache();
+        CacheAnticipationAnimations();
     }
 
     private static void AddReelCandidates(
@@ -813,6 +826,41 @@ public class SlotView : MonoBehaviour
                     restingPosition = spinner.anchoredPosition
                 });
             }
+        }
+    }
+
+    private void CacheAnticipationAnimations()
+    {
+        RectTransform animationRoot = FindLayoutAnimationRoot(reelRoot);
+        if (animationRoot == null) return;
+        anticipationAnimationRoot = animationRoot;
+
+        List<ImageAnimation> anticipationAnimations = animationRoot
+            .GetComponentsInChildren<ImageAnimation>(true)
+            .Where(animation =>
+                animation != null &&
+                animation.name.StartsWith(
+                    "Anticipation",
+                    StringComparison.OrdinalIgnoreCase))
+            .OrderBy(animation =>
+                animation.transform is RectTransform rect
+                    ? rect.anchoredPosition.x
+                    : animation.transform.localPosition.x)
+            .ToList();
+
+        foreach (ImageAnimation animation in anticipationAnimations)
+        {
+            animation.StopAnimation();
+            animation.gameObject.SetActive(false);
+        }
+
+        int mappedCount = Mathf.Min(reels.Count, anticipationAnimations.Count);
+        int firstMappedReel = Mathf.Max(0, reels.Count - mappedCount);
+        int firstAnimation = anticipationAnimations.Count - mappedCount;
+        for (int index = 0; index < mappedCount; index++)
+        {
+            anticipationAnimationsByReel[firstMappedReel + index] =
+                anticipationAnimations[firstAnimation + index];
         }
     }
 
@@ -1123,9 +1171,20 @@ public class SlotView : MonoBehaviour
         featureVisualController?.ConfigureGoldBurstTriggerBarrelMerge(shouldDefer);
     }
 
-    internal void ConfigureTrainLandingWinSequence(bool hasWins)
+    internal void ConfigureTrainLandingWinSequence(
+        bool shouldWait,
+        int requiredLoops = DefaultTrainLandingLoopsBeforeWins,
+        bool deferUntilReelsStop = false)
     {
-        stopTrainLandingAnimationsBeforeWins = hasWins;
+        stopTrainLandingAnimationsBeforeWins = shouldWait;
+        requiredTrainLandingLoopsBeforeWins = Mathf.Max(1, requiredLoops);
+        deferTrainLandingAnimationsUntilReelsStop = deferUntilReelsStop;
+        trainLandingAnimationsReleased = !deferUntilReelsStop;
+    }
+
+    internal void ReleaseTrainLandingAnimationsAfterReelsStop()
+    {
+        trainLandingAnimationsReleased = true;
     }
 
     internal void ConfigureTrainLandingAnimations(bool shouldPlay)
@@ -1143,10 +1202,17 @@ public class SlotView : MonoBehaviour
 
         while (activeTrainAnimations.Any(active =>
                    active?.animation != null &&
-                   active.completedLandingLoops < TrainLandingLoopsBeforeWins))
+                   active.completedLandingLoops <
+                       requiredTrainLandingLoopsBeforeWins))
         {
             yield return null;
         }
+    }
+
+    internal bool HasActiveTrainLandingAnimations()
+    {
+        return activeTrainAnimations.Any(active =>
+            active != null && active.animationStarted);
     }
 
     internal void ShowWinningSymbolAnimations(
@@ -1428,6 +1494,16 @@ public class SlotView : MonoBehaviour
     private IEnumerator StartTrainLandingAnimationAfterBox(
         TrainSymbolAnimationRuntime runtime)
     {
+        while (deferTrainLandingAnimationsUntilReelsStop &&
+               !trainLandingAnimationsReleased)
+        {
+            if (runtime == null || !activeTrainAnimations.Contains(runtime))
+            {
+                yield break;
+            }
+            yield return null;
+        }
+
         if (trainBoxLeadInDelay > 0f)
         {
             yield return new WaitForSeconds(trainBoxLeadInDelay);
@@ -1471,7 +1547,8 @@ public class SlotView : MonoBehaviour
             loopCount);
 
         if (stopTrainLandingAnimationsBeforeWins &&
-            runtime.completedLandingLoops >= TrainLandingLoopsBeforeWins)
+            runtime.completedLandingLoops >=
+                requiredTrainLandingLoopsBeforeWins)
         {
             runtime.animation.doLoopAnimation = false;
         }
@@ -1562,6 +1639,10 @@ public class SlotView : MonoBehaviour
 
         activeTrainAnimations.Clear();
         stopTrainLandingAnimationsBeforeWins = false;
+        requiredTrainLandingLoopsBeforeWins =
+            DefaultTrainLandingLoopsBeforeWins;
+        deferTrainLandingAnimationsUntilReelsStop = false;
+        trainLandingAnimationsReleased = true;
     }
 
     private void RestoreTrainAnimationRuntime(TrainSymbolAnimationRuntime runtime)
@@ -1706,7 +1787,8 @@ public class SlotView : MonoBehaviour
             : Math.Max(0d, totalWin);
         yield return featureVisualController.PlayGoldBurstResultPresentation(
             resultWin,
-            uiManager);
+            uiManager,
+            showDarkBackgroundInLandscape: true);
         yield return featureVisualController.PlayGoldBurstOutroPresentation();
     }
 
@@ -2628,14 +2710,24 @@ public class SlotView : MonoBehaviour
 
         int completedStops = 0;
         int stoppedFreeGameScatters = 0;
+        int stoppedGoldBurstBarrels = 0;
         float nextReelDelay = 0f;
-        int anticipationThreshold = Mathf.Max(1, GetFreeGameMinTrigger() - 1);
+        int freeGameAnticipationThreshold =
+            Mathf.Max(1, GetFreeGameMinTrigger() - 1);
+        int goldBurstAnticipationThreshold =
+            Mathf.Max(1, GetGoldBurstMinTrigger() - 1);
 
         for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
         {
             if (reelIndex > 0) nextReelDelay += stopInterval;
 
-            bool shouldAnticipate = !quickStop && stoppedFreeGameScatters == anticipationThreshold;
+            bool shouldAnticipateFreeGames =
+                stoppedFreeGameScatters >= freeGameAnticipationThreshold;
+            bool shouldAnticipateGoldBurst =
+                stoppedGoldBurstBarrels >= goldBurstAnticipationThreshold;
+            bool shouldAnticipate =
+                !quickStop &&
+                (shouldAnticipateFreeGames || shouldAnticipateGoldBurst);
             float anticipation = shouldAnticipate
                 ? scatterAnticipationDuration * (scheduledSpeed == SpinSpeed.Turbo ? timingScale : 1f)
                 : 0f;
@@ -2661,6 +2753,7 @@ public class SlotView : MonoBehaviour
 
             nextReelDelay += anticipation;
             stoppedFreeGameScatters += CountFreeGameScatters(resultMatrix[reelIndex]);
+            stoppedGoldBurstBarrels += CountGoldBurstBarrels(resultMatrix[reelIndex]);
         }
 
         while (completedStops < reels.Count) yield return null;
@@ -2674,6 +2767,7 @@ public class SlotView : MonoBehaviour
         isSpinning = false;
         quickStopRequested = false;
         reelStopRoutine = null;
+        StopAnticipationAnimations();
         featureVisualController?.RevealAllFeatures();
         onComplete?.Invoke();
     }
@@ -2695,9 +2789,10 @@ public class SlotView : MonoBehaviour
         ReelRuntime reel = reels[reelIndex];
         if (anticipationDuration > 0f)
         {
-            yield return PlayScatterAnticipation(reelIndex, anticipationDuration, scheduledSpeed);
+            yield return PlayReelAnticipation(reelIndex, anticipationDuration, scheduledSpeed);
         }
 
+        SetAnticipationAnimationActive(reelIndex, false);
         reel.isAnticipating = false;
         reel.motionTween?.Kill();
         reel.motionTween = null;
@@ -2807,7 +2902,34 @@ public class SlotView : MonoBehaviour
         return count;
     }
 
-    private IEnumerator PlayScatterAnticipation(
+    private int CountGoldBurstBarrels(IReadOnlyList<int> resultColumn)
+    {
+        if (resultColumn == null) return 0;
+
+        int count = 0;
+        int rows = Mathf.Min(GetRowCount(), resultColumn.Count);
+        for (int row = 0; row < rows; row++)
+        {
+            if (IsGoldBurstTriggerSymbol(resultColumn[row])) count++;
+        }
+
+        return count;
+    }
+
+    private bool IsGoldBurstTriggerSymbol(int symbolId)
+    {
+        IReadOnlyList<int> configuredIds =
+            gameManager?.gameConfig?.goldBurstTriggerSymbolIds;
+        if (configuredIds != null && configuredIds.Count > 0)
+        {
+            return configuredIds.Contains(symbolId);
+        }
+
+        return symbolId >= FirstGoldBurstLockedSymbolId &&
+               symbolId <= LastGoldBurstLockedSymbolId;
+    }
+
+    private IEnumerator PlayReelAnticipation(
         int reelIndex,
         float duration,
         SpinSpeed scheduledSpeed)
@@ -2815,6 +2937,7 @@ public class SlotView : MonoBehaviour
         if (duration <= 0f || reelIndex <= 0 || reelIndex >= reels.Count) yield break;
 
         ReelRuntime reel = reels[reelIndex];
+        SetAnticipationAnimationActive(reelIndex, true);
         reel.isAnticipating = true;
         ApplyReelMotionSpeed(reel);
 
@@ -2828,8 +2951,115 @@ public class SlotView : MonoBehaviour
             yield return null;
         }
 
+        SetAnticipationAnimationActive(reelIndex, false);
         reel.isAnticipating = false;
         ApplyReelMotionSpeed(reel);
+    }
+
+    private void SetAnticipationAnimationActive(int reelIndex, bool active)
+    {
+        if (!anticipationAnimationsByReel.TryGetValue(
+                reelIndex,
+                out ImageAnimation animation) ||
+            animation == null)
+        {
+            return;
+        }
+
+        if (active)
+        {
+            ActivateAnticipationAnimationRoot();
+            animation.gameObject.SetActive(true);
+            animation.PlayAnimation();
+            return;
+        }
+
+        animation.StopAnimation();
+        animation.gameObject.SetActive(false);
+        ReleaseAnticipationAnimationRoot();
+    }
+
+    private void StopAnticipationAnimations()
+    {
+        foreach (ImageAnimation animation in anticipationAnimationsByReel.Values)
+        {
+            if (animation == null) continue;
+
+            animation.StopAnimation();
+            animation.gameObject.SetActive(false);
+        }
+
+        ReleaseAnticipationAnimationRoot();
+    }
+
+    private void ActivateAnticipationAnimationRoot()
+    {
+        if (anticipationAnimationRoot == null ||
+            anticipationAnimationRoot.gameObject.activeSelf)
+        {
+            return;
+        }
+
+        // Animation columns can retain activeSelf while their root is hidden.
+        // Suppress them before enabling the root so anticipation cannot reveal
+        // unrelated slot animations for a frame.
+        for (int index = 0; index < anticipationAnimationRoot.childCount; index++)
+        {
+            Transform child = anticipationAnimationRoot.GetChild(index);
+            if (!IsSlotAnimationColumn(child)) continue;
+
+            foreach (ImageAnimation animation in
+                     child.GetComponentsInChildren<ImageAnimation>(true))
+            {
+                animation.StopAnimation();
+            }
+            child.gameObject.SetActive(false);
+        }
+
+        anticipationAnimationRoot.gameObject.SetActive(true);
+        anticipationOwnsAnimationRoot = true;
+    }
+
+    private void ReleaseAnticipationAnimationRoot()
+    {
+        if (!anticipationOwnsAnimationRoot ||
+            anticipationAnimationRoot == null ||
+            anticipationAnimationsByReel.Values.Any(animation =>
+                animation != null && animation.gameObject.activeSelf))
+        {
+            return;
+        }
+
+        bool hasActiveSibling = false;
+        for (int index = 0; index < anticipationAnimationRoot.childCount; index++)
+        {
+            GameObject child = anticipationAnimationRoot.GetChild(index).gameObject;
+            bool isAnticipation = anticipationAnimationsByReel.Values.Any(animation =>
+                animation != null && animation.gameObject == child);
+            if (!isAnticipation && child.activeSelf)
+            {
+                hasActiveSibling = true;
+                break;
+            }
+        }
+
+        if (!hasActiveSibling)
+        {
+            anticipationAnimationRoot.gameObject.SetActive(false);
+        }
+        anticipationOwnsAnimationRoot = false;
+    }
+
+    private static bool IsSlotAnimationColumn(Transform candidate)
+    {
+        return candidate != null &&
+               (string.Equals(
+                    candidate.name,
+                    "Slot",
+                    StringComparison.OrdinalIgnoreCase) ||
+                candidate.name.StartsWith(
+                    "Slot (",
+                    StringComparison.OrdinalIgnoreCase));
     }
 
     #endregion
@@ -2932,6 +3162,13 @@ public class SlotView : MonoBehaviour
         return gameManager?.gameConfig != null ? gameManager.gameConfig.freeGameMinTrigger : 3;
     }
 
+    private int GetGoldBurstMinTrigger()
+    {
+        return gameManager?.gameConfig != null
+            ? gameManager.gameConfig.goldBurstMinTrigger
+            : 6;
+    }
+
     private void KillReelTweens(bool restorePositions)
     {
         foreach (ReelRuntime reel in reels)
@@ -2947,6 +3184,8 @@ public class SlotView : MonoBehaviour
                 reel.transform.anchoredPosition = reel.restingPosition;
             }
         }
+
+        StopAnticipationAnimations();
     }
 
     private void KillGoldBurstCellTweens(bool restoreVisuals)

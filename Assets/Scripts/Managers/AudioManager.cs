@@ -50,6 +50,17 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip clipWinLinePhase1Start;
     [SerializeField] private AudioClip clipReelStop;
 
+    [Header("Gold Mine Mania Clips")]
+    [SerializeField] private AudioClip clipGoldMineBigWin;
+    [SerializeField] private AudioClip clipGoldMineDonkeyIconInSlot;
+    [SerializeField] private AudioClip clipGoldMineReelSpinning;
+    [SerializeField] private AudioClip clipGoldMineSmallWin;
+    [SerializeField] private AudioClip clipGoldMineTension;
+    [SerializeField] private AudioClip clipGoldMineTrainFreeSpins;
+    [SerializeField] private AudioClip clipGoldMineTrainIconInSlot;
+    [SerializeField] private AudioClip clipGoldMineTrainTransition;
+    [SerializeField] private AudioClip clipGoldMineWildIcon;
+
     private bool _musicEnabled = true;
     private bool _sfxEnabled   = true;
     private float _musicVolume = 0.5f;

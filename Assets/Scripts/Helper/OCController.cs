@@ -377,6 +377,58 @@ public class OCController : MonoBehaviour
         };
     }
 
+    /// <summary>
+    /// Shared presentation objects such as FreeGamesEnd, Man, and Donkey live
+    /// below SlotBG, so they inherit the active reel layout scale. Their portrait
+    /// art is sized correctly in the 5x3 portrait layout. Compensate for the
+    /// single-7x3 and two-7x3 parent scales so shared overlays keep that same
+    /// on-screen size.
+    /// </summary>
+    internal float GetSharedPortraitOverlayCompensation()
+    {
+        if (!IsMobilePortraitActive())
+        {
+            return 1f;
+        }
+
+        float activeLayoutScale = GetCustomPortraitSlotScale(
+            ResolveActivePortraitSlotLayout());
+        float reference5x3Scale = Mathf.Max(0.01f, portrait5x3Scale);
+        return reference5x3Scale / Mathf.Max(0.01f, activeLayoutScale);
+    }
+
+    /// <summary>
+    /// Converts a direct SlotBG child's authored 5x3 portrait position into the
+    /// active layout's local coordinates while preserving the same screen-space
+    /// position it has in the 5x3 portrait layout.
+    /// </summary>
+    internal Vector2 GetSharedPortraitOverlayPosition(
+        Vector2 reference5x3Position)
+    {
+        if (!IsMobilePortraitActive())
+        {
+            return reference5x3Position;
+        }
+
+        PortraitSlotLayout activeLayout = ResolveActivePortraitSlotLayout();
+        float activeScale = GetCustomPortraitSlotScale(activeLayout);
+        Vector2 activePosition = GetCustomPortraitSlotPosition(activeLayout);
+        float referenceScale = Mathf.Max(0.01f, portrait5x3Scale);
+
+        Vector2 referenceScreenPosition = portrait5x3Position +
+                                          reference5x3Position * referenceScale;
+        return (referenceScreenPosition - activePosition) /
+               Mathf.Max(0.01f, activeScale);
+    }
+
+    private bool IsMobilePortraitActive()
+    {
+        return orientationChange != null
+            ? orientationChange.CurrentMode ==
+              OrientationChange.OrientationMode.MobilePortrait
+            : isMobilePortraitLayoutActive;
+    }
+
     private void ApplySlotTransform(Vector3 targetScale, Vector3 targetPosition)
     {
         if (transitionDuration > 0)

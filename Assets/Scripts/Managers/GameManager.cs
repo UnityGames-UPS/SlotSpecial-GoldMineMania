@@ -288,6 +288,8 @@ public class GameManager : MonoBehaviour
 
     private void OnReelsStoppedComplete()
     {
+        slotView?.ReleaseTrainLandingAnimationsAfterReelsStop();
+
         if (lastResult != null)
         {
             playerData = new PlayerData
@@ -351,16 +353,31 @@ public class GameManager : MonoBehaviour
         else
         {
             uiManager.OnSpinStopping(lastResult);
-            if (IsFreeSpinsTriggered(lastResult))
+            if (slotView != null)
             {
                 uiManager.DisableControlsDuringWinAnimation();
+                StartCoroutine(
+                    ContinueAfterTrainLandingWithoutWins(lastResult));
             }
             else
             {
                 currentState = GameState.Idle;
+                OnWinAnimationComplete();
             }
-            OnWinAnimationComplete();
         }
+    }
+
+    private IEnumerator ContinueAfterTrainLandingWithoutWins(
+        SpinResult animationResult)
+    {
+        yield return slotView.WaitForTrainLandingAnimationsBeforeWins();
+        if (lastResult != animationResult) yield break;
+
+        if (!IsFreeSpinsTriggered(animationResult))
+        {
+            currentState = GameState.Idle;
+        }
+        OnWinAnimationComplete();
     }
 
     private IEnumerator ShowWinningAnimationsAfterTrainLanding(
@@ -370,6 +387,61 @@ public class GameManager : MonoBehaviour
     {
         yield return slotView.WaitForTrainLandingAnimationsBeforeWins();
         if (lastResult != animationResult) yield break;
+
+        bool hasTrainLandingAnimations =
+            slotView.HasActiveTrainLandingAnimations();
+        bool isFreeGameTrigger = IsFreeSpinsTriggered(animationResult);
+        if (isFreeGameTrigger)
+        {
+            if (!isInFreeSpins && !isInGoldBurstRespins)
+            {
+                uiManager.StartWinAmountCount(
+                    animationResult.winAmount,
+                    () => CompleteWinSequence(
+                        animationResult,
+                        isAutomaticRound,
+                        isBigWin));
+            }
+            else if (isInFreeSpins)
+            {
+                uiManager.StartFreeSpinWinAmountCount(
+                    animationResult,
+                    () => CompleteWinSequence(
+                        animationResult,
+                        isAutomaticRound,
+                        isBigWin));
+            }
+            else
+            {
+                CompleteWinSequence(
+                    animationResult,
+                    isAutomaticRound,
+                    isBigWin);
+            }
+            yield break;
+        }
+
+        if (!isInFreeSpins && !isInGoldBurstRespins)
+        {
+            uiManager.StartWinAmountCount(animationResult.winAmount);
+        }
+        else if (isInFreeSpins)
+        {
+            uiManager.StartFreeSpinWinAmountCount(animationResult);
+        }
+
+        if (hasTrainLandingAnimations)
+        {
+            slotView.ShowWinningSymbolAnimations(
+                animationResult.winLines,
+                2,
+                null,
+                () => CompleteWinSequence(
+                    animationResult,
+                    isAutomaticRound,
+                    isBigWin));
+            yield break;
+        }
 
         slotView.ShowWinningSymbolAnimations(
             animationResult.winLines,
@@ -381,6 +453,23 @@ public class GameManager : MonoBehaviour
             isAutomaticRound
                 ? () => OnAutomaticWinAnimationComplete(animationResult)
                 : null);
+    }
+
+    private void CompleteWinSequence(
+        SpinResult animationResult,
+        bool isAutomaticRound,
+        bool isBigWin)
+    {
+        if (lastResult != animationResult) return;
+
+        OnFirstWinAnimationLoopComplete(
+            animationResult,
+            isAutomaticRound,
+            isBigWin);
+        if (isAutomaticRound)
+        {
+            OnAutomaticWinAnimationComplete(animationResult);
+        }
     }
 
     private void OnFirstWinAnimationLoopComplete(
@@ -527,12 +616,12 @@ public class GameManager : MonoBehaviour
         }
 
         lastResult = result;
+        bool isFreeGameTrigger = IsFreeSpinsTriggered(result);
         slotView?.ConfigureTrainLandingAnimations(!isGoldBurstTrigger);
         slotView?.ConfigureTrainLandingWinSequence(
-            !isGoldBurstTrigger &&
-            result.winAmount > 0 &&
-            result.winLines != null &&
-            result.winLines.Count > 0);
+            !isGoldBurstTrigger,
+            1,
+            !isGoldBurstTrigger && !isFreeGameTrigger);
         slotView?.ConfigureGoldBurstTriggerBarrelMerge(isGoldBurstTrigger);
         slotView?.PrepareTwoSlotBarrels(result.twoSlotBarrels);
         slotView?.PrepareThreeSlotBarrels(result.threeSlotBarrels);

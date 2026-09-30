@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using System.Collections;
+using Spine.Unity;
 using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
@@ -54,6 +55,21 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button uwpTakeButtonPortrait;
     [Header("Universal Win Popup - Star Particle Burst")]
     [SerializeField] private StarFountain starFountain;
+
+    [Header("Big Win Presentation")]
+    [SerializeField] private GameObject bigWinPresentation;
+    [SerializeField] private RectTransform bigWinPresentationRect;
+    [SerializeField] private SkeletonGraphic bigWinPresentationSkeleton;
+    [SerializeField] private TMP_Text bigWinPresentationAmount;
+    [SerializeField, Min(0.01f)] private float bigWinAmountCountDuration = 1.5f;
+    [SerializeField, Min(0.01f)] private float bigWinAmountFadeDuration = 0.25f;
+    [SerializeField, Min(0f)] private float bigWinAmountExitMoveDistance = 30f;
+    [SerializeField, Min(0f)] private float bigWinAmountExitMoveLeadTime = 0.5f;
+#if UNITY_EDITOR
+    [Header("Editor Big Win Test")]
+    [SerializeField] private KeyCode editorBigWinTestKey = KeyCode.B;
+    [SerializeField, Min(0f)] private float editorBigWinTestAmount = 173.54f;
+#endif
 
     [Header("Spin Button")]
     [SerializeField] private Button spinButton;
@@ -228,6 +244,22 @@ public class UIManager : MonoBehaviour
     private System.Action freeGamesStartCallback;
     private Coroutine uwpAutoCloseCoroutine;
     private Tween uwpWinTween;
+    private Coroutine bigWinPresentationCoroutine;
+    private Tween bigWinAmountTween;
+    private Tween bigWinAmountFadeTween;
+    private Tween bigWinAmountMoveTween;
+    private CanvasGroup bigWinAmountCanvasGroup;
+    private RectTransform bigWinPresentationAmountRect;
+    private Vector2 bigWinPresentationAmountBasePosition;
+    private bool hasCapturedBigWinAmountPosition;
+    private System.Action bigWinPresentationCallback;
+    private SlotFeatureController bigWinFeatureController;
+    private OCController bigWinOrientationController;
+    private Vector2 bigWinPresentationBasePosition;
+    private Vector2 bigWinPresentationBaseSize;
+    private Vector3 bigWinPresentationBaseScale;
+    private bool hasCapturedBigWinPresentationTransform;
+    private bool isBigWinPresentationActive;
     private Tween freeGamesStartButtonTween;
     private Tween freeGamesStartButtonPortraitTween;
     private RectTransform[] portraitJackpotRects;
@@ -251,12 +283,48 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
+        CacheBigWinPresentation();
+        HideBigWinPresentationVisuals();
         CacheFreeGamesStartButtons();
         if (jsFunctCalls != null)
         {
             jsFunctCalls.RegisterVisibilityListener(gameObject.name);
         }
     }
+
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (Input.GetKeyDown(editorBigWinTestKey))
+        {
+            TestBigWinPresentation();
+        }
+    }
+
+    [ContextMenu("Test Big Win Presentation")]
+    private void TestBigWinPresentation()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning(
+                "[UIManager] Enter Play Mode before testing Big Win.",
+                this);
+            return;
+        }
+        if (isSpecialWinActive)
+        {
+            Debug.LogWarning(
+                "[UIManager] A special-win presentation is already active.",
+                this);
+            return;
+        }
+
+        DisableControlsDuringWinAnimation();
+        ShowBigWinPresentation(
+            editorBigWinTestAmount,
+            () => Debug.Log("[UIManager] Big Win test completed.", this));
+    }
+#endif
 
 
 
@@ -307,6 +375,10 @@ public class UIManager : MonoBehaviour
         if (uwpWinTween != null) { uwpWinTween.Kill(); uwpWinTween = null; }
         if (starFountain != null) starFountain.StopStarBurst();
         if (universalWinPopup) universalWinPopup.SetActive(false);
+        StopBigWinPresentationAnimation();
+        HideBigWinPresentationVisuals();
+        bigWinPresentationCallback = null;
+        isBigWinPresentationActive = false;
 
         HideFeatureSpinCount();
         if (transitionBackFilm) transitionBackFilm.gameObject.SetActive(false);
@@ -643,19 +715,22 @@ public class UIManager : MonoBehaviour
         UpdateBalanceDisplay();
         if (result != null && !gameManager.isInGoldBurstRespins)
         {
-            if (gameManager != null && gameManager.isInFreeSpins)
+            if (gameManager == null || !gameManager.isInFreeSpins)
             {
-                UpdateFreeSpinCumulativeWin(result);
-            }
-            else
-            {
-                UpdateWinDisplay(result.winAmount);
+                PrepareWinAmountCount();
             }
         }
     }
 
     internal void OnSpinCompleted(SpinResult result = null)
     {
+        if (winTween != null &&
+            (gameManager == null || !gameManager.isInFreeSpins))
+        {
+            winTween.Kill();
+            winTween = null;
+        }
+
         if (result != null && !gameManager.isInGoldBurstRespins)
         {
             if (gameManager != null && gameManager.isInFreeSpins)
@@ -689,7 +764,7 @@ public class UIManager : MonoBehaviour
     internal void TriggerBigWinPopup(SpinResult result, System.Action onComplete = null)
     {
         double winAmount = (result != null) ? result.winAmount : 0;
-        ShowUniversalWinPopup(WinPopupType.BigWin, winAmount, 0, onComplete);
+        ShowBigWinPresentation(winAmount, onComplete);
     }
 
     internal void DisableControlsDuringWinAnimation()
@@ -1273,10 +1348,16 @@ public class UIManager : MonoBehaviour
         callback();
     }
 
-    internal void UpdateFreeSpinCumulativeWin(double targetTotal)
+    internal void UpdateFreeSpinCumulativeWin(
+        double targetTotal,
+        System.Action onComplete = null)
     {
         targetTotal = System.Math.Max(0d, targetTotal);
-        if (targetTotal <= totalFreeSpinWin) return;
+        if (targetTotal <= totalFreeSpinWin)
+        {
+            onComplete?.Invoke();
+            return;
+        }
 
         double startValue = totalFreeSpinWin;
         totalFreeSpinWin = targetTotal;
@@ -1297,21 +1378,39 @@ public class UIManager : MonoBehaviour
             {
                 UpdateWinDisplay(targetTotal, true);
                 winTween = null;
+                onComplete?.Invoke();
             });
     }
 
-    private void UpdateFreeSpinCumulativeWin(SpinResult result)
+    private void UpdateFreeSpinCumulativeWin(
+        SpinResult result,
+        System.Action onComplete = null)
     {
-        if (result == null || result == lastCountedFreeSpinResult) return;
+        if (result == null || result == lastCountedFreeSpinResult)
+        {
+            onComplete?.Invoke();
+            return;
+        }
         lastCountedFreeSpinResult = result;
-        if (result.winAmount <= 0d) return;
+        if (result.winAmount <= 0d)
+        {
+            onComplete?.Invoke();
+            return;
+        }
 
         double targetTotal = result.serverTotalRoundWin;
         if (targetTotal <= totalFreeSpinWin)
         {
             targetTotal = totalFreeSpinWin + result.winAmount;
         }
-        UpdateFreeSpinCumulativeWin(targetTotal);
+        UpdateFreeSpinCumulativeWin(targetTotal, onComplete);
+    }
+
+    internal void StartFreeSpinWinAmountCount(
+        SpinResult result,
+        System.Action onComplete = null)
+    {
+        UpdateFreeSpinCumulativeWin(result, onComplete);
     }
 
     internal double GetFreeSpinCumulativeWin()
@@ -1556,10 +1655,55 @@ public class UIManager : MonoBehaviour
         SetTMPText(balanceText, balanceTextPortrait, "BALANCE : " + FormatAmount(newBalance));
     }
 
-    private void AnimateWinUpdate(double targetWin, float duration = 0.8f)
+    private void AnimateWinUpdate(
+        double targetWin,
+        float duration = 0.8f,
+        System.Action onComplete = null)
     {
-        if (winTween != null) winTween.Kill();
-        UpdateWinDisplay(targetWin);
+        if (winTween != null)
+        {
+            winTween.Kill();
+            winTween = null;
+        }
+
+        double clampedTarget = System.Math.Max(0d, targetWin);
+        UpdateWinDisplay(0d, clampedTarget > 0d);
+        if (clampedTarget <= 0d)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        winTween = DOVirtual.Float(
+                0f,
+                (float)clampedTarget,
+                Mathf.Max(0.01f, duration),
+                value => UpdateWinDisplay(value, true))
+            .SetEase(Ease.Linear)
+            .SetUpdate(true)
+            .OnComplete(() =>
+            {
+                UpdateWinDisplay(clampedTarget, true);
+                winTween = null;
+                onComplete?.Invoke();
+            });
+    }
+
+    internal void StartWinAmountCount(
+        double targetWin,
+        System.Action onComplete = null)
+    {
+        AnimateWinUpdate(targetWin, 0.8f, onComplete);
+    }
+
+    private void PrepareWinAmountCount()
+    {
+        if (winTween != null)
+        {
+            winTween.Kill();
+            winTween = null;
+        }
+        UpdateWinDisplay(0d);
     }
 
     #endregion
@@ -1704,6 +1848,13 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopBigWinPresentationAnimation();
+        if (isBigWinPresentationActive)
+        {
+            bigWinFeatureController?.HideBigWinActors();
+        }
+        bigWinPresentationCallback = null;
+        isBigWinPresentationActive = false;
         StopPortraitJackpotFloat(true);
         if (balanceTween != null) balanceTween.Kill();
         if (winTween != null) winTween.Kill();
@@ -1730,10 +1881,407 @@ public class UIManager : MonoBehaviour
 
     #endregion
 
+    #region Big Win Presentation
+
+    private void CacheBigWinPresentation()
+    {
+        if (bigWinPresentation == null)
+        {
+            RectTransform[] sceneRects =
+                Resources.FindObjectsOfTypeAll<RectTransform>();
+            foreach (RectTransform sceneRect in sceneRects)
+            {
+                if (sceneRect == null ||
+                    sceneRect.name != "BigWin" ||
+                    !sceneRect.gameObject.scene.IsValid() ||
+                    !sceneRect.gameObject.scene.isLoaded)
+                {
+                    continue;
+                }
+
+                bigWinPresentation = sceneRect.gameObject;
+                bigWinPresentationRect = sceneRect;
+                break;
+            }
+        }
+
+        if (bigWinPresentation == null) return;
+
+        if (bigWinPresentationRect == null)
+        {
+            bigWinPresentationRect =
+                bigWinPresentation.transform as RectTransform;
+        }
+        if (bigWinPresentationSkeleton == null)
+        {
+            bigWinPresentationSkeleton =
+                bigWinPresentation.GetComponent<SkeletonGraphic>();
+        }
+        if (bigWinPresentationAmount == null)
+        {
+            TMP_Text[] amountCandidates =
+                bigWinPresentation.GetComponentsInChildren<TMP_Text>(true);
+            foreach (TMP_Text candidate in amountCandidates)
+            {
+                if (candidate != null && candidate.name == "Winamount")
+                {
+                    bigWinPresentationAmount = candidate;
+                    break;
+                }
+            }
+
+            if (bigWinPresentationAmount == null && amountCandidates.Length > 0)
+            {
+                bigWinPresentationAmount = amountCandidates[0];
+            }
+        }
+
+        if (bigWinPresentationAmount != null &&
+            bigWinAmountCanvasGroup == null)
+        {
+            bigWinAmountCanvasGroup =
+                bigWinPresentationAmount.GetComponent<CanvasGroup>();
+            if (bigWinAmountCanvasGroup == null)
+            {
+                bigWinAmountCanvasGroup =
+                bigWinPresentationAmount.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+        if (bigWinPresentationAmount != null &&
+            bigWinPresentationAmountRect == null)
+        {
+            bigWinPresentationAmountRect =
+                bigWinPresentationAmount.transform as RectTransform;
+        }
+        if (bigWinPresentationAmountRect != null &&
+            !hasCapturedBigWinAmountPosition)
+        {
+            bigWinPresentationAmountBasePosition =
+                bigWinPresentationAmountRect.anchoredPosition;
+            hasCapturedBigWinAmountPosition = true;
+        }
+
+        if (bigWinPresentationRect != null &&
+            !hasCapturedBigWinPresentationTransform)
+        {
+            bigWinPresentationBasePosition =
+                bigWinPresentationRect.anchoredPosition;
+            bigWinPresentationBaseSize = bigWinPresentationRect.sizeDelta;
+            bigWinPresentationBaseScale = bigWinPresentationRect.localScale;
+            hasCapturedBigWinPresentationTransform = true;
+        }
+
+        if (bigWinFeatureController == null)
+        {
+            bigWinFeatureController =
+                UnityEngine.Object.FindFirstObjectByType<SlotFeatureController>();
+        }
+        if (bigWinOrientationController == null)
+        {
+            bigWinOrientationController =
+                UnityEngine.Object.FindFirstObjectByType<OCController>();
+        }
+    }
+
+    private void ShowBigWinPresentation(
+        double winAmount,
+        System.Action onComplete)
+    {
+        CacheBigWinPresentation();
+        if (bigWinPresentation == null)
+        {
+            Debug.LogError(
+                "[UIManager] The new BigWin presentation could not be found.",
+                this);
+            isSpecialWinActive = false;
+            EnableControlsAfterWinAnimation();
+            onComplete?.Invoke();
+            return;
+        }
+
+        StopBigWinPresentationAnimation();
+        if (isBigWinPresentationActive)
+        {
+            bigWinFeatureController?.HideBigWinActors();
+        }
+
+        bigWinPresentationCallback = onComplete;
+        isBigWinPresentationActive = true;
+        isSpecialWinActive = true;
+        AudioManager.Instance?.PlayWinObjectBg();
+        SetSpinStopButtonStates(isSpinningState: false, isInteractable: false);
+
+        ApplyBigWinPresentationLayout();
+        bigWinPresentation.SetActive(true);
+
+        if (bigWinPresentationAmount != null)
+        {
+            bigWinPresentationAmount.gameObject.SetActive(true);
+            bigWinPresentationAmount.text = FormatBigWinAmount(0d);
+        }
+        if (bigWinPresentationAmountRect != null &&
+            hasCapturedBigWinAmountPosition)
+        {
+            bigWinPresentationAmountRect.anchoredPosition =
+                bigWinPresentationAmountBasePosition;
+        }
+        if (bigWinAmountCanvasGroup != null)
+        {
+            bigWinAmountCanvasGroup.alpha = 0f;
+        }
+
+        float presentationDuration = PlayBigWinBoxAnimation();
+        bigWinFeatureController?.ShowBigWinActors();
+        bigWinPresentationCoroutine = StartCoroutine(
+            RunBigWinPresentation(
+                System.Math.Max(0d, winAmount),
+                presentationDuration));
+    }
+
+    private void ApplyBigWinPresentationLayout()
+    {
+        if (bigWinPresentationRect == null ||
+            !hasCapturedBigWinPresentationTransform)
+        {
+            return;
+        }
+
+        float compensation = bigWinOrientationController != null
+            ? bigWinOrientationController.GetSharedPortraitOverlayCompensation()
+            : 1f;
+        bigWinPresentationRect.anchoredPosition =
+            bigWinOrientationController != null
+                ? bigWinOrientationController.GetSharedPortraitOverlayPosition(
+                    bigWinPresentationBasePosition)
+                : bigWinPresentationBasePosition;
+        bigWinPresentationRect.sizeDelta = bigWinPresentationBaseSize;
+        bigWinPresentationRect.localScale = new Vector3(
+            bigWinPresentationBaseScale.x * compensation,
+            bigWinPresentationBaseScale.y * compensation,
+            bigWinPresentationBaseScale.z);
+    }
+
+    private float PlayBigWinBoxAnimation()
+    {
+        float duration = Mathf.Max(0.01f, uwpAutoCloseDelay);
+        if (bigWinPresentationSkeleton == null) return duration;
+
+        if (bigWinPresentationSkeleton.SkeletonData == null)
+        {
+            bigWinPresentationSkeleton.Initialize(false);
+        }
+
+        bigWinPresentationSkeleton.freeze = false;
+        bigWinPresentationSkeleton.AnimationState?.ClearTracks();
+        Spine.Animation animation =
+            bigWinPresentationSkeleton.SkeletonData?.FindAnimation("animation");
+        if (animation == null)
+        {
+            Debug.LogWarning(
+                "[UIManager] BigWin does not contain an animation named 'animation'.",
+                bigWinPresentationSkeleton);
+            return duration;
+        }
+
+        bigWinPresentationSkeleton.AnimationState.SetAnimation(
+            0,
+            animation.Name,
+            false);
+        return Mathf.Max(0.01f, animation.Duration);
+    }
+
+    private IEnumerator RunBigWinPresentation(
+        double targetAmount,
+        float presentationDuration)
+    {
+        float fadeDuration = Mathf.Max(0.01f, bigWinAmountFadeDuration);
+        float countDuration = Mathf.Max(0.01f, bigWinAmountCountDuration);
+        float exitMoveDuration = Mathf.Max(0f, bigWinAmountExitMoveLeadTime);
+        presentationDuration = Mathf.Max(
+            presentationDuration,
+            fadeDuration + countDuration + exitMoveDuration + fadeDuration);
+
+        if (bigWinAmountCanvasGroup != null)
+        {
+            bigWinAmountFadeTween = bigWinAmountCanvasGroup
+                .DOFade(1f, fadeDuration)
+                .SetUpdate(true);
+            yield return new WaitForSecondsRealtime(fadeDuration);
+            bigWinAmountFadeTween = null;
+        }
+
+        if (!isBigWinPresentationActive) yield break;
+
+        if (bigWinPresentationAmount != null)
+        {
+            bigWinAmountTween = DOVirtual.Float(
+                    0f,
+                    (float)targetAmount,
+                    countDuration,
+                    value =>
+                    {
+                        if (bigWinPresentationAmount != null)
+                        {
+                            bigWinPresentationAmount.text =
+                                FormatBigWinAmount(value);
+                        }
+                    })
+                .SetUpdate(true);
+        }
+
+        yield return new WaitForSecondsRealtime(countDuration);
+        bigWinAmountTween = null;
+        if (!isBigWinPresentationActive) yield break;
+
+        if (bigWinPresentationAmount != null)
+        {
+            bigWinPresentationAmount.text = FormatBigWinAmount(targetAmount);
+        }
+
+        float holdDuration = Mathf.Max(
+            0f,
+            presentationDuration - fadeDuration - countDuration -
+                exitMoveDuration - fadeDuration);
+        if (holdDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(holdDuration);
+        }
+        if (!isBigWinPresentationActive) yield break;
+
+        if (bigWinPresentationAmountRect != null &&
+            hasCapturedBigWinAmountPosition)
+        {
+            bigWinAmountMoveTween = bigWinPresentationAmountRect
+                .DOAnchorPosY(
+                    bigWinPresentationAmountBasePosition.y +
+                        bigWinAmountExitMoveDistance,
+                    Mathf.Max(0.01f, exitMoveDuration))
+                .SetEase(Ease.OutQuad)
+                .SetUpdate(true);
+        }
+        if (exitMoveDuration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(exitMoveDuration);
+            bigWinAmountMoveTween = null;
+        }
+        if (!isBigWinPresentationActive) yield break;
+
+        if (bigWinAmountCanvasGroup != null)
+        {
+            bigWinAmountFadeTween = bigWinAmountCanvasGroup
+                .DOFade(0f, fadeDuration)
+                .SetUpdate(true);
+            yield return new WaitForSecondsRealtime(fadeDuration);
+            bigWinAmountFadeTween = null;
+        }
+
+        if (bigWinFeatureController != null)
+        {
+            yield return bigWinFeatureController.PlayBigWinActorsExit();
+        }
+        if (!isBigWinPresentationActive) yield break;
+
+        bigWinPresentationCoroutine = null;
+        CompleteBigWinPresentation();
+    }
+
+    private void CompleteBigWinPresentation()
+    {
+        if (!isBigWinPresentationActive) return;
+
+        StopBigWinPresentationAnimation();
+        System.Action callback = bigWinPresentationCallback;
+        bigWinPresentationCallback = null;
+
+        HideBigWinPresentationVisuals();
+        bigWinFeatureController?.HideBigWinActors();
+        AudioManager.Instance?.StopWinObjectBg();
+
+        isBigWinPresentationActive = false;
+        isSpecialWinActive = false;
+        EnableControlsAfterWinAnimation();
+        callback?.Invoke();
+    }
+
+    private void StopBigWinPresentationAnimation()
+    {
+        if (bigWinPresentationCoroutine != null)
+        {
+            StopCoroutine(bigWinPresentationCoroutine);
+            bigWinPresentationCoroutine = null;
+        }
+        if (bigWinAmountTween != null)
+        {
+            bigWinAmountTween.Kill();
+            bigWinAmountTween = null;
+        }
+        if (bigWinAmountFadeTween != null)
+        {
+            bigWinAmountFadeTween.Kill();
+            bigWinAmountFadeTween = null;
+        }
+        if (bigWinAmountMoveTween != null)
+        {
+            bigWinAmountMoveTween.Kill();
+            bigWinAmountMoveTween = null;
+        }
+    }
+
+    private void HideBigWinPresentationVisuals()
+    {
+        if (bigWinPresentationAmount != null)
+        {
+            bigWinPresentationAmount.text = FormatBigWinAmount(0d);
+        }
+        if (bigWinAmountCanvasGroup != null)
+        {
+            bigWinAmountCanvasGroup.alpha = 0f;
+        }
+        if (bigWinPresentationAmountRect != null &&
+            hasCapturedBigWinAmountPosition)
+        {
+            bigWinPresentationAmountRect.anchoredPosition =
+                bigWinPresentationAmountBasePosition;
+        }
+        if (bigWinPresentationSkeleton != null)
+        {
+            bigWinPresentationSkeleton.AnimationState?.ClearTracks();
+            bigWinPresentationSkeleton.Skeleton?.SetToSetupPose();
+            bigWinPresentationSkeleton.freeze = true;
+        }
+        if (bigWinPresentationRect != null &&
+            hasCapturedBigWinPresentationTransform)
+        {
+            bigWinPresentationRect.anchoredPosition =
+                bigWinPresentationBasePosition;
+            bigWinPresentationRect.sizeDelta = bigWinPresentationBaseSize;
+            bigWinPresentationRect.localScale =
+                bigWinPresentationBaseScale;
+        }
+        if (bigWinPresentation != null)
+        {
+            bigWinPresentation.SetActive(false);
+        }
+    }
+
+    private static string FormatBigWinAmount(double amount)
+    {
+        return System.Math.Max(0d, amount)
+            .ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    #endregion
+
     #region Universal Win Popup
 
     internal void ShowUniversalWinPopup(WinPopupType type, double winAmount, int freeSpinCount = 0, System.Action onTakePressed = null)
     {
+        if (type == WinPopupType.BigWin)
+        {
+            ShowBigWinPresentation(winAmount, onTakePressed);
+            return;
+        }
+
         if (universalWinPopup == null) return;
 
         AudioManager.Instance?.PlayWinObjectBg();
@@ -1776,22 +2324,6 @@ public class UIManager : MonoBehaviour
                 }
                 break;
 
-            case WinPopupType.BigWin:
-                if (uwpBigWinTitle) uwpBigWinTitle.SetActive(true);
-                if (uwpWinAmountText)
-                {
-                    uwpWinAmountText.gameObject.SetActive(true);
-                    uwpWinAmountText.text = FormatAmount(winAmount);
-                    RectTransform bigWinAmountRect = uwpWinAmountText.GetComponent<RectTransform>();
-                    if (bigWinAmountRect != null)
-                    {
-                        Vector2 pos = bigWinAmountRect.anchoredPosition;
-                        pos.y = 0f;
-                        bigWinAmountRect.anchoredPosition = pos;
-                    }
-                }
-                break;
-
             case WinPopupType.MoneyBagCollect:
                 if (uwpCongratulationsTitle) uwpCongratulationsTitle.SetActive(true);
                 if (uwpYouWonSubtitle) uwpYouWonSubtitle.SetActive(true);
@@ -1813,7 +2345,7 @@ public class UIManager : MonoBehaviour
                 break;
         }
 
-        if (type != WinPopupType.BigWin && uwpWinAmountText)
+        if (uwpWinAmountText)
         {
             RectTransform winAmountRect = uwpWinAmountText.GetComponent<RectTransform>();
             if (winAmountRect != null)
@@ -1826,7 +2358,7 @@ public class UIManager : MonoBehaviour
 
         SetSpinStopButtonStates(isSpinningState: false, isInteractable: false);
 
-        bool showTakeButton = (type != WinPopupType.BigWin);
+        bool showTakeButton = true;
         SetButtonActive(uwpTakeButton, uwpTakeButtonPortrait, showTakeButton);
         SetButtonInteractable(uwpTakeButton, uwpTakeButtonPortrait, showTakeButton);
 
@@ -1848,7 +2380,7 @@ public class UIManager : MonoBehaviour
 
             uwpWinAmountText.text = (0.0).ToString(formatStr);
 
-            float countUpDuration = (type == WinPopupType.BigWin) ? 1.5f : 1.0f;
+            float countUpDuration = 1.0f;
 
             uwpWinTween = DOVirtual.Float(0f, (float)winAmount, countUpDuration, (val) =>
             {
