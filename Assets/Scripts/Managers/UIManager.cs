@@ -230,8 +230,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float rapidStopCooldown = 1f;
     private float lastRapidStopTime = -99f;
 
-    private int currentRulesPage = 0;
-    private bool isPageAnimating;
     [Header("UI State")]
     private double currentWinDisplayValue = 0;
     private bool isSpecialWinActive = false;
@@ -1198,6 +1196,7 @@ public class UIManager : MonoBehaviour
     {
         if (gameRulesPanel == null) return;
         gameRulesPanel.SetActive(true);
+        ResetScrollablePanelToFirstPage(gameRulesPanel);
     }
 
     private void CloseGameRulesPanel()
@@ -1223,12 +1222,30 @@ public class UIManager : MonoBehaviour
     {
         if (guidePanel == null) return;
         guidePanel.SetActive(true);
+        ResetScrollablePanelToFirstPage(guidePanel);
     }
 
     private void CloseGuidePanel()
     {
         if (guidePanel == null) return;
         guidePanel.SetActive(false);
+    }
+
+    private void ResetScrollablePanelToFirstPage(GameObject panel)
+    {
+        Canvas.ForceUpdateCanvases();
+
+        foreach (ScrollRect scrollRect in
+                 panel.GetComponentsInChildren<ScrollRect>(true))
+        {
+            scrollRect.StopMovement();
+            scrollRect.velocity = Vector2.zero;
+            if (scrollRect.content != null)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(scrollRect.content);
+            }
+            scrollRect.verticalNormalizedPosition = 1f;
+        }
     }
 
     #endregion
@@ -2008,7 +2025,7 @@ public class UIManager : MonoBehaviour
         bigWinPresentationCallback = onComplete;
         isBigWinPresentationActive = true;
         isSpecialWinActive = true;
-        AudioManager.Instance?.PlayWinObjectBg();
+        AudioManager.Instance?.PlayGoldMineBigWin();
         SetSpinStopButtonStates(isSpinningState: false, isInteractable: false);
 
         ApplyBigWinPresentationLayout();
@@ -2195,7 +2212,6 @@ public class UIManager : MonoBehaviour
 
         HideBigWinPresentationVisuals();
         bigWinFeatureController?.HideBigWinActors();
-        AudioManager.Instance?.StopWinObjectBg();
 
         isBigWinPresentationActive = false;
         isSpecialWinActive = false;
@@ -2205,6 +2221,8 @@ public class UIManager : MonoBehaviour
 
     private void StopBigWinPresentationAnimation()
     {
+        AudioManager.Instance?.StopGoldMineWin();
+
         if (bigWinPresentationCoroutine != null)
         {
             StopCoroutine(bigWinPresentationCoroutine);

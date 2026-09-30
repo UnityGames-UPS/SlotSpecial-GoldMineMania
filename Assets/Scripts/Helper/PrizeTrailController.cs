@@ -52,7 +52,8 @@ public sealed class PrizeTrailController : MonoBehaviour
 
     internal IEnumerator PlaySequentially(
         IReadOnlyList<RectTransform> sources,
-        Action<int> onFirstParticleArrived = null)
+        Action<int> onFirstParticleArrived = null,
+        Action<int> onStreamStarted = null)
     {
         CacheParticles();
         ResetParticles();
@@ -83,6 +84,7 @@ public sealed class PrizeTrailController : MonoBehaviour
                 firstArrivalReported = true;
                 onFirstParticleArrived?.Invoke(activeSourceIndex);
             };
+            onStreamStarted?.Invoke(activeSourceIndex);
             for (int particleIndex = 0; particleIndex < particleCount; particleIndex++)
             {
                 PlayParticle(

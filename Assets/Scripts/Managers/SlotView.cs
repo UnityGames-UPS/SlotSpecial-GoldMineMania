@@ -49,7 +49,6 @@ public class SlotView : MonoBehaviour
     [SerializeField] private Sprite spriteGoldBurstScatter;            // 11
     [SerializeField] private Sprite spriteMegaGoldBurstScatter;        // 12
     [SerializeField] private Sprite spriteUltimateGoldBurstScatter;    // 13
-    [SerializeField] private Sprite spriteGoldMineJourney;             // 14
 
     [Header("Winning Symbol Animations")]
     [SerializeField, Min(0.1f)] private float winSymbolLoopDuration = 2f;
@@ -63,8 +62,12 @@ public class SlotView : MonoBehaviour
     [SerializeField] private List<Sprite> animSpritesQ = new List<Sprite>();
     [SerializeField] private List<Sprite> animSpritesJ = new List<Sprite>();
     [SerializeField] private List<Sprite> animSpritesWild = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesFreeGameScatter = new List<Sprite>();
+
+    [Header("Free Games Train Animations")]
+    [SerializeField] private List<Sprite> animSpritesTrainLanding = new List<Sprite>();
     [SerializeField] private List<Sprite> animSpritesFreeGameTrigger = new List<Sprite>();
+
+    [Header("Gold Burst Winning Symbol Animations")]
     [SerializeField] private List<Sprite> animSpritesGoldBurstScatter = new List<Sprite>();
     [SerializeField] private List<Sprite> animSpritesMegaGoldBurstScatter = new List<Sprite>();
     [SerializeField] private List<Sprite> animSpritesUltimateGoldBurstScatter = new List<Sprite>();
@@ -164,8 +167,6 @@ public class SlotView : MonoBehaviour
         new List<ThreeSlotBarrelPlacement>();
     private readonly List<TrainPlacement> preparedTrains =
         new List<TrainPlacement>();
-    private List<List<int>> preparedMegaGoldBurstMatrix;
-    private List<List<int>> preparedUltimateGoldBurstMatrix;
     private Transform baseGameReelRoot;
     private GameObject baseGameLayoutRoot;
     private GameObject megaGoldBurstLayoutRoot;
@@ -183,6 +184,17 @@ public class SlotView : MonoBehaviour
         DefaultTrainLandingLoopsBeforeWins;
     private bool deferTrainLandingAnimationsUntilReelsStop;
     private bool trainLandingAnimationsReleased = true;
+
+    internal Transform MegaGoldBurstReelRoot => megaGoldBurstReelRoot;
+    internal Transform UltimateGoldBurstFirstReelRoot => ultimateGoldBurstFirstReelRoot;
+    internal Transform UltimateGoldBurstSecondReelRoot => ultimateGoldBurstSecondReelRoot;
+    internal GameObject BaseGameLayoutRoot => baseGameLayoutRoot;
+    internal GameObject MegaGoldBurstLayoutRoot => megaGoldBurstLayoutRoot;
+    internal GameObject UltimateGoldBurstLayoutRoot => ultimateGoldBurstLayoutRoot;
+    internal List<List<int>> CurrentDisplayMatrix => currentDisplayMatrix;
+    internal int ActiveRowCount => GetRowCount();
+    internal bool IsUsingMegaGoldBurstLayout => isUsingMegaGoldBurstLayout;
+    internal bool IsUsingUltimateGoldBurstLayout => isUsingUltimateGoldBurstLayout;
 
     private sealed class ReelRuntime
     {
@@ -340,101 +352,39 @@ public class SlotView : MonoBehaviour
         isUsingUltimateGoldBurstLayout = false;
     }
 
-    internal void ActivateMegaGoldBurstLayout()
+    internal void PrepareForGoldBurstLayoutSwitch()
     {
-        if (isUsingMegaGoldBurstLayout) return;
-        if (megaGoldBurstReelRoot == null || megaGoldBurstLayoutRoot == null)
-        {
-            Debug.LogError(
-                "[SlotView] Mega Gold Burst requires the 7x3Slot and 7x3SlotHolder scene objects.",
-                this);
-            return;
-        }
-
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
         StopGoldBurstBarrelIdleAnimations();
         KillAllTweens();
         featureVisualController?.ResetFeatures();
-
-        if (baseGameLayoutRoot != null) baseGameLayoutRoot.SetActive(false);
-        if (ultimateGoldBurstLayoutRoot != null) ultimateGoldBurstLayoutRoot.SetActive(false);
-        megaGoldBurstLayoutRoot.SetActive(true);
-        SetLandscapeExtraUIForBaseLayout(false);
-        reelRoot = megaGoldBurstReelRoot;
-        isUsingMegaGoldBurstLayout = true;
-        isUsingUltimateGoldBurstLayout = false;
-
-        BuildReelCache(true);
-        InitializeFeatureLayout();
-        List<List<int>> megaMatrix = HasMatrixDimensions(
-                preparedMegaGoldBurstMatrix,
-                MegaGoldBurstReelCount,
-                GetRowCount())
-            ? preparedMegaGoldBurstMatrix
-            : currentDisplayMatrix;
-        if (IsValidMatrix(megaMatrix))
-        {
-            ApplyMatrix(megaMatrix);
-        }
-        else
-        {
-            Debug.LogWarning(
-                "[SlotView] Mega Gold Burst switched to 7x3 before a complete seven-reel matrix was available.",
-                this);
-        }
-
-        featureVisualController?.BeginGoldBurstTriggerPresentation();
-        ReapplyPreparedFeatures();
     }
 
-    internal void ActivateUltimateGoldBurstLayout()
+    internal void SetGoldBurstLayout(
+        Transform activeReelRoot,
+        bool useMegaLayout,
+        bool useUltimateLayout)
     {
-        if (isUsingUltimateGoldBurstLayout) return;
-        if (ultimateGoldBurstFirstReelRoot == null ||
-            ultimateGoldBurstSecondReelRoot == null ||
-            ultimateGoldBurstLayoutRoot == null)
-        {
-            Debug.LogError(
-                "[SlotView] Ultimate Gold Burst requires Two7x3Slot and both authored reel holders.",
-                this);
-            return;
-        }
+        reelRoot = activeReelRoot;
+        isUsingMegaGoldBurstLayout = useMegaLayout;
+        isUsingUltimateGoldBurstLayout = useUltimateLayout;
+    }
 
-        StopWinningSymbolAnimations();
-        StopTrainSymbolAnimations();
-        StopGoldBurstConversionAnimations();
-        StopGoldBurstBarrelIdleAnimations();
-        KillAllTweens();
-        featureVisualController?.ResetFeatures();
-
-        if (baseGameLayoutRoot != null) baseGameLayoutRoot.SetActive(false);
-        if (megaGoldBurstLayoutRoot != null) megaGoldBurstLayoutRoot.SetActive(false);
-        ultimateGoldBurstLayoutRoot.SetActive(true);
-        SetLandscapeExtraUIForBaseLayout(false);
-        reelRoot = ultimateGoldBurstFirstReelRoot;
-        isUsingMegaGoldBurstLayout = false;
-        isUsingUltimateGoldBurstLayout = true;
-
+    internal void RebuildGoldBurstLayout()
+    {
         BuildReelCache(true);
         InitializeFeatureLayout();
-        if (IsValidMatrix(preparedUltimateGoldBurstMatrix))
-        {
-            ApplyMatrix(preparedUltimateGoldBurstMatrix);
-        }
-        else
-        {
-            Debug.LogWarning(
-                "[SlotView] Ultimate Gold Burst switched to two 7x3 boards before both matrices were available.",
-                this);
-        }
+    }
 
+    internal void CompleteGoldBurstLayoutSwitch()
+    {
         featureVisualController?.BeginGoldBurstTriggerPresentation();
         ReapplyPreparedFeatures();
     }
 
-    private void SetLandscapeExtraUIForBaseLayout(bool isBaseLayoutActive)
+    internal void SetLandscapeExtraUIForBaseLayout(bool isBaseLayoutActive)
     {
         if (landscapeExtraUICanDeactivate != null)
         {
@@ -443,7 +393,7 @@ public class SlotView : MonoBehaviour
 
     }
 
-    private void InitializeFeatureLayout()
+    internal void InitializeFeatureLayout()
     {
         if (featureVisualController == null) return;
 
@@ -496,6 +446,9 @@ public class SlotView : MonoBehaviour
 
     private void OnDisable()
     {
+        AudioManager.Instance?.StopGoldMineReelSpinning();
+        AudioManager.Instance?.StopGoldMineTension();
+        AudioManager.Instance?.StopGoldMineTrainFreeSpins();
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
@@ -511,6 +464,9 @@ public class SlotView : MonoBehaviour
 
     private void OnDestroy()
     {
+        AudioManager.Instance?.StopGoldMineReelSpinning();
+        AudioManager.Instance?.StopGoldMineTension();
+        AudioManager.Instance?.StopGoldMineTrainFreeSpins();
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
@@ -1017,7 +973,6 @@ public class SlotView : MonoBehaviour
             case "megagoldburst": sprite = spriteMegaGoldBurstScatter; break;
             case "ultimategoldburstscatter":
             case "ultimategoldburst": sprite = spriteUltimateGoldBurstScatter; break;
-            case "goldminejourney": sprite = spriteGoldMineJourney; break;
             default: return false;
         }
 
@@ -1047,8 +1002,6 @@ public class SlotView : MonoBehaviour
             case "j":
             case "jack": animationFrames = animSpritesJ; break;
             case "wild": animationFrames = animSpritesWild; break;
-            case "freegamescatter":
-            case "freegame": animationFrames = animSpritesFreeGameScatter; break;
             case "goldburstscatter":
             case "goldburst": animationFrames = animSpritesGoldBurstScatter; break;
             case "megagoldburstscatter":
@@ -1127,43 +1080,30 @@ public class SlotView : MonoBehaviour
         featureVisualController?.PrepareTrains(placements);
     }
 
-    internal void PrepareGoldBurstExpandedMatrices(
-        GoldBurstTier tier,
-        List<List<int>> firstExpandedMatrix,
-        List<List<int>> secondExpandedMatrix)
+    internal void StageGoldBurstRespinFeatures(
+        IReadOnlyList<TwoSlotBarrelPlacement> twoSlotBarrels,
+        IReadOnlyList<ThreeSlotBarrelPlacement> threeSlotBarrels,
+        IReadOnlyList<TrainPlacement> trains)
     {
-        preparedMegaGoldBurstMatrix = null;
-        preparedUltimateGoldBurstMatrix = null;
-
-        if (tier == GoldBurstTier.Mega &&
-            HasMatrixDimensions(
-                firstExpandedMatrix,
-                MegaGoldBurstReelCount,
-                DefaultRowCount))
+        preparedTwoSlotBarrels.Clear();
+        if (twoSlotBarrels != null)
         {
-            preparedMegaGoldBurstMatrix = CloneMatrix(firstExpandedMatrix);
-            return;
+            preparedTwoSlotBarrels.AddRange(
+                twoSlotBarrels.Where(item => item != null));
         }
 
-        if (tier != GoldBurstTier.Ultimate ||
-            !HasMatrixDimensions(
-                firstExpandedMatrix,
-                MegaGoldBurstReelCount,
-                DefaultRowCount) ||
-            !HasMatrixDimensions(
-                secondExpandedMatrix,
-                MegaGoldBurstReelCount,
-                DefaultRowCount))
+        preparedThreeSlotBarrels.Clear();
+        if (threeSlotBarrels != null)
         {
-            return;
+            preparedThreeSlotBarrels.AddRange(
+                threeSlotBarrels.Where(item => item != null));
         }
 
-        preparedUltimateGoldBurstMatrix = new List<List<int>>(
-            UltimateGoldBurstReelCount);
-        preparedUltimateGoldBurstMatrix.AddRange(
-            CloneMatrix(firstExpandedMatrix));
-        preparedUltimateGoldBurstMatrix.AddRange(
-            CloneMatrix(secondExpandedMatrix));
+        preparedTrains.Clear();
+        if (trains != null)
+        {
+            preparedTrains.AddRange(trains.Where(item => item != null));
+        }
     }
 
     internal void ConfigureGoldBurstTriggerBarrelMerge(bool shouldDefer)
@@ -1439,8 +1379,8 @@ public class SlotView : MonoBehaviour
 
     private void StartTrainLandingAnimation(int reelIndex, int row)
     {
-        if (animSpritesFreeGameScatter == null ||
-            animSpritesFreeGameScatter.Count == 0 ||
+        if (animSpritesTrainLanding == null ||
+            animSpritesTrainLanding.Count == 0 ||
             activeTrainAnimations.Any(active =>
                 active.reelIndex == reelIndex && active.row == row))
         {
@@ -1519,7 +1459,7 @@ public class SlotView : MonoBehaviour
         runtime.animationCellImage.enabled = true;
         runtime.animationStarted = StartTrainSpriteAnimation(
             runtime,
-            animSpritesFreeGameScatter,
+            animSpritesTrainLanding,
             true,
             loopCount => HandleTrainLandingAnimationLoop(runtime, loopCount));
         if (!runtime.animationStarted)
@@ -1528,6 +1468,8 @@ public class SlotView : MonoBehaviour
             RestoreTrainAnimationRuntime(runtime);
             yield break;
         }
+
+        AudioManager.Instance?.PlayGoldMineTrainIcon();
 
         if (runtime.baseImage != null &&
             runtime.baseImage != runtime.animationCellImage)
@@ -1581,12 +1523,20 @@ public class SlotView : MonoBehaviour
 
         float triggerDuration =
             animSpritesFreeGameTrigger.Count / TrainAnimationFramesPerSecond;
+        bool startedAnyAnimation = false;
         foreach (TrainSymbolAnimationRuntime active in activeAnimations)
         {
-            StartTrainSpriteAnimation(active, animSpritesFreeGameTrigger, false);
+            startedAnyAnimation |= StartTrainSpriteAnimation(
+                active,
+                animSpritesFreeGameTrigger,
+                false);
         }
 
+        if (!startedAnyAnimation) yield break;
+
+        AudioManager.Instance?.PlayGoldMineTrainFreeSpins();
         yield return new WaitForSeconds(triggerDuration);
+        AudioManager.Instance?.StopGoldMineTrainFreeSpins();
     }
 
     private static bool StartTrainSpriteAnimation(
@@ -1618,6 +1568,8 @@ public class SlotView : MonoBehaviour
 
     private void StopTrainSymbolAnimations()
     {
+        AudioManager.Instance?.StopGoldMineTrainFreeSpins();
+
         foreach (TrainSymbolAnimationRuntime runtime in activeTrainAnimations)
         {
             if (runtime?.delayedStartRoutine != null)
@@ -1668,7 +1620,11 @@ public class SlotView : MonoBehaviour
         featureVisualController?.ReleaseTrainAnimationCell(runtime.animationCell);
     }
 
-    internal IEnumerator PlayGoldBurstTriggerPresentation(GoldBurstTier tier)
+    internal IEnumerator PlayGoldBurstTriggerPresentation(
+        GoldBurstTier tier,
+        Action beginHiddenRespin,
+        Func<bool> isHiddenRespinReady,
+        Func<bool> applyHiddenRespinResult)
     {
         StopWinningSymbolAnimations();
         ConfigureTrainLandingAnimations(false);
@@ -1689,7 +1645,10 @@ public class SlotView : MonoBehaviour
                     this);
             yield return featureVisualController.PlayGoldBurstTriggerPresentation(
                 tier,
-                activateExpandedLayout);
+                activateExpandedLayout,
+                beginHiddenRespin,
+                isHiddenRespinReady,
+                applyHiddenRespinResult);
             StartGoldBurstBarrelIdleAnimations();
         }
     }
@@ -1805,8 +1764,6 @@ public class SlotView : MonoBehaviour
             InitializeFeatureLayout();
             if (IsValidMatrix(currentDisplayMatrix)) ApplyMatrix(currentDisplayMatrix);
         }
-        preparedMegaGoldBurstMatrix = null;
-        preparedUltimateGoldBurstMatrix = null;
     }
 
     private IEnumerator PlayGoldBurstConversionAnimations(
@@ -1984,7 +1941,11 @@ public class SlotView : MonoBehaviour
         animation.SetLoopDuration(loopDuration);
         animation.onLoopComplete = completedLoops =>
         {
-            if (completedLoops < loopCount) return;
+            if (completedLoops < loopCount)
+            {
+                AudioManager.Instance?.PlayGoldMineExplosionBlast();
+                return;
+            }
 
             animation.doLoopAnimation = false;
             runtime.completed = true;
@@ -2008,6 +1969,8 @@ public class SlotView : MonoBehaviour
         {
             return false;
         }
+
+        AudioManager.Instance?.PlayGoldMineExplosionBlast();
 
         if (!runtime.usesBarrelVisual &&
             runtime.baseImage != null &&
@@ -2398,6 +2361,7 @@ public class SlotView : MonoBehaviour
     {
         if (isSpinning || reels.Count == 0) return;
 
+        AudioManager.Instance?.StopGoldMineWin();
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
@@ -2409,6 +2373,7 @@ public class SlotView : MonoBehaviour
 
         quickStopRequested = false;
         isSpinning = true;
+        AudioManager.Instance?.PlayGoldMineReelSpinning();
         reelStartRoutine = StartCoroutine(StartReelsSequentially());
     }
 
@@ -2416,6 +2381,7 @@ public class SlotView : MonoBehaviour
     {
         if (isSpinning || reels.Count == 0) return;
 
+        AudioManager.Instance?.StopGoldMineWin();
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
@@ -2425,6 +2391,7 @@ public class SlotView : MonoBehaviour
 
         quickStopRequested = false;
         isSpinning = true;
+        AudioManager.Instance?.PlayGoldMineReelSpinning();
 
         if (activeBarrelIdleAnimations.Count == 0)
         {
@@ -2518,6 +2485,7 @@ public class SlotView : MonoBehaviour
 
         activeTweens.RemoveAll(tween => tween == null || !tween.IsActive());
         isSpinning = false;
+        AudioManager.Instance?.StopGoldMineReelSpinning();
         featureVisualController?.RevealAllFeatures();
         StartGoldBurstBarrelIdleAnimations();
         AudioManager.Instance?.PlayReelStop();
@@ -2661,6 +2629,7 @@ public class SlotView : MonoBehaviour
             Debug.LogError("[SlotView] Server result matrix does not match the visible reels.", this);
             KillReelTweens(true);
             isSpinning = false;
+            AudioManager.Instance?.StopGoldMineReelSpinning();
             onComplete?.Invoke();
             return;
         }
@@ -2767,6 +2736,7 @@ public class SlotView : MonoBehaviour
         isSpinning = false;
         quickStopRequested = false;
         reelStopRoutine = null;
+        AudioManager.Instance?.StopGoldMineReelSpinning();
         StopAnticipationAnimations();
         featureVisualController?.RevealAllFeatures();
         onComplete?.Invoke();
@@ -2940,6 +2910,7 @@ public class SlotView : MonoBehaviour
         SetAnticipationAnimationActive(reelIndex, true);
         reel.isAnticipating = true;
         ApplyReelMotionSpeed(reel);
+        AudioManager.Instance?.PlayGoldMineTension();
 
         float remaining = duration;
         float initialScale = GetStopTimingScale(scheduledSpeed);
@@ -2954,6 +2925,7 @@ public class SlotView : MonoBehaviour
         SetAnticipationAnimationActive(reelIndex, false);
         reel.isAnticipating = false;
         ApplyReelMotionSpeed(reel);
+        AudioManager.Instance?.StopGoldMineTension();
     }
 
     private void SetAnticipationAnimationActive(int reelIndex, bool active)
@@ -2981,6 +2953,8 @@ public class SlotView : MonoBehaviour
 
     private void StopAnticipationAnimations()
     {
+        AudioManager.Instance?.StopGoldMineTension();
+
         foreach (ImageAnimation animation in anticipationAnimationsByReel.Values)
         {
             if (animation == null) continue;
@@ -3066,7 +3040,7 @@ public class SlotView : MonoBehaviour
 
     #region Matrix application
 
-    private void ApplyMatrix(List<List<int>> matrix)
+    internal void ApplyMatrix(List<List<int>> matrix)
     {
         if (!IsValidMatrix(matrix)) return;
 
@@ -3076,6 +3050,21 @@ public class SlotView : MonoBehaviour
             ApplyMatrixColumn(reelIndex, matrix[reelIndex]);
             reels[reelIndex].transform.anchoredPosition = reels[reelIndex].restingPosition;
         }
+    }
+
+    internal bool ApplyHiddenGoldBurstRespinResult(List<List<int>> matrix)
+    {
+        if (!IsValidMatrix(matrix))
+        {
+            Debug.LogError(
+                "[SlotView] Hidden Gold Burst result matrix does not match the activated layout.",
+                this);
+            return false;
+        }
+
+        ApplyMatrix(matrix);
+        Canvas.ForceUpdateCanvases();
+        return true;
     }
 
     private void ApplyMatrixColumn(int reelIndex, List<int> column)
@@ -3110,13 +3099,13 @@ public class SlotView : MonoBehaviour
         return originalScale;
     }
 
-    private bool IsValidMatrix(List<List<int>> matrix)
+    internal bool IsValidMatrix(List<List<int>> matrix)
     {
         return reels.Count > 0 &&
                HasMatrixDimensions(matrix, reels.Count, GetRowCount());
     }
 
-    private static bool HasMatrixDimensions(
+    internal static bool HasMatrixDimensions(
         List<List<int>> matrix,
         int reelCount,
         int rowCount)

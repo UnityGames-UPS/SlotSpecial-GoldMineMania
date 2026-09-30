@@ -54,7 +54,6 @@ public class ServerFeatures
 {
     public FreeGamesFeature freeGames;
     public GoldBurstRespinFeature goldBurstRespin;
-    public GoldMineJourneyFeature goldMineJourney;
     public int betMultiplier;
     public int maxWinMultiplier;
     public int minWinMultiplier;
@@ -87,15 +86,6 @@ public class GoldBurstRespinFeature
     public bool enabled;
     public int minTrigger;
     public List<int> triggerSymbols;
-}
-
-[Serializable]
-public class GoldMineJourneyFeature
-{
-    public bool enabled;
-    public int symbolId;
-    public int requiredCollect;
-    public int currentCollect;
 }
 
 [Serializable]
@@ -253,6 +243,7 @@ public class ServerFreeGamesResult
 public class ServerGoldBurstResult
 {
     public bool triggered;
+    public string mode;
     public bool inRespin;
     public int remainingRespins;
     public List<List<string>> matrixSet1;
@@ -303,7 +294,7 @@ public class GameConfig
 {
     public int reelCount = 5;
     public int rowCount = 3;
-    public int symbolCount = 15;
+    public int symbolCount = 14;
     public int paylineCount = 50;
     public List<List<int>> paylines;
     public List<double> availableBets;
@@ -323,10 +314,6 @@ public class GameConfig
     public bool goldBurstRespinEnabled;
     public int goldBurstMinTrigger = 6;
     public List<int> goldBurstTriggerSymbolIds = new List<int>();
-    public bool goldMineJourneyEnabled;
-    public int goldMineJourneySymbolId = 14;
-    public int goldMineJourneyRequiredCollect = 10;
-    public int goldMineJourneyCurrentCollect;
 
     public int betMultiplier = 1;      // CNY is cash-bet based, multiplier default is 1
     public double creditDivisor = 25;  // Credit divisor sent in initData
@@ -464,6 +451,7 @@ public class MoneyBagResultData
 public class GoldBurstData
 {
     public bool triggered;
+    public string mode;
     public bool inRespin;
     public int remainingRespins;
     public List<List<int>> expandedMatrix;
@@ -659,14 +647,6 @@ public static class InitDataConverter
                     : new List<int>();
             }
 
-            if (serverData.features.goldMineJourney != null)
-            {
-                GoldMineJourneyFeature journey = serverData.features.goldMineJourney;
-                config.goldMineJourneyEnabled = journey.enabled;
-                config.goldMineJourneySymbolId = journey.symbolId;
-                config.goldMineJourneyRequiredCollect = journey.requiredCollect;
-                config.goldMineJourneyCurrentCollect = journey.currentCollect;
-            }
         }
 
         return config;
@@ -837,6 +817,7 @@ public static class InitDataConverter
                 ? new GoldBurstData
                 {
                     triggered = serverResponse.payload.goldBurst.triggered,
+                    mode = serverResponse.payload.goldBurst.mode,
                     inRespin = serverResponse.payload.goldBurst.inRespin,
                     remainingRespins = serverResponse.payload.goldBurst.remainingRespins,
                     expandedMatrix = expandedGoldBurstMatrix,

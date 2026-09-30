@@ -19,6 +19,7 @@ public class AudioManager : MonoBehaviour
         _musicVolume  = PlayerPrefs.GetFloat(PrefKeyMusicVol, 0.5f);
         _sfxVolume    = PlayerPrefs.GetFloat(PrefKeySfxVol,   1.0f);
 
+        EnsureGoldMineSources();
         ApplyMusicVolume();
         ApplySfxVolume();
     }
@@ -52,6 +53,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("Gold Mine Mania Clips")]
     [SerializeField] private AudioClip clipGoldMineBigWin;
+    [SerializeField] private AudioClip clipGoldMineBoots;
     [SerializeField] private AudioClip clipGoldMineDonkeyIconInSlot;
     [SerializeField] private AudioClip clipGoldMineReelSpinning;
     [SerializeField] private AudioClip clipGoldMineSmallWin;
@@ -60,6 +62,16 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip clipGoldMineTrainIconInSlot;
     [SerializeField] private AudioClip clipGoldMineTrainTransition;
     [SerializeField] private AudioClip clipGoldMineWildIcon;
+    [SerializeField] private AudioClip clipGoldMineBonusBg;
+    [SerializeField] private AudioClip clipGoldMineExplosionBlast;
+    [SerializeField] private AudioClip clipGoldMineManWithTrain;
+    [SerializeField] private AudioClip clipGoldMineSparkle;
+    [SerializeField] private AudioClip clipGoldMineSteamLocomotiveWhistle;
+
+    private AudioSource goldMineReelSpinSource;
+    private AudioSource goldMineTensionSource;
+    private AudioSource goldMinePresentationSource;
+    private AudioSource goldMineWinSource;
 
     private bool _musicEnabled = true;
     private bool _sfxEnabled   = true;
@@ -115,6 +127,10 @@ public class AudioManager : MonoBehaviour
         if (uiSource           != null) uiSource.volume           = v;
         if (wheelSegmentSource != null) wheelSegmentSource.volume = v;
         if (reserveSource      != null) reserveSource.volume      = v;
+        if (goldMineReelSpinSource != null) goldMineReelSpinSource.volume = v;
+        if (goldMineTensionSource != null) goldMineTensionSource.volume = v;
+        if (goldMinePresentationSource != null) goldMinePresentationSource.volume = v;
+        if (goldMineWinSource != null) goldMineWinSource.volume = v;
     }
 
     /// <summary>
@@ -152,6 +168,75 @@ public class AudioManager : MonoBehaviour
         if (source == null) return;
         source.Stop();
         source.loop = false;
+    }
+
+    private void EnsureGoldMineSources()
+    {
+        goldMineReelSpinSource = EnsureRuntimeSfxSource(
+            goldMineReelSpinSource,
+            "GoldMine Reel Spin Audio");
+        goldMineTensionSource = EnsureRuntimeSfxSource(
+            goldMineTensionSource,
+            "GoldMine Tension Audio");
+        goldMinePresentationSource = EnsureRuntimeSfxSource(
+            goldMinePresentationSource,
+            "GoldMine Presentation Audio");
+        goldMineWinSource = EnsureRuntimeSfxSource(
+            goldMineWinSource,
+            "GoldMine Win Audio");
+    }
+
+    private AudioSource EnsureRuntimeSfxSource(
+        AudioSource source,
+        string childName)
+    {
+        if (source != null) return source;
+
+        Transform existing = transform.Find(childName);
+        GameObject sourceObject = existing != null
+            ? existing.gameObject
+            : new GameObject(childName);
+        if (existing == null)
+        {
+            sourceObject.transform.SetParent(transform, false);
+        }
+
+        source = sourceObject.GetComponent<AudioSource>();
+        if (source == null)
+        {
+            source = sourceObject.AddComponent<AudioSource>();
+        }
+
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 0f;
+        source.volume = _sfxEnabled ? _sfxVolume : 0f;
+        return source;
+    }
+
+    private void PlayControlledSfx(
+        AudioSource source,
+        AudioClip clip,
+        bool loop)
+    {
+        if (!_sfxEnabled || source == null || clip == null) return;
+
+        source.Stop();
+        source.clip = clip;
+        source.loop = loop;
+        source.volume = _sfxVolume;
+        source.Play();
+    }
+
+    private static void StopControlledSfx(
+        AudioSource source,
+        AudioClip expectedClip)
+    {
+        if (source == null || source.clip != expectedClip) return;
+
+        source.Stop();
+        source.loop = false;
+        source.clip = null;
     }
 
     // 1. Game Main BG
@@ -276,8 +361,7 @@ public class AudioManager : MonoBehaviour
     // 11. FreeSpin BG (loop while free spin)
     internal void PlayFreeSpinBg()
     {
-        if (clipFreeSpinBg == null) return;
-        PlayLoop(bgMusicSource, clipFreeSpinBg);
+        PlayGoldMineBonusBg();
     }
 
     // 12. Bonus Wheel Spin Segment Tick
@@ -309,6 +393,132 @@ public class AudioManager : MonoBehaviour
             wheelSegmentSource.PlayOneShot(clipReelStop);
         else
             PlayUISound(clipReelStop);
+    }
+
+    internal void PlayGoldMineReelSpinning()
+    {
+        PlayControlledSfx(
+            goldMineReelSpinSource,
+            clipGoldMineReelSpinning,
+            true);
+    }
+
+    internal void StopGoldMineReelSpinning()
+    {
+        StopControlledSfx(
+            goldMineReelSpinSource,
+            clipGoldMineReelSpinning);
+    }
+
+    internal void PlayGoldMineTension()
+    {
+        PlayControlledSfx(
+            goldMineTensionSource,
+            clipGoldMineTension,
+            true);
+    }
+
+    internal void StopGoldMineTension()
+    {
+        StopControlledSfx(goldMineTensionSource, clipGoldMineTension);
+    }
+
+    internal void PlayGoldMineTrainFreeSpins()
+    {
+        PlayControlledSfx(
+            goldMinePresentationSource,
+            clipGoldMineTrainFreeSpins,
+            false);
+    }
+
+    internal void StopGoldMineTrainFreeSpins()
+    {
+        StopControlledSfx(
+            goldMinePresentationSource,
+            clipGoldMineTrainFreeSpins);
+    }
+
+    internal void PlayGoldMineTrainTransition()
+    {
+        PlayControlledSfx(
+            goldMinePresentationSource,
+            clipGoldMineTrainTransition,
+            false);
+    }
+
+    internal void StopGoldMineTrainTransition()
+    {
+        StopControlledSfx(
+            goldMinePresentationSource,
+            clipGoldMineTrainTransition);
+    }
+
+    internal void PlayGoldMineTrainIcon()
+    {
+        PlayUISound(clipGoldMineTrainIconInSlot);
+    }
+
+    internal void PlayGoldMineResultWin(
+        bool useWildSound,
+        bool useDonkeySound,
+        bool useBootsSound)
+    {
+        AudioClip clip = useWildSound
+            ? clipGoldMineWildIcon
+            : useDonkeySound
+                ? clipGoldMineDonkeyIconInSlot
+                : useBootsSound
+                    ? clipGoldMineBoots
+                    : clipGoldMineSmallWin;
+        PlayControlledSfx(goldMineWinSource, clip, false);
+    }
+
+    internal void PlayGoldMineBigWin()
+    {
+        PlayControlledSfx(
+            goldMineWinSource,
+            clipGoldMineBigWin,
+            false);
+    }
+
+    internal void StopGoldMineWin()
+    {
+        if (goldMineWinSource == null) return;
+
+        goldMineWinSource.Stop();
+        goldMineWinSource.loop = false;
+        goldMineWinSource.clip = null;
+    }
+
+    internal void PlayGoldMineBonusBg()
+    {
+        AudioClip bonusClip = clipGoldMineBonusBg != null
+            ? clipGoldMineBonusBg
+            : clipFreeSpinBg;
+        if (bgMusicSource == null || bonusClip == null) return;
+        if (bgMusicSource.isPlaying && bgMusicSource.clip == bonusClip) return;
+
+        PlayLoop(bgMusicSource, bonusClip);
+    }
+
+    internal void PlayGoldMineExplosionBlast()
+    {
+        PlayUISound(clipGoldMineExplosionBlast);
+    }
+
+    internal void PlayGoldMineManWithTrain()
+    {
+        PlayUISound(clipGoldMineManWithTrain);
+    }
+
+    internal void PlayGoldMineSparkle()
+    {
+        PlayUISound(clipGoldMineSparkle);
+    }
+
+    internal void PlayGoldMineSteamLocomotiveWhistle()
+    {
+        PlayUISound(clipGoldMineSteamLocomotiveWhistle);
     }
 
     private bool isForceMuted = false;

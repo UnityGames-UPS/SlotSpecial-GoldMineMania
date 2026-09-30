@@ -20569,7 +20569,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Fill the meter by collecting      to play Gold Mine Journey.
+  m_text: ''
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: fb6d752bd43c84992a096422e9f16188, type: 2}
   m_sharedMaterial: {fileID: -8470351346922736951, guid: fb6d752bd43c84992a096422e9f16188, type: 2}
@@ -64004,7 +64004,6 @@ MonoBehaviour:
   spriteGoldBurstScatter: {fileID: 21300000, guid: 1b0ab6b91a1ecb74f979df4d04022e14, type: 3}
   spriteMegaGoldBurstScatter: {fileID: 21300000, guid: 2302ccc07100ab9488f3125c5a80013a, type: 3}
   spriteUltimateGoldBurstScatter: {fileID: 21300000, guid: 218a34515fbf09a40a1c27bf7b169dbe, type: 3}
-  spriteGoldMineJourney: {fileID: 21300000, guid: 82f1295b83d04479aa78260848466e1e, type: 3}
   reelRoot: {fileID: 1103718699}
   reelTransforms:
   - {fileID: 682958188}

@@ -50,6 +50,10 @@ public class GameManager : MonoBehaviour
     private GoldBurstTier activeGoldBurstTier = GoldBurstTier.Cold;
     private int pendingFreeSpins;
     private bool isCompletingGoldBurstRespins;
+    private bool isHiddenGoldBurstEntryRespinInProgress;
+    private bool isAwaitingHiddenGoldBurstEntryResult;
+    private bool isHiddenGoldBurstEntryResultReady;
+    private bool isHiddenGoldBurstEntryResultApplied;
     private bool isCompletingFreeSpins;
 
     internal bool isInitialized;
@@ -340,6 +344,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                PlayGoldMineResultWinSound(animationResult, isBigWin);
                 OnFirstWinAnimationLoopComplete(
                     animationResult,
                     isAutomaticRound,
@@ -387,6 +392,8 @@ public class GameManager : MonoBehaviour
     {
         yield return slotView.WaitForTrainLandingAnimationsBeforeWins();
         if (lastResult != animationResult) yield break;
+
+        PlayGoldMineResultWinSound(animationResult, isBigWin);
 
         bool hasTrainLandingAnimations =
             slotView.HasActiveTrainLandingAnimations();
@@ -563,6 +570,120 @@ public class GameManager : MonoBehaviour
                !isInGoldBurstRespins;
     }
 
+    private void PlayGoldMineResultWinSound(
+        SpinResult result,
+        bool isBigWin)
+    {
+        if (isBigWin || result?.winLines == null ||
+            result.winLines.Count == 0)
+        {
+            return;
+        }
+
+        var winningSymbolIds = new HashSet<int>();
+        int reelCount = result.resultMatrix != null
+            ? result.resultMatrix.Count
+            : 0;
+
+        foreach (WinLine winLine in result.winLines)
+        {
+            if (winLine == null) continue;
+
+            winningSymbolIds.Add(winLine.symbolId);
+            if (winLine.positions == null || reelCount <= 0) continue;
+
+            foreach (int flatPosition in winLine.positions)
+            {
+                if (flatPosition < 0) continue;
+
+                int row = flatPosition / reelCount;
+                int reelIndex = flatPosition % reelCount;
+                if (reelIndex < 0 || reelIndex >= reelCount ||
+                    result.resultMatrix[reelIndex] == null ||
+                    row < 0 || row >= result.resultMatrix[reelIndex].Count)
+                {
+                    continue;
+                }
+
+                winningSymbolIds.Add(result.resultMatrix[reelIndex][row]);
+            }
+        }
+
+        bool hasWild = false;
+        bool hasDonkey = false;
+        bool hasBoots = false;
+        bool containsOnlyWildAndLowSymbols = true;
+        bool containsOnlyDonkeyAndLowSymbols = true;
+        bool containsOnlyBootsAndLowSymbols = true;
+
+        foreach (int symbolId in winningSymbolIds)
+        {
+            SymbolInfo symbol = FindSymbolInfo(symbolId);
+            string normalizedName = NormalizeWinSymbolName(symbol?.name);
+            bool isWild = (gameConfig != null &&
+                           symbolId == gameConfig.wildSymbolId) ||
+                          (symbol != null && symbol.isWild) ||
+                          normalizedName == "wild";
+            bool isDonkey = normalizedName == "donkey";
+            bool isBoots = normalizedName == "boots" ||
+                           normalizedName == "boot";
+            bool isLowSymbol = normalizedName == "a" ||
+                               normalizedName == "ace" ||
+                               normalizedName == "k" ||
+                               normalizedName == "king" ||
+                               normalizedName == "q" ||
+                               normalizedName == "queen" ||
+                               normalizedName == "j" ||
+                               normalizedName == "jack";
+
+            hasWild |= isWild;
+            hasDonkey |= isDonkey;
+            hasBoots |= isBoots;
+            containsOnlyWildAndLowSymbols &= isWild || isLowSymbol;
+            containsOnlyDonkeyAndLowSymbols &= isDonkey || isLowSymbol;
+            containsOnlyBootsAndLowSymbols &= isBoots || isLowSymbol;
+        }
+
+        bool useWildSound = hasWild && !hasDonkey && !hasBoots &&
+                            containsOnlyWildAndLowSymbols;
+        bool useDonkeySound = hasDonkey && !hasWild && !hasBoots &&
+                              containsOnlyDonkeyAndLowSymbols;
+        bool useBootsSound = hasBoots && !hasWild && !hasDonkey &&
+                             containsOnlyBootsAndLowSymbols;
+        AudioManager.Instance?.PlayGoldMineResultWin(
+            useWildSound,
+            useDonkeySound,
+            useBootsSound);
+    }
+
+    private SymbolInfo FindSymbolInfo(int symbolId)
+    {
+        if (gameConfig?.symbols == null) return null;
+
+        foreach (SymbolInfo symbol in gameConfig.symbols)
+        {
+            if (symbol != null && symbol.id == symbolId) return symbol;
+        }
+
+        return null;
+    }
+
+    private static string NormalizeWinSymbolName(string symbolName)
+    {
+        if (string.IsNullOrWhiteSpace(symbolName)) return string.Empty;
+
+        var normalized = new List<char>(symbolName.Length);
+        foreach (char character in symbolName)
+        {
+            if (char.IsLetterOrDigit(character))
+            {
+                normalized.Add(char.ToLowerInvariant(character));
+            }
+        }
+
+        return new string(normalized.ToArray());
+    }
+
     private void ResumeAfterSpecialFeature()
     {
         if (isAutoPlaying || isInFreeSpins)
@@ -615,6 +736,26 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (isHiddenGoldBurstEntryRespinInProgress)
+        {
+            if (!isAwaitingHiddenGoldBurstEntryResult)
+            {
+                Debug.LogWarning(
+                    "[GameManager] Ignored a duplicate result while committing the hidden Gold Burst entry respin.",
+                    this);
+                return;
+            }
+
+            lastResult = result;
+            isAwaitingHiddenGoldBurstEntryResult = false;
+            isHiddenGoldBurstEntryResultReady = result != null;
+            slotView?.StageGoldBurstRespinFeatures(
+                result?.twoSlotBarrels,
+                result?.threeSlotBarrels,
+                result?.trains);
+            return;
+        }
+
         lastResult = result;
         bool isFreeGameTrigger = IsFreeSpinsTriggered(result);
         slotView?.ConfigureTrainLandingAnimations(!isGoldBurstTrigger);
@@ -626,15 +767,6 @@ public class GameManager : MonoBehaviour
         slotView?.PrepareTwoSlotBarrels(result.twoSlotBarrels);
         slotView?.PrepareThreeSlotBarrels(result.threeSlotBarrels);
         slotView?.PrepareTrains(result.trains);
-        if (isGoldBurstTrigger)
-        {
-            GoldBurstTier triggerTier = ResolveGoldBurstTier(result.resultMatrix);
-            slotView?.PrepareGoldBurstExpandedMatrices(
-                triggerTier,
-                result.goldBurstData.expandedMatrix,
-                result.goldBurstData.secondaryExpandedMatrix);
-        }
-
         if (result.winLines != null)
         {
             for (int i = 0; i < result.winLines.Count; i++)
@@ -669,8 +801,7 @@ public class GameManager : MonoBehaviour
             }
 
             StartGoldBurstRespins(
-                goldBurst.remainingRespins,
-                ResolveGoldBurstTier(lastResult.resultMatrix));
+                ResolveGoldBurstTier(goldBurst, lastResult.resultMatrix));
             lastResult = null;
             return;
         }
@@ -879,13 +1010,15 @@ public class GameManager : MonoBehaviour
 
     #region Free Spins
 
-    private void StartGoldBurstRespins(
-        int remainingRespins,
-        GoldBurstTier tier)
+    private void StartGoldBurstRespins(GoldBurstTier tier)
     {
         activeGoldBurstTier = tier;
         isInGoldBurstRespins = true;
         isCompletingGoldBurstRespins = false;
+        isHiddenGoldBurstEntryRespinInProgress = false;
+        isAwaitingHiddenGoldBurstEntryResult = false;
+        isHiddenGoldBurstEntryResultReady = false;
+        isHiddenGoldBurstEntryResultApplied = false;
         uiManager.UseGoldBurstFeatureSpinCountDisplay(tier);
         uiManager.ShowGoodLuckDisplay();
         uiManager.HideFeatureSpinCount();
@@ -902,21 +1035,94 @@ public class GameManager : MonoBehaviour
         }
 
         currentState = GameState.Stopping;
-        StartCoroutine(StartGoldBurstRespinsSequence(remainingRespins, tier));
+        StartCoroutine(StartGoldBurstRespinsSequence(tier));
     }
 
-    private IEnumerator StartGoldBurstRespinsSequence(
-        int remainingRespins,
-        GoldBurstTier tier)
+    private IEnumerator StartGoldBurstRespinsSequence(GoldBurstTier tier)
     {
         if (slotView != null)
         {
-            yield return slotView.PlayGoldBurstTriggerPresentation(tier);
+            yield return slotView.PlayGoldBurstTriggerPresentation(
+                tier,
+                BeginHiddenGoldBurstEntryRespin,
+                IsHiddenGoldBurstEntryResultReady,
+                ApplyHiddenGoldBurstEntryResult);
+        }
+        else
+        {
+            BeginHiddenGoldBurstEntryRespin();
+            while (!IsHiddenGoldBurstEntryResultReady())
+            {
+                yield return null;
+            }
+            isHiddenGoldBurstEntryResultApplied = true;
         }
 
-        uiManager.UpdateFreeSpinCount(Mathf.Max(0, remainingRespins));
-        currentState = GameState.Idle;
-        yield return DelayBeforeNextGoldBurstRespin();
+        if (!isHiddenGoldBurstEntryResultReady ||
+            !isHiddenGoldBurstEntryResultApplied ||
+            lastResult == null)
+        {
+            Debug.LogError(
+                "[GameManager] The hidden Gold Burst entry respin could not be applied.",
+                this);
+            popupManager?.ShowServerError(
+                "The Gold Burst result could not be displayed. Please reconnect and try again.");
+            yield break;
+        }
+
+        isHiddenGoldBurstEntryRespinInProgress = false;
+        isAwaitingHiddenGoldBurstEntryResult = false;
+        isHiddenGoldBurstEntryResultReady = false;
+        isHiddenGoldBurstEntryResultApplied = false;
+        currentState = GameState.Stopping;
+        OnReelsStoppedComplete();
+    }
+
+    private void BeginHiddenGoldBurstEntryRespin()
+    {
+        if (!isInGoldBurstRespins ||
+            isHiddenGoldBurstEntryRespinInProgress ||
+            socketManager == null ||
+            !socketManager.isConnected)
+        {
+            return;
+        }
+
+        lastResult = null;
+        stopRequested = false;
+        currentState = GameState.Spinning;
+        isHiddenGoldBurstEntryRespinInProgress = true;
+        isAwaitingHiddenGoldBurstEntryResult = true;
+        isHiddenGoldBurstEntryResultReady = false;
+        isHiddenGoldBurstEntryResultApplied = false;
+
+        // This is a real Gold Burst respin. Only the reel movement is suppressed
+        // because the existing transition is already covering the slot layout.
+        uiManager.OnSpinStarted();
+        socketManager.SendSpinRequest(currentBetIndex, true);
+    }
+
+    private bool IsHiddenGoldBurstEntryResultReady()
+    {
+        return isHiddenGoldBurstEntryRespinInProgress &&
+               !isAwaitingHiddenGoldBurstEntryResult &&
+               isHiddenGoldBurstEntryResultReady &&
+               lastResult != null;
+    }
+
+    private bool ApplyHiddenGoldBurstEntryResult()
+    {
+        isHiddenGoldBurstEntryResultApplied =
+            IsHiddenGoldBurstEntryResultReady() &&
+            slotView != null &&
+            slotView.ApplyHiddenGoldBurstRespinResult(lastResult.resultMatrix);
+        if (isHiddenGoldBurstEntryResultApplied &&
+            lastResult.goldBurstData != null)
+        {
+            uiManager.UpdateFreeSpinCount(
+                Mathf.Max(0, lastResult.goldBurstData.remainingRespins));
+        }
+        return isHiddenGoldBurstEntryResultApplied;
     }
 
     private IEnumerator DelayBeforeNextGoldBurstRespin()
@@ -952,8 +1158,33 @@ public class GameManager : MonoBehaviour
         EndGoldBurstRespins(totalRoundWin, totalSpinsUsed, isRoundOver);
     }
 
-    private static GoldBurstTier ResolveGoldBurstTier(List<List<int>> matrix)
+    private static GoldBurstTier ResolveGoldBurstTier(
+        GoldBurstData goldBurst,
+        List<List<int>> matrix)
     {
+        string serverMode = goldBurst?.mode;
+        if (!string.IsNullOrWhiteSpace(serverMode))
+        {
+            if (serverMode.IndexOf(
+                    "ULTIMATE",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return GoldBurstTier.Ultimate;
+            }
+            if (serverMode.IndexOf(
+                    "MEGA",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return GoldBurstTier.Mega;
+            }
+            if (serverMode.IndexOf(
+                    "GOLD_BURST",
+                    System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return GoldBurstTier.Cold;
+            }
+        }
+
         int highestSymbolId = FirstGoldBurstSymbolId;
         if (matrix != null)
         {
@@ -1068,6 +1299,10 @@ public class GameManager : MonoBehaviour
         slotView?.EndGoldBurstPresentation();
         isCompletingGoldBurstRespins = false;
         isInGoldBurstRespins = false;
+        isHiddenGoldBurstEntryRespinInProgress = false;
+        isAwaitingHiddenGoldBurstEntryResult = false;
+        isHiddenGoldBurstEntryResultReady = false;
+        isHiddenGoldBurstEntryResultApplied = false;
         activeGoldBurstTier = GoldBurstTier.Cold;
         currentState = GameState.Idle;
 
@@ -1114,7 +1349,6 @@ public class GameManager : MonoBehaviour
         freeSpinsRemaining = spins;
         freeSpinsUsed = 0;
         waitingForFreeSpinStart = true;
-        AudioManager.Instance?.PlayFreeSpinBg();
 
         int prevTotal = autoPlayTotalRounds;
         int prevRemaining = autoPlayRemainingRounds;
@@ -1139,6 +1373,7 @@ public class GameManager : MonoBehaviour
             yield return slotView.PlayFreeGamesStartPresentation(uiManager);
         }
 
+        AudioManager.Instance?.PlayGoldMineBonusBg();
         currentState = GameState.Idle;
         StartFirstFreeSpin();
     }

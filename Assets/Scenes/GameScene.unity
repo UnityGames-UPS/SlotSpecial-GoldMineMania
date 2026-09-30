@@ -20624,7 +20624,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 189.6, y: 116.7}
+  m_AnchoredPosition: {x: 194.8, y: 116.7}
   m_SizeDelta: {x: 40, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &232468046
@@ -56263,7 +56263,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -10.695, y: 48.085995}
+  m_AnchoredPosition: {x: -10.695, y: 46}
   m_SizeDelta: {x: 1912.577, y: 881.531}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &577052760
@@ -80165,8 +80165,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 275.9, y: 116.7}
-  m_SizeDelta: {x: 40, y: 60}
+  m_AnchoredPosition: {x: 278.7, y: 116.7}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &823327426
 MonoBehaviour:
@@ -80188,7 +80188,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7640518904195339619, guid: caed782f6b50e8c489fe5b9eae413600, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ac3f88f2c83f6f94bbcb09881806a9f2, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -90716,7 +90716,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 15.654, y: -56}
+  m_AnchoredPosition: {x: 15.654, y: -58}
   m_SizeDelta: {x: 1715.749, y: 861.203}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &918665497
@@ -103114,7 +103114,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 47, y: 228.3}
+  m_AnchoredPosition: {x: 47, y: 218}
   m_SizeDelta: {x: 800, y: 65}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1 &1038089783
@@ -114996,8 +114996,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 18306c85348c740e19bb9454a42b8fef, type: 2}
-  m_sharedMaterial: {fileID: 2156643156210230814, guid: 18306c85348c740e19bb9454a42b8fef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 20899bf00558140d08680d7c3e4d8e44, type: 2}
+  m_sharedMaterial: {fileID: 4704913214042378886, guid: 20899bf00558140d08680d7c3e4d8e44, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -115006,12 +115006,12 @@ MonoBehaviour:
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 1
-  m_colorMode: 3
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 0.9607843, b: 0.47058824, a: 1}
-    topRight: {r: 1, g: 0.827451, b: 0.22745098, a: 1}
-    bottomLeft: {r: 1, g: 0.5411765, b: 0.11764706, a: 1}
-    bottomRight: {r: 0.8666667, g: 0.21568628, b: 0.078431375, a: 1}
+    topLeft: {r: 0.99607843, g: 0.8745098, b: 0.3372549, a: 1}
+    topRight: {r: 0.99607843, g: 0.8745098, b: 0.3372549, a: 1}
+    bottomLeft: {r: 0.99607843, g: 0.99215686, b: 0.015686275, a: 1}
+    bottomRight: {r: 0.99607843, g: 0.99215686, b: 0.015686275, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -118232,8 +118232,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 336.6, y: 116.7}
-  m_SizeDelta: {x: 60, y: 60}
+  m_AnchoredPosition: {x: 345.6, y: 116.7}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1169065445
 MonoBehaviour:
@@ -118255,7 +118255,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 8670846447475252391, guid: 1f02da5863f71c34a9e4c92bc544fbcd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3ee5938498857614ba658efcebf30da5, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -125889,7 +125889,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f521a04de7f494272a617b2719edd271, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SocketIOManager
-  testToken: 820ca9de52c34c15916050fba8839de1
+  testToken: 9c04f0d17685450c975f39604ac84acc
   gameManager: {fileID: 1206269883}
   uiManager: {fileID: 885496184}
   popupManager: {fileID: 1363796882}
@@ -134608,6 +134608,7 @@ MonoBehaviour:
   clipWinLinePhase1Start: {fileID: 8300000, guid: c494e35d645f344e1a65ed0687a532cf, type: 3}
   clipReelStop: {fileID: 8300000, guid: 35bfce330afaae44eb7aa96205c5875d, type: 3}
   clipGoldMineBigWin: {fileID: 8300000, guid: 53c0465a7e09392438ba69c96cb8edee, type: 3}
+  clipGoldMineBoots: {fileID: 8300000, guid: 134b444b7749cbf42a7702d2092235c3, type: 3}
   clipGoldMineDonkeyIconInSlot: {fileID: 8300000, guid: 1e2023058d9b9214095e57720d7a2ce0, type: 3}
   clipGoldMineReelSpinning: {fileID: 8300000, guid: d440323f7721dbd4aaf9bfb07b11d089, type: 3}
   clipGoldMineSmallWin: {fileID: 8300000, guid: 249208fd298b5994aabb7d1c79fa5885, type: 3}
@@ -134616,6 +134617,11 @@ MonoBehaviour:
   clipGoldMineTrainIconInSlot: {fileID: 8300000, guid: d2c288ab0ad361245b3e5169dbec2d29, type: 3}
   clipGoldMineTrainTransition: {fileID: 8300000, guid: b1247888b0e1e564fa0860ffbc62097e, type: 3}
   clipGoldMineWildIcon: {fileID: 8300000, guid: 20c22ff4f6b9be7469e15cb97faa5c4a, type: 3}
+  clipGoldMineBonusBg: {fileID: 8300000, guid: 622fabb7ec261cd46809545e92a0230d, type: 3}
+  clipGoldMineExplosionBlast: {fileID: 8300000, guid: 4cb59935c8faf69489f7a6614c2427c6, type: 3}
+  clipGoldMineManWithTrain: {fileID: 8300000, guid: bc88c1157e4019944ba199314ee4c2a8, type: 3}
+  clipGoldMineSparkle: {fileID: 8300000, guid: d684cf27fec463044900d608a50bb64d, type: 3}
+  clipGoldMineSteamLocomotiveWhistle: {fileID: 8300000, guid: 78353d02e7fd02047972a9c6e1939feb, type: 3}
 --- !u!4 &1330086577
 Transform:
   m_ObjectHideFlags: 0
@@ -135321,7 +135327,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 228, y: 116.7}
+  m_AnchoredPosition: {x: 235.4, y: 116.7}
   m_SizeDelta: {x: 40, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1337578767
@@ -140208,7 +140214,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: '      landing on reels can be synthesized into    ,    ,     ,       
-    ,       or       .    '
+    ,      or       .    '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f2fef053f91a68f4d9567f1cd37e78b2, type: 2}
   m_sharedMaterial: {fileID: 8516226605747370990, guid: f2fef053f91a68f4d9567f1cd37e78b2, type: 2}
@@ -144543,8 +144549,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 493.8, y: 116.7}
-  m_SizeDelta: {x: 60, y: 60}
+  m_AnchoredPosition: {x: 500.7, y: 116.7}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1442145301
 MonoBehaviour:
@@ -144566,7 +144572,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5266566298922594509, guid: bc728146a2b3b764489c2e9bae17921b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3764b3cdfe04d8e47a3e54c7317699fe, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -148094,7 +148100,6 @@ MonoBehaviour:
   spriteGoldBurstScatter: {fileID: 21300000, guid: 5ed71329233210d4ba6319b302b90468, type: 3}
   spriteMegaGoldBurstScatter: {fileID: 21300000, guid: 36d9d30c07ddab74d8c64aa7f432e749, type: 3}
   spriteUltimateGoldBurstScatter: {fileID: 21300000, guid: a598749cdf715384082c28a273a76a7e, type: 3}
-  spriteGoldMineJourney: {fileID: 21300000, guid: 82f1295b83d04479aa78260848466e1e, type: 3}
   winSymbolLoopDuration: 2
   animSpritesMiner:
   - {fileID: 21300000, guid: b1502e30659b2154cb7546f5ee4d4de4, type: 3}
@@ -148504,7 +148509,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0a2a3005c62e0904f911c74ba82d1420, type: 3}
   - {fileID: 21300000, guid: 66cd7472eff55fa4380331d26094a3e6, type: 3}
   - {fileID: 21300000, guid: db0de2f85ce32944e8d629445f40610b, type: 3}
-  animSpritesFreeGameScatter:
+  animSpritesTrainLanding:
   - {fileID: 21300000, guid: 8ebeefeefc162fe408d1af140d0b231d, type: 3}
   - {fileID: 21300000, guid: cc21dbf56ce81d742ad9f695c3046e72, type: 3}
   - {fileID: 21300000, guid: c63786f7f389f754886fea64023714e0, type: 3}
@@ -149227,28 +149232,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f37e6b2c4a14f758d02bb5a43d9e1c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotFeatureController
-  animationRoot: {fileID: 964632433}
-  twoSlotBarrelRoot: {fileID: 1720651058}
-  threeSlotBarrelRoot: {fileID: 1863358036}
-  greenTrainRoot: {fileID: 2131607555}
-  redTrainRoot: {fileID: 764577827}
-  horizontalPurpleTrainRoot: {fileID: 1545550333}
-  verticalPurpleTrainRoot: {fileID: 1337183866}
-  goldenTrainRoot: {fileID: 281060558}
   darkBackground: {fileID: 1296945775}
   landscapeExtraUI: {fileID: 1471638916}
-  coldBurstController: {fileID: 2147483001}
-  megaGoldBurstController: {fileID: 2147483002}
-  ultimateGoldBurstController: {fileID: 2147483003}
   track: {fileID: 1335534581}
   trolleyMan: {fileID: 250490884}
-  oneSlotGoldBoxRoot: {fileID: 1392370506}
-  twoSlotGoldBoxRoot: {fileID: 1256214044}
-  threeSlotGoldBoxRoot: {fileID: 1529673603}
-  goldBurstCollectionParticles: {fileID: 2146500001}
-  goldBurstIntroFramesPerSecond: 29
-  goldBurstMergeDelayAfterTrolley: 0.5
-  goldBoxHoldWithoutTrain: 1.2
   goldBurstResultPanel: {fileID: 1352638858}
   goldBurstResultWinBox: {fileID: 1832807475}
   goldBurstResultWinAmount: {fileID: 2017077774}
@@ -149272,40 +149259,14 @@ MonoBehaviour:
   freeGamesStartButton: {fileID: 0}
   trainTrackAnimation: {fileID: 0}
   freeGamesStartButtonPopupDuration: 0.35
-  greenTrainVisuals:
-  - visual: {fileID: 1708917721}
-    mask: {fileID: 1515807310}
-    pressPlay: {fileID: 1417322602}
-  - visual: {fileID: 760832660}
-    mask: {fileID: 1648085633}
-    pressPlay: {fileID: 1115110600}
-  redTrainVisuals:
-  - visual: {fileID: 669432322}
-    mask: {fileID: 99370706}
-    pressPlay: {fileID: 464605192}
-  horizontalPurpleTrainVisuals:
-  - visual: {fileID: 618232473}
-    mask: {fileID: 1464647959}
-    pressPlay: {fileID: 676287476}
-  verticalPurpleTrainVisuals:
-  - visual: {fileID: 2031303738}
-    mask: {fileID: 1217370458}
-    pressPlay: {fileID: 28018478}
-  - visual: {fileID: 1462699582}
-    mask: {fileID: 2124316342}
-    pressPlay: {fileID: 984545491}
-  goldenTrainVisuals:
-  - visual: {fileID: 1373645624}
-    mask: {fileID: 1384965248}
-    pressPlay: {fileID: 1694596521}
+  trainJourneyOrientation: {fileID: 1353408117}
+  orientationLayoutController: {fileID: 0}
   trainJourneyGreenTrain: {fileID: 1721015451}
   trainJourneyPurpleTrain: {fileID: 750721066}
   trainJourneyRedTrain: {fileID: 1740418102}
   trainJourneyGoldenTrain: {fileID: 1552494283}
   trainJourneyActor: {fileID: 537079401}
   trainJourneySecondActor: {fileID: 1074545902}
-  trainJourneyOrientation: {fileID: 1353408117}
-  orientationLayoutController: {fileID: 0}
   portraitTrainJourneyActorPosition: {x: -503, y: -95}
   portraitTrainJourneyActorSize: {x: 600, y: 600}
   portraitTrainJourneyActorScale: {x: 1, y: 1, z: 1}
@@ -149350,6 +149311,49 @@ MonoBehaviour:
   trainJourneyAmountTransferDuration: 0.7
   trainJourneyAmountPopScale: 1.2
   trainJourneyAmountPopDuration: 0.3
+  animationRoot: {fileID: 964632433}
+  twoSlotBarrelRoot: {fileID: 1720651058}
+  threeSlotBarrelRoot: {fileID: 1863358036}
+  greenTrainRoot: {fileID: 2131607555}
+  redTrainRoot: {fileID: 764577827}
+  horizontalPurpleTrainRoot: {fileID: 1545550333}
+  verticalPurpleTrainRoot: {fileID: 1337183866}
+  goldenTrainRoot: {fileID: 281060558}
+  coldBurstController: {fileID: 2147483001}
+  megaGoldBurstController: {fileID: 2147483002}
+  ultimateGoldBurstController: {fileID: 2147483003}
+  oneSlotGoldBoxRoot: {fileID: 1392370506}
+  twoSlotGoldBoxRoot: {fileID: 1256214044}
+  threeSlotGoldBoxRoot: {fileID: 1529673603}
+  goldBurstCollectionParticles: {fileID: 2146500001}
+  goldBurstMergeDelayAfterTrolley: 0.5
+  goldBoxHoldWithoutTrain: 1.2
+  greenTrainVisuals:
+  - visual: {fileID: 1708917721}
+    mask: {fileID: 1515807310}
+    pressPlay: {fileID: 1417322602}
+  - visual: {fileID: 760832660}
+    mask: {fileID: 1648085633}
+    pressPlay: {fileID: 1115110600}
+  redTrainVisuals:
+  - visual: {fileID: 669432322}
+    mask: {fileID: 99370706}
+    pressPlay: {fileID: 464605192}
+  horizontalPurpleTrainVisuals:
+  - visual: {fileID: 618232473}
+    mask: {fileID: 1464647959}
+    pressPlay: {fileID: 676287476}
+  verticalPurpleTrainVisuals:
+  - visual: {fileID: 2031303738}
+    mask: {fileID: 1217370458}
+    pressPlay: {fileID: 28018478}
+  - visual: {fileID: 1462699582}
+    mask: {fileID: 2124316342}
+    pressPlay: {fileID: 984545491}
+  goldenTrainVisuals:
+  - visual: {fileID: 1373645624}
+    mask: {fileID: 1384965248}
+    pressPlay: {fileID: 1694596521}
   pressPlayPopupScale: 1.12
   pressPlayPopupDuration: 0.25
   pressPlaySettleDuration: 0.12
@@ -159161,8 +159165,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 405.2, y: 116.7}
-  m_SizeDelta: {x: 60, y: 60}
+  m_AnchoredPosition: {x: 409.4, y: 116.7}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1572074086
 MonoBehaviour:
@@ -159184,7 +159188,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -8977135129451250140, guid: b5559789efdd2654a96de280d4b23999, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b082e43824bf7f14287ddd7fa227d83b, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -164841,7 +164845,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -14, y: 2}
+  m_AnchoredPosition: {x: -14, y: 0}
   m_SizeDelta: {x: 1321.233, y: 855.489}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1619449368
@@ -165550,7 +165554,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 18306c85348c740e19bb9454a42b8fef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 20899bf00558140d08680d7c3e4d8e44, type: 2}
   m_sharedMaterial: {fileID: 2156643156210230814, guid: 18306c85348c740e19bb9454a42b8fef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -165560,12 +165564,12 @@ MonoBehaviour:
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 1
-  m_colorMode: 3
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 0.9607843, b: 0.47058824, a: 1}
-    topRight: {r: 1, g: 0.827451, b: 0.22745098, a: 1}
-    bottomLeft: {r: 1, g: 0.5411765, b: 0.11764706, a: 1}
-    bottomRight: {r: 0.8666667, g: 0.21568628, b: 0.078431375, a: 1}
+    topLeft: {r: 0.99607843, g: 0.8745098, b: 0.3372549, a: 1}
+    topRight: {r: 0.99607843, g: 0.8745098, b: 0.3372549, a: 1}
+    bottomLeft: {r: 0.99607843, g: 0.99215686, b: 0.015686275, a: 1}
+    bottomRight: {r: 0.99607843, g: 0.99215686, b: 0.015686275, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -165617,7 +165621,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1623935144
@@ -169337,7 +169341,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 18306c85348c740e19bb9454a42b8fef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 20899bf00558140d08680d7c3e4d8e44, type: 2}
   m_sharedMaterial: {fileID: 2156643156210230814, guid: 18306c85348c740e19bb9454a42b8fef, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -169347,12 +169351,12 @@ MonoBehaviour:
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 1
-  m_colorMode: 3
+  m_colorMode: 2
   m_fontColorGradient:
-    topLeft: {r: 1, g: 0.9607843, b: 0.47058824, a: 1}
-    topRight: {r: 1, g: 0.827451, b: 0.22745098, a: 1}
-    bottomLeft: {r: 1, g: 0.5411765, b: 0.11764706, a: 1}
-    bottomRight: {r: 0.8666667, g: 0.21568628, b: 0.078431375, a: 1}
+    topLeft: {r: 0.99607843, g: 0.8745098, b: 0.3372549, a: 1}
+    topRight: {r: 0.99607843, g: 0.8745098, b: 0.3372549, a: 1}
+    bottomLeft: {r: 0.99607843, g: 0.99215686, b: 0.015686275, a: 1}
+    bottomRight: {r: 0.99607843, g: 0.99215686, b: 0.015686275, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
@@ -169404,7 +169408,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1668233861
@@ -190237,7 +190241,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 540, y: -1429.6774}
+  m_AnchoredPosition: {x: 540, y: -1429.6776}
   m_SizeDelta: {x: 1060, y: 365.969}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1875977190
@@ -217289,6 +217293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3315a0baeed4483aab5122e6d0565711, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ColdGoldBurstRespinController
+  introFramesPerSecond: 29
 --- !u!114 &2147483002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217301,6 +217306,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd7504dceddb4680a901a0dab0182787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MegaGoldBurstRespinController
+  introFramesPerSecond: 29
 --- !u!114 &2147483003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217313,6 +217319,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0eb659d7b6ec4faf9d9d5cd2b80579fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UltimateGoldBurstRespinController
+  introFramesPerSecond: 29
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
