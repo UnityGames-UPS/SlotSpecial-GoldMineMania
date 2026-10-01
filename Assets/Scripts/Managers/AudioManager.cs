@@ -67,6 +67,11 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip clipGoldMineManWithTrain;
     [SerializeField] private AudioClip clipGoldMineSparkle;
     [SerializeField] private AudioClip clipGoldMineSteamLocomotiveWhistle;
+    [SerializeField] private AudioClip clipGoldMineGoldGoingUpward;
+    [SerializeField] private AudioClip clipGoldMineRespinTrigger;
+    [SerializeField] private AudioClip clipGoldMineBarrelsMerge;
+    [SerializeField] private AudioClip clipGoldMineSlotTrainConversion;
+    [SerializeField] private AudioClip clipGoldMineTrolleyMan;
 
     private AudioSource goldMineReelSpinSource;
     private AudioSource goldMineTensionSource;
@@ -136,21 +141,23 @@ public class AudioManager : MonoBehaviour
     /// <summary>
     /// Uses UI source (AudioSource 2). If busy/playing, falls back to reserve source (AudioSource 4).
     /// </summary>
-    private void PlayUISound(AudioClip clip)
+    private void PlayUISound(AudioClip clip, float volumeScale = 1f)
     {
         if (!_sfxEnabled || clip == null) return;
 
+        volumeScale = Mathf.Clamp01(volumeScale);
+
         if (uiSource != null && !uiSource.isPlaying)
         {
-            uiSource.PlayOneShot(clip);
+            uiSource.PlayOneShot(clip, volumeScale);
         }
         else if (reserveSource != null)
         {
-            reserveSource.PlayOneShot(clip);
+            reserveSource.PlayOneShot(clip, volumeScale);
         }
         else if (uiSource != null)
         {
-            uiSource.PlayOneShot(clip);
+            uiSource.PlayOneShot(clip, volumeScale);
         }
     }
 
@@ -503,7 +510,7 @@ public class AudioManager : MonoBehaviour
 
     internal void PlayGoldMineExplosionBlast()
     {
-        PlayUISound(clipGoldMineExplosionBlast);
+        PlayUISound(clipGoldMineExplosionBlast, 0.7f);
     }
 
     internal void PlayGoldMineManWithTrain()
@@ -519,6 +526,36 @@ public class AudioManager : MonoBehaviour
     internal void PlayGoldMineSteamLocomotiveWhistle()
     {
         PlayUISound(clipGoldMineSteamLocomotiveWhistle);
+    }
+
+    internal void PlayGoldMineGoldGoingUpward()
+    {
+        PlayUISound(clipGoldMineGoldGoingUpward);
+    }
+
+    internal void PlayGoldMineRespinTrigger()
+    {
+        PlayUISound(clipGoldMineRespinTrigger);
+    }
+
+    internal void PlayGoldMineBarrelsMerge()
+    {
+        PlayUISound(clipGoldMineBarrelsMerge);
+    }
+
+    internal void PlayGoldMineSlotTrainConversion()
+    {
+        PlayUISound(clipGoldMineSlotTrainConversion);
+    }
+
+    internal void PlayGoldMineTrolleyMan()
+    {
+        PlayUISound(clipGoldMineTrolleyMan);
+    }
+
+    internal void PlayGoldMineManDonkeyExit()
+    {
+        PlayUISound(clipAutoplayPanelOpen);
     }
 
     private bool isForceMuted = false;

@@ -566,6 +566,7 @@ public abstract class TransitionController : MonoBehaviour
                         0,
                         trolleyAnimation.Name,
                         false);
+                    AudioManager.Instance?.PlayGoldMineTrolleyMan();
                     trolleyDuration = trolleyAnimation.Duration;
                 }
             }
@@ -1799,6 +1800,7 @@ public abstract class TransitionController : MonoBehaviour
             lineComplete = true;
         };
         trainJourneyLineAnimation.gameObject.SetActive(true);
+        AudioManager.Instance?.PlayGoldMineGoldGoingUpward();
         trainJourneyLineAnimation.PlayAnimation();
 
         float timeout = Time.realtimeSinceStartup +
@@ -2022,6 +2024,7 @@ public abstract class TransitionController : MonoBehaviour
 
         if (hasExitTween)
         {
+            AudioManager.Instance?.PlayGoldMineManDonkeyExit();
             yield return exitSequence.WaitForCompletion();
         }
         else if (exitDuration > 0f)

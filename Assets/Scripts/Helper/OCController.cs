@@ -16,6 +16,10 @@ public class OCController : MonoBehaviour
     [SerializeField] private GameObject landscapePanelObject;
     [SerializeField] private GameObject portraitPanelObject;
 
+    [Header("Landscape Extra UI")]
+    [SerializeField] private List<GameObject> portraitHiddenLandscapeExtraUIChains =
+        new List<GameObject>();
+
     [Header("Background Toggle Settings")]
     [SerializeField] private GameObject landscapeBackground;
     [SerializeField] private GameObject portraitBackground;
@@ -141,6 +145,13 @@ public class OCController : MonoBehaviour
         if (portraitPanelObject != null)
         {
             portraitPanelObject.SetActive(isMobilePortrait);
+        }
+        if (portraitHiddenLandscapeExtraUIChains != null)
+        {
+            foreach (GameObject chain in portraitHiddenLandscapeExtraUIChains)
+            {
+                if (chain != null) chain.SetActive(!isMobilePortrait);
+            }
         }
 
         // 2. Toggle Landscape vs Portrait Background Objects

@@ -1842,6 +1842,7 @@ public class SlotView : MonoBehaviour
                     runtime,
                     loopCount,
                     useDedicatedSingleSlotBlast,
+                    revealBeforeCompletion != null,
                     out float duration))
             {
                 RestoreGoldBurstConversionRuntime(runtime);
@@ -1904,6 +1905,7 @@ public class SlotView : MonoBehaviour
         GoldBurstConversionRuntime runtime,
         int loopCount,
         bool useDedicatedSingleSlotBlast,
+        bool playExplosionSound,
         out float duration)
     {
         duration = 0f;
@@ -1948,11 +1950,7 @@ public class SlotView : MonoBehaviour
         animation.SetLoopDuration(loopDuration);
         animation.onLoopComplete = completedLoops =>
         {
-            if (completedLoops < loopCount)
-            {
-                AudioManager.Instance?.PlayGoldMineExplosionBlast();
-                return;
-            }
+            if (completedLoops < loopCount) return;
 
             animation.doLoopAnimation = false;
             runtime.completed = true;
@@ -1977,7 +1975,10 @@ public class SlotView : MonoBehaviour
             return false;
         }
 
-        AudioManager.Instance?.PlayGoldMineExplosionBlast();
+        if (playExplosionSound)
+        {
+            AudioManager.Instance?.PlayGoldMineExplosionBlast();
+        }
 
         if (!runtime.usesBarrelVisual &&
             runtime.baseImage != null &&

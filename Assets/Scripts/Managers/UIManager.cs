@@ -2039,11 +2039,11 @@ public class UIManager : MonoBehaviour
         bigWinPresentationCallback = onComplete;
         isBigWinPresentationActive = true;
         isSpecialWinActive = true;
-        AudioManager.Instance?.PlayGoldMineBigWin();
         SetSpinStopButtonStates(isSpinningState: false, isInteractable: false);
 
         ApplyBigWinPresentationLayout();
         bigWinPresentation.SetActive(true);
+        AudioManager.Instance?.PlayGoldMineBigWin();
 
         if (bigWinPresentationAmount != null)
         {

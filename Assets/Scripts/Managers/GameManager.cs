@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float quickSpinCycleDuration = 0.1f;
 
     [Header("Win Settings")]
-    [SerializeField] private double bigWinMultiplierThreshold = 500.0;
+    [SerializeField] private double bigWinMultiplierThreshold = 5.0;
     public double BigWinMultiplierThreshold => bigWinMultiplierThreshold;
 
     internal GameConfig gameConfig;
@@ -1012,6 +1012,7 @@ public class GameManager : MonoBehaviour
 
     private void StartGoldBurstRespins(GoldBurstTier tier)
     {
+        AudioManager.Instance?.PlayGoldMineRespinTrigger();
         activeGoldBurstTier = tier;
         isInGoldBurstRespins = true;
         isCompletingGoldBurstRespins = false;

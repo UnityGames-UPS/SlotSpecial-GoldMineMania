@@ -518,6 +518,7 @@ public class SlotFeatureController : TransitionController
             barrel.anchoredPosition = barrelPosition;
         }
 
+        AudioManager.Instance?.PlayGoldMineBarrelsMerge();
         PlayConversionFade(reelIndex, 1, startRow, 2, barrel);
         visibleFeatures[(TwoSlotFeatureType, startRow, reelIndex, 2, 1)] = barrel;
     }
@@ -531,6 +532,7 @@ public class SlotFeatureController : TransitionController
         {
             TryPlaceVisualAtConversionCenter(barrel, reelIndex, 1, 0, RowCount);
         }
+        AudioManager.Instance?.PlayGoldMineBarrelsMerge();
         PlayConversionFade(
             reelIndex,
             1,
@@ -581,6 +583,7 @@ public class SlotFeatureController : TransitionController
         trainVisualRestingPositions[trainVisual] = trainVisual.anchoredPosition;
         var trainKey = ((int)train.type, train.startRow, train.startCol,
             train.rowCount, train.columnCount);
+        AudioManager.Instance?.PlayGoldMineSlotTrainConversion();
         PlayConversionFade(
             train.startCol,
             train.columnCount,
@@ -624,14 +627,9 @@ public class SlotFeatureController : TransitionController
 
     private void RevealPreparedFeatures(bool showPressPlay = true)
     {
-        bool revealedTrain = false;
         for (int reelIndex = 0; reelIndex < activeReelCount; reelIndex++)
         {
-            revealedTrain |= RevealFeaturesForReel(reelIndex);
-        }
-        if (revealedTrain)
-        {
-            AudioManager.Instance?.PlayGoldMineSteamLocomotiveWhistle();
+            RevealFeaturesForReel(reelIndex);
         }
 
         if (showPressPlay && !isGoldBurstPresentationActive)
