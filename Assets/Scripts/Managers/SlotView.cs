@@ -354,6 +354,7 @@ public class SlotView : MonoBehaviour
 
     internal void PrepareForGoldBurstLayoutSwitch()
     {
+        HideSymbolInfoCard();
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
@@ -724,6 +725,12 @@ public class SlotView : MonoBehaviour
 
     private void SetupSymbolButtons(int rowCount)
     {
+        if (!CanShowSymbolInfoCard())
+        {
+            HideSymbolInfoCard();
+            return;
+        }
+
         int safeRows = Mathf.Min(DefaultRowCount, Mathf.Max(1, rowCount));
         for (int reelIndex = 0; reelIndex < reels.Count; reelIndex++)
         {
@@ -2536,7 +2543,7 @@ public class SlotView : MonoBehaviour
 
     internal void OnSymbolClicked(int column, int row, RectTransform symbolRect)
     {
-        if (isSpinning)
+        if (isSpinning || !CanShowSymbolInfoCard())
         {
             HideSymbolInfoCard();
             return;
@@ -2549,6 +2556,13 @@ public class SlotView : MonoBehaviour
         }
 
         symbolInfoCard?.ShowCard(currentDisplayMatrix[column][row], column, row, symbolRect, gameManager);
+    }
+
+    private bool CanShowSymbolInfoCard()
+    {
+        return !isUsingMegaGoldBurstLayout &&
+               !isUsingUltimateGoldBurstLayout &&
+               reels.Count == DefaultReelCount;
     }
 
     #endregion

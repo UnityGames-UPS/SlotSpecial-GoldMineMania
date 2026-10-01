@@ -592,12 +592,17 @@ public static class InitDataConverter
                 minMatch = serverSymbol.minMatch
             };
 
-            // Store raw payout values for info page
-            if (serverSymbol.payout != null)
+            // Keep the paytable server-authoritative. Newer init payloads use
+            // `payout`; older compatible payloads use `multiplier`.
+            List<double> serverPayouts = serverSymbol.payout != null &&
+                                         serverSymbol.payout.Count > 0
+                ? serverSymbol.payout
+                : serverSymbol.multiplier;
+            if (serverPayouts != null)
             {
-                for (int i = serverSymbol.payout.Count - 1; i >= 0; i--)
+                for (int i = serverPayouts.Count - 1; i >= 0; i--)
                 {
-                    symbolInfo.multipliers.Add(serverSymbol.payout[i]);
+                    symbolInfo.multipliers.Add(serverPayouts[i]);
                 }
             }
             config.symbols.Add(symbolInfo);

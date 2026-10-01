@@ -131,71 +131,77 @@ public class SymbolInfoCard : MonoBehaviour
     {
         if (infoText == null) return;
 
+        GameConfig gameConfig = gameManager != null ? gameManager.gameConfig : null;
         SymbolInfo symbolInfo = null;
-        if (gameManager != null && gameManager.gameConfig != null && gameManager.gameConfig.symbols != null)
+        if (gameConfig != null && gameConfig.symbols != null)
         {
-            symbolInfo = gameManager.gameConfig.symbols.Find(s => s.id == symbolId);
+            symbolInfo = gameConfig.symbols.Find(s => s.id == symbolId);
         }
 
-        string symbolNameLower = symbolInfo != null ? (symbolInfo.name ?? "").ToLower() : "";
+        string normalizedName = NormalizeSymbolName(symbolInfo != null ? symbolInfo.name : null);
+        bool isGoldBurstBonus = normalizedName.Contains("goldburst") ||
+                                (gameConfig != null &&
+                                 gameConfig.goldBurstTriggerSymbolIds != null &&
+                                 gameConfig.goldBurstTriggerSymbolIds.Contains(symbolId));
+        bool isWild = (gameConfig != null && symbolId == gameConfig.wildSymbolId) ||
+                      (symbolInfo != null && symbolInfo.isWild) ||
+                      normalizedName.Contains("wild");
+        bool isFreeGameScatter = !isGoldBurstBonus &&
+                                 ((gameConfig != null && symbolId == gameConfig.scatterSymbolId) ||
+                                  (symbolInfo != null && symbolInfo.isScatter) ||
+                                  normalizedName.Contains("freegame") ||
+                                  normalizedName.Contains("scatter"));
 
-        // Check if special symbol: Wild (ID 10), USpin (ID 11), MoneyBag (ID 12)
-        bool isWild = (symbolId == 10) || (symbolInfo != null && symbolInfo.isWild) || symbolNameLower.Contains("wild");
-        bool isUSpin = (symbolId == 11) || symbolNameLower.Contains("uspin");
-        bool isMoneyBag = (symbolId == 12) || symbolNameLower.Contains("moneybag") || symbolNameLower.Contains("money bag");
+        infoText.enableAutoSizing = true;
+        infoText.richText = true;
 
-        if (isWild || isUSpin || isMoneyBag)
+        if (isGoldBurstBonus || isWild || isFreeGameScatter)
         {
-            // SPECIAL SYMBOL: Text alignment CENTER
             infoText.alignment = TextAlignmentOptions.Center;
-            infoText.enableWordWrapping = true;
-if (isUSpin)
-{
-    infoText.text = "3 U-Spin symbols trigger the Wheel Bonus feature.";
-}
-else if (isMoneyBag)
-{
-    infoText.text = "3 Money Bag symbols trigger the Money Bag Collect feature.";
-}
-else if (isWild)
-{
-    infoText.text = "Substitutes for all symbols except U-Spin and Money Bag.";
-}
+            infoText.textWrappingMode = TextWrappingModes.Normal;
+
+            if (isGoldBurstBonus)
+            {
+                int triggerCount = gameConfig != null
+                    ? Mathf.Max(1, gameConfig.goldBurstMinTrigger)
+                    : 6;
+                infoText.text = $"{triggerCount} or more Bonus Symbol mixed Trigger Gold Burst Respin";
+            }
+            else if (isWild)
+            {
+                infoText.text = "Substitutes for all Symbols except Scatter";
+            }
+            else
+            {
+                int triggerCount = gameConfig != null
+                    ? Mathf.Max(1, gameConfig.freeGameMinTrigger)
+                    : 3;
+                infoText.text = $"{triggerCount} or more scattered triggers the FreeGame";
+            }
         }
         else
         {
-            // NORMAL SYMBOL: Text alignment FLUSH
             infoText.alignment = TextAlignmentOptions.Flush;
-            infoText.enableWordWrapping = false;
-
-            double betFactor = 1.0;
-            if (gameManager != null)
-            {
-                if (gameManager.currentBetAmount > 0)
-                {
-                    betFactor = gameManager.currentBetAmount;
-                }
-                else if (gameManager.gameConfig != null && gameManager.gameConfig.availableBets != null &&
-                         gameManager.gameConfig.availableBets.Count > gameManager.currentBetIndex &&
-                         gameManager.currentBetIndex >= 0)
-                {
-                    betFactor = gameManager.gameConfig.availableBets[gameManager.currentBetIndex];
-                }
-                else
-                {
-                    betFactor = gameManager.currentBetIndex + 1;
-                }
-            }
+            infoText.textWrappingMode = TextWrappingModes.NoWrap;
 
             if (symbolInfo != null && symbolInfo.multipliers != null && symbolInfo.multipliers.Count > 0)
             {
                 List<string> lines = new List<string>();
-                int currentMatch = 5;
+                int currentMatch = symbolInfo.minMatch > 0
+                    ? symbolInfo.minMatch + symbolInfo.multipliers.Count - 1
+                    : gameConfig != null ? gameConfig.reelCount : 5;
+                double betAmount = gameManager != null && gameManager.currentBetAmount > 0d
+                    ? gameManager.currentBetAmount
+                    : 1d;
 
                 for (int m = 0; m < symbolInfo.multipliers.Count; m++)
                 {
-                    double payout = symbolInfo.multipliers[m] * betFactor;
-                    lines.Add($"<color=#FFC700>X{currentMatch}</color>   {payout.ToString("0.###")}");
+                    double betAdjustedPayout = symbolInfo.multipliers[m] * betAmount;
+                    lines.Add(
+                        $"<color=#FFC700>X{currentMatch}</color> " +
+                        betAdjustedPayout.ToString(
+                            "0.00##",
+                            System.Globalization.CultureInfo.InvariantCulture));
                     currentMatch--;
                 }
 
@@ -206,6 +212,21 @@ else if (isWild)
                 infoText.text = "";
             }
         }
+    }
+
+    private static string NormalizeSymbolName(string symbolName)
+    {
+        if (string.IsNullOrWhiteSpace(symbolName)) return string.Empty;
+
+        char[] normalized = new char[symbolName.Length];
+        int length = 0;
+        foreach (char character in symbolName)
+        {
+            if (!char.IsLetterOrDigit(character)) continue;
+            normalized[length++] = char.ToLowerInvariant(character);
+        }
+
+        return new string(normalized, 0, length);
     }
 
     public void HideCard()

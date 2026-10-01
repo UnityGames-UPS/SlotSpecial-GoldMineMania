@@ -5,6 +5,7 @@ using DG.Tweening;
 using System.Collections;
 using Spine.Unity;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class UIManager : MonoBehaviour
 {
@@ -65,11 +66,6 @@ public class UIManager : MonoBehaviour
     [SerializeField, Min(0.01f)] private float bigWinAmountFadeDuration = 0.25f;
     [SerializeField, Min(0f)] private float bigWinAmountExitMoveDistance = 30f;
     [SerializeField, Min(0f)] private float bigWinAmountExitMoveLeadTime = 0.5f;
-#if UNITY_EDITOR
-    [Header("Editor Big Win Test")]
-    [SerializeField] private KeyCode editorBigWinTestKey = KeyCode.B;
-    [SerializeField, Min(0f)] private float editorBigWinTestAmount = 173.54f;
-#endif
 
     [Header("Spin Button")]
     [SerializeField] private Button spinButton;
@@ -164,16 +160,20 @@ public class UIManager : MonoBehaviour
     [Header("Game Rules Dynamic Texts")]
     [SerializeField] private TMP_Text totalLineCountText;
     [SerializeField] private TMP_Text totalLineCountTextPortrait;
-    [SerializeField] private TMP_Text ruleSymbol0Text;
-    [SerializeField] private TMP_Text ruleSymbol1Text;
-    [SerializeField] private TMP_Text ruleSymbol2Text;
-    [SerializeField] private TMP_Text ruleSymbol3Text;
-    [SerializeField] private TMP_Text ruleSymbol4Text;
-    [SerializeField] private TMP_Text ruleSymbol5Text;
-    [SerializeField] private TMP_Text ruleSymbol6Text;
-    [SerializeField] private TMP_Text ruleSymbol7Text;
-    [SerializeField] private TMP_Text ruleSymbol8Text;
-    [SerializeField] private TMP_Text ruleSymbol9Text;
+
+    [Header("Paytable Payout Texts")]
+    [FormerlySerializedAs("ruleSymbol0Text")]
+    [SerializeField] private TMP_Text minerPaytableText;
+    [FormerlySerializedAs("ruleSymbol1Text")]
+    [SerializeField] private TMP_Text donkeyPaytableText;
+    [FormerlySerializedAs("ruleSymbol2Text")]
+    [SerializeField] private TMP_Text goldHelmetPaytableText;
+    [FormerlySerializedAs("ruleSymbol3Text")]
+    [SerializeField] private TMP_Text bootsPaytableText;
+    [FormerlySerializedAs("ruleSymbol4Text")]
+    [SerializeField] private TMP_Text lanternPaytableText;
+    [FormerlySerializedAs("ruleSymbol5Text")]
+    [SerializeField] private TMP_Text lowSymbolsPaytableText;
 
     [Header("Free Spin Count Display - Game Screen")]
     [SerializeField] private GameObject freeSpinCountContainer;
@@ -289,42 +289,6 @@ public class UIManager : MonoBehaviour
             jsFunctCalls.RegisterVisibilityListener(gameObject.name);
         }
     }
-
-#if UNITY_EDITOR
-    private void Update()
-    {
-        if (Input.GetKeyDown(editorBigWinTestKey))
-        {
-            TestBigWinPresentation();
-        }
-    }
-
-    [ContextMenu("Test Big Win Presentation")]
-    private void TestBigWinPresentation()
-    {
-        if (!Application.isPlaying)
-        {
-            Debug.LogWarning(
-                "[UIManager] Enter Play Mode before testing Big Win.",
-                this);
-            return;
-        }
-        if (isSpecialWinActive)
-        {
-            Debug.LogWarning(
-                "[UIManager] A special-win presentation is already active.",
-                this);
-            return;
-        }
-
-        DisableControlsDuringWinAnimation();
-        ShowBigWinPresentation(
-            editorBigWinTestAmount,
-            () => Debug.Log("[UIManager] Big Win test completed.", this));
-    }
-#endif
-
-
 
     public void OnFocusChanged(string value)
     {
@@ -1221,6 +1185,7 @@ public class UIManager : MonoBehaviour
     private void ShowGuidePanel()
     {
         if (guidePanel == null) return;
+        UpdateGameRulesDynamicTexts();
         guidePanel.SetActive(true);
         ResetScrollablePanelToFirstPage(guidePanel);
     }
@@ -1744,43 +1709,92 @@ public class UIManager : MonoBehaviour
 
     private void UpdateGameRulesDynamicTexts()
     {
-        if (gameManager.gameConfig == null) return;
+        if (gameManager == null || gameManager.gameConfig == null) return;
 
-        string totalLines = gameManager.gameConfig.paylineCount.ToString();
+        GameConfig gameConfig = gameManager.gameConfig;
+        string totalLines = gameConfig.paylineCount.ToString();
         if (totalLineCountText != null) totalLineCountText.text = totalLines;
         if (totalLineCountTextPortrait != null) totalLineCountTextPortrait.text = totalLines;
 
-        TMP_Text[] symbolTexts = {
-            ruleSymbol0Text, ruleSymbol1Text, ruleSymbol2Text, ruleSymbol3Text,
-            ruleSymbol4Text, ruleSymbol5Text, ruleSymbol6Text, ruleSymbol7Text,
-            ruleSymbol8Text, ruleSymbol9Text
+        ResolvePaytableTextReferences();
+
+        TMP_Text[] symbolTexts =
+        {
+            minerPaytableText,
+            donkeyPaytableText,
+            goldHelmetPaytableText,
+            bootsPaytableText,
+            lanternPaytableText,
+            lowSymbolsPaytableText
         };
 
-        if (gameManager.gameConfig.symbols != null)
+        if (gameConfig.symbols != null)
         {
             for (int i = 0; i < symbolTexts.Length; i++)
             {
                 if (symbolTexts[i] == null) continue;
 
-                var symbol = gameManager.gameConfig.symbols.Find(s => s.id == i);
+                SymbolInfo symbol = gameConfig.symbols.Find(s => s.id == i);
                 if (symbol != null && symbol.multipliers != null && symbol.multipliers.Count > 0)
                 {
-                    double originalBetAmount = gameManager.currentBetAmount;
                     string fullText = "";
-                    
-                    int currentMatch = 5;
+
+                    int currentMatch = symbol.minMatch > 0
+                        ? symbol.minMatch + symbol.multipliers.Count - 1
+                        : gameConfig.reelCount;
                     for (int m = 0; m < symbol.multipliers.Count; m++)
                     {
-                        double win = symbol.multipliers[m];
-                        string line = $"{currentMatch}     {win.ToString("0.###")}";
+                        double serverPayout = symbol.multipliers[m];
+                        string line = $"{currentMatch}-" + serverPayout.ToString(
+                            "0.####",
+                            System.Globalization.CultureInfo.InvariantCulture);
                         if (m == 0) fullText = line;
                         else fullText += $"\n{line}";
-                        
+
                         currentMatch--;
                     }
-                    
+
                     symbolTexts[i].text = fullText;
                 }
+            }
+        }
+    }
+
+    private void ResolvePaytableTextReferences()
+    {
+        if (guidePanel == null ||
+            (minerPaytableText != null &&
+             donkeyPaytableText != null &&
+             goldHelmetPaytableText != null &&
+             bootsPaytableText != null &&
+             lanternPaytableText != null &&
+             lowSymbolsPaytableText != null))
+        {
+            return;
+        }
+
+        foreach (TMP_Text textComponent in guidePanel.GetComponentsInChildren<TMP_Text>(true))
+        {
+            switch (textComponent.gameObject.name)
+            {
+                case "Multiplier (1)":
+                    if (minerPaytableText == null) minerPaytableText = textComponent;
+                    break;
+                case "Multiplier":
+                    if (donkeyPaytableText == null) donkeyPaytableText = textComponent;
+                    break;
+                case "Multiplier (2)":
+                    if (goldHelmetPaytableText == null) goldHelmetPaytableText = textComponent;
+                    break;
+                case "Multiplier (3)":
+                    if (bootsPaytableText == null) bootsPaytableText = textComponent;
+                    break;
+                case "Multiplier (4)":
+                    if (lanternPaytableText == null) lanternPaytableText = textComponent;
+                    break;
+                case "Multiplier (5)":
+                    if (lowSymbolsPaytableText == null) lowSymbolsPaytableText = textComponent;
+                    break;
             }
         }
     }

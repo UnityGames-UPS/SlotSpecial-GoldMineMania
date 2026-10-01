@@ -3192,8 +3192,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 24
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -18656,8 +18656,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 24
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -45248,8 +45248,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 24
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -61619,8 +61619,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 24
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -86645,8 +86645,6 @@ MonoBehaviour:
   bigWinAmountFadeDuration: 0.25
   bigWinAmountExitMoveDistance: 30
   bigWinAmountExitMoveLeadTime: 0.5
-  editorBigWinTestKey: 98
-  editorBigWinTestAmount: 173.54
   spinButton: {fileID: 173060499}
   stopButton: {fileID: 344352412}
   spinButtonPortrait: {fileID: 598712220}
@@ -86712,16 +86710,12 @@ MonoBehaviour:
   guideOpenButtonPortrait: {fileID: 593848524}
   totalLineCountText: {fileID: 731576410}
   totalLineCountTextPortrait: {fileID: 760646805}
-  ruleSymbol0Text: {fileID: 0}
-  ruleSymbol1Text: {fileID: 0}
-  ruleSymbol2Text: {fileID: 0}
-  ruleSymbol3Text: {fileID: 0}
-  ruleSymbol4Text: {fileID: 0}
-  ruleSymbol5Text: {fileID: 0}
-  ruleSymbol6Text: {fileID: 0}
-  ruleSymbol7Text: {fileID: 0}
-  ruleSymbol8Text: {fileID: 0}
-  ruleSymbol9Text: {fileID: 0}
+  minerPaytableText: {fileID: 44252787}
+  donkeyPaytableText: {fileID: 1493096268}
+  goldHelmetPaytableText: {fileID: 204994174}
+  bootsPaytableText: {fileID: 474430083}
+  lanternPaytableText: {fileID: 626611557}
+  lowSymbolsPaytableText: {fileID: 1980708959}
   freeSpinCountContainer: {fileID: 995389093}
   remainingFreeSpinsText: {fileID: 1668233860}
   freeSpinCountContainer7x3: {fileID: 1037925995}
@@ -125889,7 +125883,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f521a04de7f494272a617b2719edd271, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SocketIOManager
-  testToken: 9c04f0d17685450c975f39604ac84acc
+  testToken: 0583ee9a42364b2489e217b0d1daeb4c
   gameManager: {fileID: 1206269883}
   uiManager: {fileID: 885496184}
   popupManager: {fileID: 1363796882}
@@ -150436,8 +150430,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 24
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -199899,8 +199893,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 24
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1

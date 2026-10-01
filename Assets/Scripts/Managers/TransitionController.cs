@@ -1950,47 +1950,11 @@ public abstract class TransitionController : MonoBehaviour
     {
         if (!areBigWinActorsActive) yield break;
 
-        float donkeyJumpDuration = PlayTrainJourneyActorJump(
-            trainJourneyActor,
-            true);
-        float manJumpDuration = PlayTrainJourneyActorJump(
-            trainJourneySecondActor,
-            true);
-        float jumpLoopDuration = Mathf.Max(
-            donkeyJumpDuration,
-            manJumpDuration);
-        if (jumpLoopDuration > 0f)
-        {
-            yield return new WaitForSecondsRealtime(jumpLoopDuration);
-        }
+        // Start the downward exit during the final part of the Jump animation
+        // so the actors fall naturally instead of waiting for Jump to finish.
+        yield return PlayTrainJourneyActorJumpAndExit();
 
         if (!areBigWinActorsActive) yield break;
-
-        float exitDuration = Mathf.Max(
-            0.01f,
-            trainJourneyActorExitLeadTime);
-        var exitSequence = DOTween.Sequence().SetUpdate(true);
-        bool hasExitTween = false;
-        hasExitTween |= AppendTrainJourneyActorExit(
-            exitSequence,
-            trainJourneyActor,
-            activeTrainJourneyActorStartPosition,
-            exitDuration);
-        hasExitTween |= AppendTrainJourneyActorExit(
-            exitSequence,
-            trainJourneySecondActor,
-            activeTrainJourneySecondActorStartPosition,
-            exitDuration);
-
-        if (hasExitTween)
-        {
-            yield return exitSequence.WaitForCompletion();
-        }
-        else
-        {
-            yield return new WaitForSecondsRealtime(exitDuration);
-        }
-
         HideBigWinActors();
     }
 
