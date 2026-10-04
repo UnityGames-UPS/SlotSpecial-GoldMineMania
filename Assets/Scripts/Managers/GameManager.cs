@@ -1068,6 +1068,7 @@ public class GameManager : MonoBehaviour
                 this);
             popupManager?.ShowServerError(
                 "The Gold Burst result could not be displayed. Please reconnect and try again.");
+            RestoreBackgroundMusicAfterGoldBurst();
             yield break;
         }
 
@@ -1298,6 +1299,7 @@ public class GameManager : MonoBehaviour
     private void EndGoldBurstRespins(double totalRoundWin, int totalSpinsUsed, bool isRoundOver)
     {
         slotView?.EndGoldBurstPresentation();
+        RestoreBackgroundMusicAfterGoldBurst();
         isCompletingGoldBurstRespins = false;
         isInGoldBurstRespins = false;
         isHiddenGoldBurstEntryRespinInProgress = false;
@@ -1340,6 +1342,22 @@ public class GameManager : MonoBehaviour
         else
         {
             uiManager.EnableControlsAfterWinAnimation();
+        }
+    }
+
+    private void RestoreBackgroundMusicAfterGoldBurst()
+    {
+        AudioManager audioManager = AudioManager.Instance;
+        if (audioManager == null) return;
+
+        audioManager.StopGoldMineRespinBg();
+        if (isInFreeSpins)
+        {
+            audioManager.PlayGoldMineBonusBg();
+        }
+        else
+        {
+            audioManager.PlayMainBg();
         }
     }
 
@@ -1467,6 +1485,11 @@ public class GameManager : MonoBehaviour
 
     internal void OnDisconnected()
     {
+        if (isInGoldBurstRespins)
+        {
+            RestoreBackgroundMusicAfterGoldBurst();
+        }
+
         if (spinCoroutine != null)
         {
             StopCoroutine(spinCoroutine);

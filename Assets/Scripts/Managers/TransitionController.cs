@@ -252,6 +252,7 @@ public abstract class TransitionController : MonoBehaviour
     protected void ResetFreeGamesTransition()
     {
         AudioManager.Instance?.StopGoldMineTrainTransition();
+        AudioManager.Instance?.StopGoldMineFreeSpinStartPanel();
         ResetFreeGamesStartPresentation();
         ResetSpineAnimation(trainTrackSkeleton);
         if (trainTrackAnimation != null)
@@ -311,6 +312,7 @@ public abstract class TransitionController : MonoBehaviour
             freeGamesStartButton.onClick.AddListener(freeGamesStartButtonListener);
         }
 
+        AudioManager.Instance?.PlayGoldMineFreeSpinStartPanel();
         float introDuration = PlaySpineAnimation(
             freeGamesStartSkeleton,
             FreeGamesStartIntroAnimation,

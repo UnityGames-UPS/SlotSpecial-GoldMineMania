@@ -692,6 +692,7 @@ public class SlotFeatureController : TransitionController
         if (respinController != null)
         {
             SetDarkBackgroundActive(true);
+            AudioManager.Instance?.PlayGoldMineRespinBg();
             yield return respinController.PlayIntro();
         }
 

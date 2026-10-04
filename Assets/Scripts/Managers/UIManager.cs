@@ -2316,7 +2316,6 @@ public class UIManager : MonoBehaviour
 
         if (universalWinPopup == null) return;
 
-        AudioManager.Instance?.PlayWinObjectBg();
         isSpecialWinActive = true;
         universalWinPopupCallback = onTakePressed;
 
@@ -2461,7 +2460,6 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        AudioManager.Instance?.StopWinObjectBg();
         AudioManager.Instance?.PlayTakeButton();
         CloseUniversalWinPopup();
     }
@@ -2522,8 +2520,6 @@ public class UIManager : MonoBehaviour
     private void CloseUniversalWinPopup()
     {
         if (universalWinPopup == null || !universalWinPopup.activeSelf) return;
-
-        AudioManager.Instance?.StopWinObjectBg();
 
         if (uwpWinTween != null)
         {

@@ -125886,7 +125886,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f521a04de7f494272a617b2719edd271, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SocketIOManager
-  testToken: 0583ee9a42364b2489e217b0d1daeb4c
+  testToken: cb6bd51648874c359cc6ca3ad5784213
   gameManager: {fileID: 1206269883}
   uiManager: {fileID: 885496184}
   popupManager: {fileID: 1363796882}
@@ -134593,16 +134593,11 @@ MonoBehaviour:
   clipGameMainBg: {fileID: 8300000, guid: a9bbe7be91e8dac42ad729fba3f0beaa, type: 3}
   clipBetPlusMinus: {fileID: 8300000, guid: 2f2b2ed50e5fe4c05bde643bb826e4c2, type: 3}
   clipMaxBetReached: {fileID: 8300000, guid: b556940f8a085479cbf7662d579f648c, type: 3}
-  clip3UspinWinLineLoop: {fileID: 8300000, guid: a873c67d75600477baf32901e789e032, type: 3}
-  clipWinObjectBg: {fileID: 8300000, guid: 0ce78e686230d4365926b8a4e24e9b30, type: 3}
   clipPrimaryActionButton: {fileID: 8300000, guid: cdc28904abf8f482a86f75b5b1087cd1, type: 3}
   clipGeneralButtonClick: {fileID: 8300000, guid: 50ff95a09cccb499d80af8f5e75f73c2, type: 3}
   clipPopupOpenClose: {fileID: 8300000, guid: c2ed94ff9b16b4493b05db8e783049c7, type: 3}
   clipAutoplayPanelOpen: {fileID: 8300000, guid: b5fa0e1081b524a02aa50b9b2088ef61, type: 3}
-  clipFeatureOpenLoop: {fileID: 8300000, guid: 9cdc1ff86a873487d97ad4eec7849cc7, type: 3}
-  clipFreeSpinBg: {fileID: 8300000, guid: c97b9f215da27434bb5ba3343288f3ef, type: 3}
   clipWheelSegmentTick: {fileID: 8300000, guid: 839489cb9eafa495989ee5a0b651a1f3, type: 3}
-  clipWinLinePhase1Start: {fileID: 8300000, guid: c494e35d645f344e1a65ed0687a532cf, type: 3}
   clipReelStop: {fileID: 8300000, guid: 35bfce330afaae44eb7aa96205c5875d, type: 3}
   clipGoldMineBigWin: {fileID: 8300000, guid: 53c0465a7e09392438ba69c96cb8edee, type: 3}
   clipGoldMineBoots: {fileID: 8300000, guid: 134b444b7749cbf42a7702d2092235c3, type: 3}
@@ -134615,10 +134610,11 @@ MonoBehaviour:
   clipGoldMineTrainTransition: {fileID: 8300000, guid: b1247888b0e1e564fa0860ffbc62097e, type: 3}
   clipGoldMineWildIcon: {fileID: 8300000, guid: 20c22ff4f6b9be7469e15cb97faa5c4a, type: 3}
   clipGoldMineBonusBg: {fileID: 8300000, guid: 622fabb7ec261cd46809545e92a0230d, type: 3}
+  clipGoldMineRespinBg: {fileID: 8300000, guid: 108642a0d92351e459e826398ddbc128, type: 3}
+  clipGoldMineFreeSpinStartPanel: {fileID: 8300000, guid: 4b7865f756f65394092f654ba828735a, type: 3}
   clipGoldMineExplosionBlast: {fileID: 8300000, guid: 4cb59935c8faf69489f7a6614c2427c6, type: 3}
   clipGoldMineManWithTrain: {fileID: 8300000, guid: bc88c1157e4019944ba199314ee4c2a8, type: 3}
   clipGoldMineSparkle: {fileID: 8300000, guid: d684cf27fec463044900d608a50bb64d, type: 3}
-  clipGoldMineSteamLocomotiveWhistle: {fileID: 8300000, guid: 78353d02e7fd02047972a9c6e1939feb, type: 3}
   clipGoldMineGoldGoingUpward: {fileID: 8300000, guid: 870a9f4b73f769f4eac57a3956ed44ee, type: 3}
   clipGoldMineRespinTrigger: {fileID: 8300000, guid: 70bae3ae818c70842bcead78f98e95c1, type: 3}
   clipGoldMineBarrelsMerge: {fileID: 8300000, guid: 318b3dacd143825479bf06168b8ac3ec, type: 3}

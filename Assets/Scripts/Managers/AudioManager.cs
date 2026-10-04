@@ -39,16 +39,11 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip clipGameMainBg;
     [SerializeField] private AudioClip clipBetPlusMinus;
     [SerializeField] private AudioClip clipMaxBetReached;
-    [SerializeField] private AudioClip clip3UspinWinLineLoop;
-    [SerializeField] private AudioClip clipWinObjectBg;
     [SerializeField] private AudioClip clipPrimaryActionButton;
     [SerializeField] private AudioClip clipGeneralButtonClick;
     [SerializeField] private AudioClip clipPopupOpenClose;
     [SerializeField] private AudioClip clipAutoplayPanelOpen;
-    [SerializeField] private AudioClip clipFeatureOpenLoop;
-    [SerializeField] private AudioClip clipFreeSpinBg;
     [SerializeField] private AudioClip clipWheelSegmentTick;
-    [SerializeField] private AudioClip clipWinLinePhase1Start;
     [SerializeField] private AudioClip clipReelStop;
 
     [Header("Gold Mine Mania Clips")]
@@ -63,10 +58,11 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip clipGoldMineTrainTransition;
     [SerializeField] private AudioClip clipGoldMineWildIcon;
     [SerializeField] private AudioClip clipGoldMineBonusBg;
+    [SerializeField] private AudioClip clipGoldMineRespinBg;
+    [SerializeField] private AudioClip clipGoldMineFreeSpinStartPanel;
     [SerializeField] private AudioClip clipGoldMineExplosionBlast;
     [SerializeField] private AudioClip clipGoldMineManWithTrain;
     [SerializeField] private AudioClip clipGoldMineSparkle;
-    [SerializeField] private AudioClip clipGoldMineSteamLocomotiveWhistle;
     [SerializeField] private AudioClip clipGoldMineGoldGoingUpward;
     [SerializeField] private AudioClip clipGoldMineRespinTrigger;
     [SerializeField] private AudioClip clipGoldMineBarrelsMerge;
@@ -280,41 +276,7 @@ public class AudioManager : MonoBehaviour
         PlayUISound(clipMaxBetReached);
     }
 
-    // 4. 3 USpin Win Line Loop
-    internal void Play3UspinWinLineLoop()
-    {
-        if (!_sfxEnabled || clip3UspinWinLineLoop == null) return;
-        PlayLoop(uiSource, clip3UspinWinLineLoop);
-    }
-
-    internal void Stop3UspinWinLineLoop()
-    {
-        if (uiSource != null && uiSource.clip == clip3UspinWinLineLoop)
-        {
-            StopSource(uiSource);
-        }
-    }
-
-    // 5. Win Object BG (Play at Open)
-    internal void PlayWinObjectBg()
-    {
-        if (!_sfxEnabled || clipWinObjectBg == null) return;
-        PlayLoop(uiSource, clipWinObjectBg);
-    }
-
-    internal void StopWinObjectBg()
-    {
-        if (uiSource != null && uiSource.clip == clipWinObjectBg)
-        {
-            StopSource(uiSource);
-        }
-        if (reserveSource != null && reserveSource.clip == clipWinObjectBg)
-        {
-            StopSource(reserveSource);
-        }
-    }
-
-    // 6. Spin / Stop / Take / AutoplayStop / WheelStart Btn Sound
+    // Spin / Stop / Take / AutoplayStop / WheelStart Btn Sound
     internal void PlayPrimaryActionButton()
     {
         PlayUISound(clipPrimaryActionButton != null ? clipPrimaryActionButton : clipGeneralButtonClick);
@@ -326,7 +288,7 @@ public class AudioManager : MonoBehaviour
     internal void PlayAutoplayStop() => PlayPrimaryActionButton();
     internal void PlayWheelStart()   => PlayPrimaryActionButton();
 
-    // 7. General Button Click
+    // General Button Click
     internal void PlayButton()
     {
         PlayUISound(clipGeneralButtonClick);
@@ -334,7 +296,7 @@ public class AudioManager : MonoBehaviour
 
     internal void PlayGeneralButtonClick() => PlayButton();
 
-    // 8. Popup Open Close Sound
+    // Popup Open Close Sound
     internal void PlayPopupOpenClose()
     {
         PlayUISound(clipPopupOpenClose != null ? clipPopupOpenClose : clipGeneralButtonClick);
@@ -343,35 +305,13 @@ public class AudioManager : MonoBehaviour
     internal void PlayPopupClose() => PlayPopupOpenClose();
     internal void PlayPopupOpen()  => PlayPopupOpenClose();
 
-    // 9. Autoplay Panel Open Sound
+    // Autoplay Panel Open Sound
     internal void PlayAutoplayPanelOpen()
     {
         PlayUISound(clipAutoplayPanelOpen != null ? clipAutoplayPanelOpen : clipPopupOpenClose);
     }
 
-    // 10. Bonus Wheel & MoneyBag Feature Open Sound (loop until feature enabled)
-    internal void PlayFeatureOpenLoop()
-    {
-        if (clipFeatureOpenLoop == null) return;
-        PlayLoop(bgMusicSource, clipFeatureOpenLoop);
-    }
-
-    internal void StopFeatureOpenLoop()
-    {
-        if (bgMusicSource != null && bgMusicSource.clip == clipFeatureOpenLoop)
-        {
-            StopBgMusic();
-            PlayBgMusic(); // Resume main BG
-        }
-    }
-
-    // 11. FreeSpin BG (loop while free spin)
-    internal void PlayFreeSpinBg()
-    {
-        PlayGoldMineBonusBg();
-    }
-
-    // 12. Bonus Wheel Spin Segment Tick
+    // Bonus Wheel Spin Segment Tick
     internal void PlayWheelSegmentTick()
     {
         if (!_sfxEnabled || clipWheelSegmentTick == null) return;
@@ -385,13 +325,7 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    // 13. Win Line Phase 1 Start
-    internal void PlayWinLinePhase1Start()
-    {
-        PlayUISound(clipWinLinePhase1Start);
-    }
-
-    // 14. Slot Reel Column Stop Sound
+    // Slot Reel Column Stop Sound
     internal void PlayReelStop()
     {
         if (!_sfxEnabled || clipReelStop == null) return;
@@ -460,6 +394,21 @@ public class AudioManager : MonoBehaviour
             clipGoldMineTrainTransition);
     }
 
+    internal void PlayGoldMineFreeSpinStartPanel()
+    {
+        PlayControlledSfx(
+            goldMinePresentationSource,
+            clipGoldMineFreeSpinStartPanel,
+            false);
+    }
+
+    internal void StopGoldMineFreeSpinStartPanel()
+    {
+        StopControlledSfx(
+            goldMinePresentationSource,
+            clipGoldMineFreeSpinStartPanel);
+    }
+
     internal void PlayGoldMineTrainIcon()
     {
         PlayUISound(clipGoldMineTrainIconInSlot);
@@ -499,13 +448,26 @@ public class AudioManager : MonoBehaviour
 
     internal void PlayGoldMineBonusBg()
     {
-        AudioClip bonusClip = clipGoldMineBonusBg != null
-            ? clipGoldMineBonusBg
-            : clipFreeSpinBg;
-        if (bgMusicSource == null || bonusClip == null) return;
-        if (bgMusicSource.isPlaying && bgMusicSource.clip == bonusClip) return;
+        if (bgMusicSource == null || clipGoldMineBonusBg == null) return;
+        if (bgMusicSource.isPlaying && bgMusicSource.clip == clipGoldMineBonusBg) return;
 
-        PlayLoop(bgMusicSource, bonusClip);
+        PlayLoop(bgMusicSource, clipGoldMineBonusBg);
+    }
+
+    internal void PlayGoldMineRespinBg()
+    {
+        if (bgMusicSource == null || clipGoldMineRespinBg == null) return;
+        if (bgMusicSource.isPlaying && bgMusicSource.clip == clipGoldMineRespinBg) return;
+
+        PlayLoop(bgMusicSource, clipGoldMineRespinBg);
+    }
+
+    internal void StopGoldMineRespinBg()
+    {
+        if (bgMusicSource == null || bgMusicSource.clip != clipGoldMineRespinBg) return;
+
+        StopSource(bgMusicSource);
+        bgMusicSource.clip = null;
     }
 
     internal void PlayGoldMineExplosionBlast()
@@ -521,11 +483,6 @@ public class AudioManager : MonoBehaviour
     internal void PlayGoldMineSparkle()
     {
         PlayUISound(clipGoldMineSparkle);
-    }
-
-    internal void PlayGoldMineSteamLocomotiveWhistle()
-    {
-        PlayUISound(clipGoldMineSteamLocomotiveWhistle);
     }
 
     internal void PlayGoldMineGoldGoingUpward()
