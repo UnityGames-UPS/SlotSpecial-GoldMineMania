@@ -149174,22 +149174,399 @@ MonoBehaviour:
   - {fileID: 882735314}
   - {fileID: 2133339747}
   - {fileID: 478345118}
-  resultSlotsByReel:
+  baseResultSlotsByReel:
   - top: {fileID: 1307122459}
+    topMask: {fileID: 190447596}
+    topSpinningSlot: {fileID: 1074532452}
+    topAnimationSlot: {fileID: 59109771}
+    topAnimationWinbox: {fileID: 2118837234}
     middle: {fileID: 1382182204}
+    middleMask: {fileID: 723664158}
+    middleSpinningSlot: {fileID: 2031601593}
+    middleAnimationSlot: {fileID: 1290308793}
+    middleAnimationWinbox: {fileID: 1517184734}
     bottom: {fileID: 2132999476}
+    bottomMask: {fileID: 167577486}
+    bottomSpinningSlot: {fileID: 1542203322}
+    bottomAnimationSlot: {fileID: 1959165360}
+    bottomAnimationWinbox: {fileID: 1649655345}
   - top: {fileID: 50068564}
+    topMask: {fileID: 370077588}
+    topSpinningSlot: {fileID: 1560283704}
+    topAnimationSlot: {fileID: 1674944250}
+    topAnimationWinbox: {fileID: 831464158}
     middle: {fileID: 6429197}
+    middleMask: {fileID: 681314264}
+    middleSpinningSlot: {fileID: 1434797462}
+    middleAnimationSlot: {fileID: 1993984503}
+    middleAnimationWinbox: {fileID: 1038089784}
     bottom: {fileID: 470480379}
+    bottomMask: {fileID: 258639699}
+    bottomSpinningSlot: {fileID: 435998542}
+    bottomAnimationSlot: {fileID: 1300634154}
+    bottomAnimationWinbox: {fileID: 567250954}
   - top: {fileID: 554338077}
+    topMask: {fileID: 345683224}
+    topSpinningSlot: {fileID: 734266364}
+    topAnimationSlot: {fileID: 1587109909}
+    topAnimationWinbox: {fileID: 1353157678}
     middle: {fileID: 406083996}
+    middleMask: {fileID: 1587500469}
+    middleSpinningSlot: {fileID: 2109876981}
+    middleAnimationSlot: {fileID: 718419666}
+    middleAnimationWinbox: {fileID: 1211550509}
     bottom: {fileID: 1972252873}
+    bottomMask: {fileID: 1587833925}
+    bottomSpinningSlot: {fileID: 611066102}
+    bottomAnimationSlot: {fileID: 203442095}
+    bottomAnimationWinbox: {fileID: 190027679}
   - top: {fileID: 315806345}
+    topMask: {fileID: 729280812}
+    topSpinningSlot: {fileID: 2088659261}
+    topAnimationSlot: {fileID: 329049188}
+    topAnimationWinbox: {fileID: 1280302670}
     middle: {fileID: 1130896731}
+    middleMask: {fileID: 1288161742}
+    middleSpinningSlot: {fileID: 585651774}
+    middleAnimationSlot: {fileID: 280415312}
+    middleAnimationWinbox: {fileID: 1061843581}
     bottom: {fileID: 1959353601}
+    bottomMask: {fileID: 97161056}
+    bottomSpinningSlot: {fileID: 1536324964}
+    bottomAnimationSlot: {fileID: 1569389686}
+    bottomAnimationWinbox: {fileID: 1140018501}
   - top: {fileID: 2137547331}
+    topMask: {fileID: 1165135102}
+    topSpinningSlot: {fileID: 877121543}
+    topAnimationSlot: {fileID: 628415402}
+    topAnimationWinbox: {fileID: 1558339457}
     middle: {fileID: 239163412}
+    middleMask: {fileID: 848460969}
+    middleSpinningSlot: {fileID: 196649343}
+    middleAnimationSlot: {fileID: 1407435330}
+    middleAnimationWinbox: {fileID: 1805954359}
     bottom: {fileID: 1790021680}
+    bottomMask: {fileID: 359491313}
+    bottomSpinningSlot: {fileID: 247915175}
+    bottomAnimationSlot: {fileID: 1204791348}
+    bottomAnimationWinbox: {fileID: 938385578}
+  megaResultSlotsByReel:
+  - top: {fileID: 1073856600}
+    topMask: {fileID: 1421475008}
+    topSpinningSlot: {fileID: 725638992}
+    topAnimationSlot: {fileID: 2093284242}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 627510158}
+    middleMask: {fileID: 1594535784}
+    middleSpinningSlot: {fileID: 1519474386}
+    middleAnimationSlot: {fileID: 294717723}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 745629294}
+    bottomMask: {fileID: 1331063977}
+    bottomSpinningSlot: {fileID: 675352891}
+    bottomAnimationSlot: {fileID: 1903380366}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1861123038}
+    topMask: {fileID: 1504434848}
+    topSpinningSlot: {fileID: 705088285}
+    topAnimationSlot: {fileID: 926630002}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1260825721}
+    middleMask: {fileID: 1821709227}
+    middleSpinningSlot: {fileID: 2040697987}
+    middleAnimationSlot: {fileID: 1982278985}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1954641950}
+    bottomMask: {fileID: 1326537575}
+    bottomSpinningSlot: {fileID: 1318578706}
+    bottomAnimationSlot: {fileID: 1194176389}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1277726735}
+    topMask: {fileID: 1432897426}
+    topSpinningSlot: {fileID: 1553703779}
+    topAnimationSlot: {fileID: 525413334}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1614758906}
+    middleMask: {fileID: 1272631824}
+    middleSpinningSlot: {fileID: 157799023}
+    middleAnimationSlot: {fileID: 501789122}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1623540763}
+    bottomMask: {fileID: 1066305401}
+    bottomSpinningSlot: {fileID: 1693192378}
+    bottomAnimationSlot: {fileID: 81251142}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1703199655}
+    topMask: {fileID: 464983645}
+    topSpinningSlot: {fileID: 423309416}
+    topAnimationSlot: {fileID: 1464295396}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 375550403}
+    middleMask: {fileID: 1731251915}
+    middleSpinningSlot: {fileID: 1071295187}
+    middleAnimationSlot: {fileID: 36542185}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 2093982830}
+    bottomMask: {fileID: 1277516032}
+    bottomSpinningSlot: {fileID: 1277389014}
+    bottomAnimationSlot: {fileID: 1190613799}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1622947544}
+    topMask: {fileID: 277835975}
+    topSpinningSlot: {fileID: 737483821}
+    topAnimationSlot: {fileID: 1593237717}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1928503061}
+    middleMask: {fileID: 736264123}
+    middleSpinningSlot: {fileID: 745018965}
+    middleAnimationSlot: {fileID: 974230786}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 109434457}
+    bottomMask: {fileID: 1069376387}
+    bottomSpinningSlot: {fileID: 1803300179}
+    bottomAnimationSlot: {fileID: 1475319682}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 306257494}
+    topMask: {fileID: 110720119}
+    topSpinningSlot: {fileID: 488264297}
+    topAnimationSlot: {fileID: 1708292237}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 65170286}
+    middleMask: {fileID: 1201069874}
+    middleSpinningSlot: {fileID: 1136465713}
+    middleAnimationSlot: {fileID: 347980594}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 800825416}
+    bottomMask: {fileID: 1109901428}
+    bottomSpinningSlot: {fileID: 53506924}
+    bottomAnimationSlot: {fileID: 1354623062}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 363796445}
+    topMask: {fileID: 1899856771}
+    topSpinningSlot: {fileID: 1970464791}
+    topAnimationSlot: {fileID: 638269378}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 539521776}
+    middleMask: {fileID: 1966090331}
+    middleSpinningSlot: {fileID: 1099233754}
+    middleAnimationSlot: {fileID: 270808521}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1741863337}
+    bottomMask: {fileID: 1866911476}
+    bottomSpinningSlot: {fileID: 1132756394}
+    bottomAnimationSlot: {fileID: 827358969}
+    bottomAnimationWinbox: {fileID: 0}
+  ultimateResultSlotsByReel:
+  - top: {fileID: 161976904}
+    topMask: {fileID: 2100382520}
+    topSpinningSlot: {fileID: 610536160}
+    topAnimationSlot: {fileID: 2047490388}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 214837881}
+    middleMask: {fileID: 692335613}
+    middleSpinningSlot: {fileID: 1719162394}
+    middleAnimationSlot: {fileID: 2007489554}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1557346269}
+    bottomMask: {fileID: 713878297}
+    bottomSpinningSlot: {fileID: 446487042}
+    bottomAnimationSlot: {fileID: 1945248294}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 2045101747}
+    topMask: {fileID: 967958842}
+    topSpinningSlot: {fileID: 1944655777}
+    topAnimationSlot: {fileID: 1354478446}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1633280721}
+    middleMask: {fileID: 1916973954}
+    middleSpinningSlot: {fileID: 641877966}
+    middleAnimationSlot: {fileID: 1998481916}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 916600677}
+    bottomMask: {fileID: 828268962}
+    bottomSpinningSlot: {fileID: 1358260501}
+    bottomAnimationSlot: {fileID: 89853853}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 59067458}
+    topMask: {fileID: 2119431157}
+    topSpinningSlot: {fileID: 2055437119}
+    topAnimationSlot: {fileID: 502750900}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 2047128902}
+    middleMask: {fileID: 1667880008}
+    middleSpinningSlot: {fileID: 1887104499}
+    middleAnimationSlot: {fileID: 729491854}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1534322634}
+    bottomMask: {fileID: 155627750}
+    bottomSpinningSlot: {fileID: 2091646272}
+    bottomAnimationSlot: {fileID: 1540500147}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 592640022}
+    topMask: {fileID: 1011088722}
+    topSpinningSlot: {fileID: 2011964132}
+    topAnimationSlot: {fileID: 1723469834}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1285991392}
+    middleMask: {fileID: 1961145988}
+    middleSpinningSlot: {fileID: 1105104469}
+    middleAnimationSlot: {fileID: 2144465173}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 412313831}
+    bottomMask: {fileID: 1403812621}
+    bottomSpinningSlot: {fileID: 333264589}
+    bottomAnimationSlot: {fileID: 216927173}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 2013326551}
+    topMask: {fileID: 1699738511}
+    topSpinningSlot: {fileID: 679731145}
+    topAnimationSlot: {fileID: 324093052}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 791596018}
+    middleMask: {fileID: 1192166555}
+    middleSpinningSlot: {fileID: 535279635}
+    middleAnimationSlot: {fileID: 1215788907}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1071133482}
+    bottomMask: {fileID: 1676569408}
+    bottomSpinningSlot: {fileID: 1022691478}
+    bottomAnimationSlot: {fileID: 145524038}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 840166878}
+    topMask: {fileID: 1973193934}
+    topSpinningSlot: {fileID: 2000214955}
+    topAnimationSlot: {fileID: 1136855001}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 556263175}
+    middleMask: {fileID: 378639071}
+    middleSpinningSlot: {fileID: 2026389555}
+    middleAnimationSlot: {fileID: 257554515}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1284679021}
+    bottomMask: {fileID: 942720662}
+    bottomSpinningSlot: {fileID: 2076895745}
+    bottomAnimationSlot: {fileID: 953001507}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1641614119}
+    topMask: {fileID: 1708427557}
+    topSpinningSlot: {fileID: 856612613}
+    topAnimationSlot: {fileID: 1800728666}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 841549150}
+    middleMask: {fileID: 437537687}
+    middleSpinningSlot: {fileID: 749697459}
+    middleAnimationSlot: {fileID: 674488852}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1459625418}
+    bottomMask: {fileID: 406329924}
+    bottomSpinningSlot: {fileID: 2059616892}
+    bottomAnimationSlot: {fileID: 320124342}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1490591778}
+    topMask: {fileID: 954350064}
+    topSpinningSlot: {fileID: 996645624}
+    topAnimationSlot: {fileID: 169179253}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1594460093}
+    middleMask: {fileID: 1202638300}
+    middleSpinningSlot: {fileID: 1488372625}
+    middleAnimationSlot: {fileID: 1024104336}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 588587098}
+    bottomMask: {fileID: 907579630}
+    bottomSpinningSlot: {fileID: 1010771730}
+    bottomAnimationSlot: {fileID: 2124588889}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 650897478}
+    topMask: {fileID: 596956774}
+    topSpinningSlot: {fileID: 1188642682}
+    topAnimationSlot: {fileID: 2007498763}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1720832251}
+    middleMask: {fileID: 1152168560}
+    middleSpinningSlot: {fileID: 2040493878}
+    middleAnimationSlot: {fileID: 201976920}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1739000583}
+    bottomMask: {fileID: 1589070377}
+    bottomSpinningSlot: {fileID: 742647550}
+    bottomAnimationSlot: {fileID: 871122050}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1183712101}
+    topMask: {fileID: 466087690}
+    topSpinningSlot: {fileID: 209961534}
+    topAnimationSlot: {fileID: 1411776508}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 45345560}
+    middleMask: {fileID: 288911884}
+    middleSpinningSlot: {fileID: 1831702329}
+    middleAnimationSlot: {fileID: 1597775056}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 637401236}
+    bottomMask: {fileID: 995143339}
+    bottomSpinningSlot: {fileID: 1503470266}
+    bottomAnimationSlot: {fileID: 604860251}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 738254966}
+    topMask: {fileID: 1887237705}
+    topSpinningSlot: {fileID: 1453478439}
+    topAnimationSlot: {fileID: 914858682}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 248840266}
+    middleMask: {fileID: 545072655}
+    middleSpinningSlot: {fileID: 1596530297}
+    middleAnimationSlot: {fileID: 1147663786}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1528583607}
+    bottomMask: {fileID: 1089249379}
+    bottomSpinningSlot: {fileID: 1837971235}
+    bottomAnimationSlot: {fileID: 932422163}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1165989429}
+    topMask: {fileID: 2010436418}
+    topSpinningSlot: {fileID: 1451967940}
+    topAnimationSlot: {fileID: 876139842}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 1776884706}
+    middleMask: {fileID: 698206418}
+    middleSpinningSlot: {fileID: 1189747441}
+    middleAnimationSlot: {fileID: 1316466208}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 74337462}
+    bottomMask: {fileID: 638266812}
+    bottomSpinningSlot: {fileID: 1868285545}
+    bottomAnimationSlot: {fileID: 499653534}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 2107193985}
+    topMask: {fileID: 1800086755}
+    topSpinningSlot: {fileID: 1779272282}
+    topAnimationSlot: {fileID: 21987160}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 245891369}
+    middleMask: {fileID: 552666312}
+    middleSpinningSlot: {fileID: 2068617199}
+    middleAnimationSlot: {fileID: 159073010}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1719118304}
+    bottomMask: {fileID: 1729173617}
+    bottomSpinningSlot: {fileID: 1070663208}
+    bottomAnimationSlot: {fileID: 932742312}
+    bottomAnimationWinbox: {fileID: 0}
+  - top: {fileID: 1030974924}
+    topMask: {fileID: 1216650382}
+    topSpinningSlot: {fileID: 909857319}
+    topAnimationSlot: {fileID: 1862060042}
+    topAnimationWinbox: {fileID: 0}
+    middle: {fileID: 315261823}
+    middleMask: {fileID: 1222400387}
+    middleSpinningSlot: {fileID: 404465067}
+    middleAnimationSlot: {fileID: 942726585}
+    middleAnimationWinbox: {fileID: 0}
+    bottom: {fileID: 1435420244}
+    bottomMask: {fileID: 1307133272}
+    bottomSpinningSlot: {fileID: 571352477}
+    bottomAnimationSlot: {fileID: 565886980}
+    bottomAnimationWinbox: {fileID: 0}
   minSpinCyclesBeforeStop: 3
   reelStartStagger: 0.08
   normalReelStopInterval: 0.15
@@ -149358,47 +149735,6 @@ MonoBehaviour:
   pressPlayHeartbeatSmallScale: 0.98
   pressPlayHeartbeatLargeScale: 1.04
   pressPlayHeartbeatHalfCycle: 0.45
-  animationGrid:
-  - column: {fileID: 1775006515}
-    rows:
-    - slot: {fileID: 59109771}
-      winbox: {fileID: 2118837234}
-    - slot: {fileID: 1290308793}
-      winbox: {fileID: 1517184734}
-    - slot: {fileID: 1959165360}
-      winbox: {fileID: 1649655345}
-  - column: {fileID: 166488554}
-    rows:
-    - slot: {fileID: 1674944250}
-      winbox: {fileID: 831464158}
-    - slot: {fileID: 1993984503}
-      winbox: {fileID: 1038089784}
-    - slot: {fileID: 1300634154}
-      winbox: {fileID: 567250954}
-  - column: {fileID: 1125460179}
-    rows:
-    - slot: {fileID: 1587109909}
-      winbox: {fileID: 1353157678}
-    - slot: {fileID: 718419666}
-      winbox: {fileID: 1211550509}
-    - slot: {fileID: 203442095}
-      winbox: {fileID: 190027679}
-  - column: {fileID: 105081416}
-    rows:
-    - slot: {fileID: 329049188}
-      winbox: {fileID: 1280302670}
-    - slot: {fileID: 280415312}
-      winbox: {fileID: 1061843581}
-    - slot: {fileID: 1569389686}
-      winbox: {fileID: 1140018501}
-  - column: {fileID: 1732136594}
-    rows:
-    - slot: {fileID: 628415402}
-      winbox: {fileID: 1558339457}
-    - slot: {fileID: 1407435330}
-      winbox: {fileID: 1805954359}
-    - slot: {fileID: 1204791348}
-      winbox: {fileID: 938385578}
   topAndMiddleY: 110
   middleAndBottomY: -110
   greenTrainXByStartColumn:

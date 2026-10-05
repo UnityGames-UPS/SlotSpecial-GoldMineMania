@@ -1101,7 +1101,6 @@ public class GameManager : MonoBehaviour
             yield return slotView.PlayGoldBurstFinalPresentation(
                 prizes,
                 totalRoundWin);
-            slotView.EndGoldBurstPresentation();
         }
 
         EndGoldBurstRespins(totalRoundWin, totalSpinsUsed, isRoundOver);

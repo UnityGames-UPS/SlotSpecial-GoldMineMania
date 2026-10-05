@@ -118,10 +118,6 @@ public class SlotFeatureController : TransitionController
     [SerializeField, Min(1f)] private float pressPlayHeartbeatLargeScale = 1.04f;
     [SerializeField, Min(0.05f)] private float pressPlayHeartbeatHalfCycle = 0.45f;
 
-    [Header("Animation Grid")]
-    [SerializeField] private AnimationColumnReferences[] animationGrid =
-        new AnimationColumnReferences[BaseReelCount];
-
     [Header("2x1 Barrel Positions")]
     [SerializeField] private float topAndMiddleY = 110f;
     [SerializeField] private float middleAndBottomY = -110f;
@@ -200,8 +196,12 @@ public class SlotFeatureController : TransitionController
     private readonly HashSet<RectTransform> hiddenGoldBurstFeatures = new HashSet<RectTransform>();
     private readonly HashSet<RectTransform> goldBurstSourceAnimationCells =
         new HashSet<RectTransform>();
-    private readonly Dictionary<RectTransform, int> animationColumnSiblingIndices =
-        new Dictionary<RectTransform, int>();
+    private readonly Dictionary<Image, bool> animationCellImageEnabledStates =
+        new Dictionary<Image, bool>();
+    private readonly Dictionary<Image, Color> animationCellImageColors =
+        new Dictionary<Image, Color>();
+    private AnimationColumnReferences[] animationGrid =
+        Array.Empty<AnimationColumnReferences>();
     private Transform searchRoot;
     private IReadOnlyList<ReelResultSlots> conversionSourceSlots;
     private int activeReelCount = BaseReelCount;
@@ -257,7 +257,9 @@ public class SlotFeatureController : TransitionController
         threeSlotGoldBoxRoot =
             FindDescendantStartingWith(animationRoot, "3SlotGoldBox") as RectTransform;
 
-        animationGrid = DiscoverAnimationGrid(animationRoot);
+        animationGrid = BuildConfiguredAnimationGrid(
+            conversionSourceSlots,
+            activeReelCount);
         greenTrainVisuals = DiscoverTrainVisualReferences(greenTrainRoot);
         redTrainVisuals = DiscoverTrainVisualReferences(redTrainRoot);
         horizontalPurpleTrainVisuals =
@@ -267,80 +269,37 @@ public class SlotFeatureController : TransitionController
         goldenTrainVisuals = DiscoverTrainVisualReferences(goldenTrainRoot);
     }
 
-    private static AnimationColumnReferences[] DiscoverAnimationGrid(
-        RectTransform root)
+    private static AnimationColumnReferences[] BuildConfiguredAnimationGrid(
+        IReadOnlyList<ReelResultSlots> configuredSlots,
+        int reelCount)
     {
-        if (root == null) return Array.Empty<AnimationColumnReferences>();
-
-        var columns = new List<RectTransform>();
-        List<RectTransform> holders = GetChildrenInHierarchyOrder(root)
-            .Where(holder =>
-                holder.name.IndexOf(
-                    "SlotHolder",
-                    StringComparison.OrdinalIgnoreCase) >= 0)
-            .ToList();
-        if (holders.Count > 0)
+        if (configuredSlots == null || configuredSlots.Count < reelCount)
         {
-            foreach (RectTransform holder in holders)
-            {
-                columns.AddRange(
-                    GetChildrenInHierarchyOrder(holder)
-                        .Where(IsAnimationColumn));
-            }
-        }
-        else
-        {
-            columns.AddRange(
-                GetSortedChildren(root, true)
-                    .Where(IsAnimationColumn));
+            return Array.Empty<AnimationColumnReferences>();
         }
 
-        var discovered = new List<AnimationColumnReferences>();
-        foreach (RectTransform column in columns)
+        var configuredGrid = new AnimationColumnReferences[reelCount];
+        for (int reelIndex = 0; reelIndex < reelCount; reelIndex++)
         {
-            List<RectTransform> cells = GetSortedChildren(column, false)
-                .Where(child =>
-                    child.GetComponent<Image>() != null &&
-                    child.name.StartsWith("Slot", StringComparison.OrdinalIgnoreCase))
-                .Take(RowCount)
-                .ToList();
-            if (cells.Count != RowCount) continue;
-
-            List<RectTransform> winboxes = GetSortedChildren(column, false)
-                .Where(child =>
-                    child.name.StartsWith("Winbox", StringComparison.OrdinalIgnoreCase))
-                .Take(RowCount)
-                .ToList();
+            ReelResultSlots reelSlots = configuredSlots[reelIndex];
             var rows = new AnimationCellReferences[RowCount];
             for (int row = 0; row < RowCount; row++)
             {
                 rows[row] = new AnimationCellReferences
                 {
-                    slot = cells[row],
-                    winbox = row < winboxes.Count ? winboxes[row] : null
+                    slot = reelSlots?.GetAnimationSlot(row),
+                    winbox = reelSlots?.GetAnimationWinbox(row)
                 };
             }
 
-            discovered.Add(new AnimationColumnReferences
+            configuredGrid[reelIndex] = new AnimationColumnReferences
             {
-                column = column,
+                column = rows[0].slot?.parent as RectTransform,
                 rows = rows
-            });
+            };
         }
 
-        return discovered.ToArray();
-    }
-
-    private static bool IsAnimationColumn(RectTransform candidate)
-    {
-        return candidate != null &&
-               (string.Equals(
-                    candidate.name,
-                    "Slot",
-                    StringComparison.OrdinalIgnoreCase) ||
-                candidate.name.StartsWith(
-                    "Slot (",
-                    StringComparison.OrdinalIgnoreCase));
+        return configuredGrid;
     }
 
     private TrainVisualReferences[] DiscoverTrainVisualReferences(
@@ -1032,7 +991,6 @@ public class SlotFeatureController : TransitionController
             SetWinboxActive(animationCell, false);
             animationRoot.gameObject.SetActive(true);
             column.gameObject.SetActive(true);
-            column.SetAsLastSibling();
             animationCell.gameObject.SetActive(true);
             return true;
         }
@@ -1107,18 +1065,14 @@ public class SlotFeatureController : TransitionController
         activeGoldBurstAnimationCells.Remove(animationCell.gameObject);
         bool keepCellActive = activeWinAnimationCells.Contains(animationCell.gameObject) ||
                               activeTrainAnimationCells.Contains(animationCell.gameObject);
+        if (!keepCellActive)
+        {
+            RestoreAnimationCellVisualState(animationCell);
+        }
         SetWinboxActive(
             animationCell,
             activeWinAnimationCells.Contains(animationCell.gameObject));
         animationCell.gameObject.SetActive(keepCellActive);
-
-        Transform columnTransform = animationCell.parent;
-        if (columnTransform is RectTransform column &&
-            !activeGoldBurstAnimationCells.Any(cell => cell.transform.parent == column) &&
-            animationColumnSiblingIndices.TryGetValue(column, out int siblingIndex))
-        {
-            column.SetSiblingIndex(siblingIndex);
-        }
 
         RefreshAnimationHierarchy();
     }
@@ -1153,6 +1107,10 @@ public class SlotFeatureController : TransitionController
 
         activeWinAnimationCells.Remove(animationCell.gameObject);
         bool keepCellActive = activeTrainAnimationCells.Contains(animationCell.gameObject);
+        if (!keepCellActive)
+        {
+            RestoreAnimationCellVisualState(animationCell);
+        }
         SetWinboxActive(animationCell, false);
         animationCell.gameObject.SetActive(keepCellActive);
         RefreshAnimationHierarchy();
@@ -1209,6 +1167,10 @@ public class SlotFeatureController : TransitionController
 
         animationCell = GetAnimationCell(reelIndex, row);
         column = GetAnimationColumn(reelIndex);
+        if (animationCell != null && !IsAnimationCellActive(animationCell.gameObject))
+        {
+            RestoreAnimationCellVisualState(animationCell);
+        }
         return animationCell != null && column != null;
     }
 
@@ -1218,8 +1180,52 @@ public class SlotFeatureController : TransitionController
 
         activeTrainAnimationCells.Remove(animationCell.gameObject);
         bool keepCellActive = activeWinAnimationCells.Contains(animationCell.gameObject);
+        if (!keepCellActive)
+        {
+            RestoreAnimationCellVisualState(animationCell);
+        }
         SetWinboxActive(animationCell, keepCellActive);
         animationCell.gameObject.SetActive(keepCellActive);
+        RefreshAnimationHierarchy();
+    }
+
+    internal void ResetAnimationPoolForGoldBurstRespin()
+    {
+        EnsureInitialized();
+
+        activeWinAnimationCells.Clear();
+        activeTrainAnimationCells.Clear();
+        activeGoldBurstAnimationCells.Clear();
+        goldBurstSourceAnimationCells.Clear();
+
+        if (animationGrid != null)
+        {
+            foreach (AnimationColumnReferences columnReferences in animationGrid)
+            {
+                if (columnReferences?.rows == null) continue;
+
+                foreach (AnimationCellReferences cellReferences in columnReferences.rows)
+                {
+                    RectTransform cell = cellReferences?.slot;
+                    if (cell == null) continue;
+
+                    ImageAnimation animation = cell.GetComponent<ImageAnimation>();
+                    if (animation != null)
+                    {
+                        animation.onLoopComplete = null;
+                        animation.onFrameDisplayed = null;
+                        animation.doLoopAnimation = false;
+                        animation.StopAnimation();
+                        animation.ClearLoopDuration();
+                    }
+
+                    RestoreAnimationCellVisualState(cell);
+                    SetWinboxActive(cell, false);
+                    cell.gameObject.SetActive(false);
+                }
+            }
+        }
+
         RefreshAnimationHierarchy();
     }
 
@@ -1573,7 +1579,6 @@ public class SlotFeatureController : TransitionController
     private void CacheAnimationGrid()
     {
         winboxByAnimationCell.Clear();
-        animationColumnSiblingIndices.Clear();
         if (animationGrid == null) return;
 
         foreach (AnimationColumnReferences columnReferences in animationGrid)
@@ -1582,8 +1587,6 @@ public class SlotFeatureController : TransitionController
 
             if (columnReferences.column != null)
             {
-                animationColumnSiblingIndices[columnReferences.column] =
-                    columnReferences.column.GetSiblingIndex();
                 columnReferences.column.gameObject.SetActive(false);
             }
 
@@ -1595,6 +1598,8 @@ public class SlotFeatureController : TransitionController
 
                 if (cellReferences.slot != null)
                 {
+                    CacheAnimationCellState(cellReferences.slot);
+                    RestoreAnimationCellVisualState(cellReferences.slot);
                     cellReferences.slot.gameObject.SetActive(false);
                 }
 
@@ -1608,6 +1613,34 @@ public class SlotFeatureController : TransitionController
                         cellReferences.winbox;
                 }
             }
+        }
+    }
+
+    private void CacheAnimationCellState(RectTransform cell)
+    {
+        if (cell == null) return;
+
+        Image image = cell.GetComponent<Image>();
+        if (image == null || animationCellImageEnabledStates.ContainsKey(image)) return;
+
+        animationCellImageEnabledStates[image] = image.enabled;
+        animationCellImageColors[image] = image.color;
+    }
+
+    private void RestoreAnimationCellVisualState(RectTransform cell)
+    {
+        if (cell == null) return;
+
+        Image image = cell.GetComponent<Image>();
+        if (image == null) return;
+
+        if (animationCellImageEnabledStates.TryGetValue(image, out bool imageEnabled))
+        {
+            image.enabled = imageEnabled;
+        }
+        if (animationCellImageColors.TryGetValue(image, out Color imageColor))
+        {
+            image.color = imageColor;
         }
     }
 
@@ -2574,10 +2607,6 @@ public class SlotFeatureController : TransitionController
         activeGoldBurstAnimationCells.Clear();
         goldBurstSourceAnimationCells.Clear();
 
-        foreach (KeyValuePair<RectTransform, int> entry in animationColumnSiblingIndices)
-        {
-            if (entry.Key != null) entry.Key.SetSiblingIndex(entry.Value);
-        }
     }
 
     private void OnGoldBurstPressPlayClicked(
@@ -2876,7 +2905,9 @@ public class SlotFeatureController : TransitionController
                     column.rows != null &&
                     column.rows.Length == RowCount &&
                     column.rows.All(cell =>
-                        cell != null && cell.slot != null));
+                        cell != null &&
+                        cell.slot != null &&
+                        cell.slot.parent == column.column));
     }
 
     private bool HasCompleteConversionSourceGrid()

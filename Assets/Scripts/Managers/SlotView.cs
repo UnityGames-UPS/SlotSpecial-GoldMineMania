@@ -103,10 +103,21 @@ public class SlotView : MonoBehaviour
     [SerializeField] private Transform ultimateGoldBurstSecondReelRoot;
     [SerializeField] private Transform[] reelTransforms = Array.Empty<Transform>();
 
-    [Header("Visible Result Slots")]
-    [Tooltip("Assign the top, middle and bottom result Image for each reel, from left to right.")]
-    [SerializeField] private ReelResultSlots[] resultSlotsByReel =
+    [Header("Visible Result Slots - 5x3")]
+    [Tooltip("Assign five reels from left to right. Each reel must contain its exact top, middle and bottom result Images.")]
+    [FormerlySerializedAs("resultSlotsByReel")]
+    [SerializeField] private ReelResultSlots[] baseResultSlotsByReel =
         new ReelResultSlots[DefaultReelCount];
+
+    [Header("Visible Result Slots - 7x3")]
+    [Tooltip("Assign seven reels from left to right. Each reel must contain its exact top, middle and bottom result Images.")]
+    [SerializeField] private ReelResultSlots[] megaResultSlotsByReel =
+        new ReelResultSlots[MegaGoldBurstReelCount];
+
+    [Header("Visible Result Slots - Two 7x3 Boards")]
+    [Tooltip("Assign the top board's seven reels first, followed by the bottom board's seven reels. Each reel must contain top, middle and bottom.")]
+    [SerializeField] private ReelResultSlots[] ultimateResultSlotsByReel =
+        new ReelResultSlots[UltimateGoldBurstReelCount];
 
     [Header("Spin Timing")]
     [SerializeField, Min(1)] private int minSpinCyclesBeforeStop = 3;
@@ -149,6 +160,7 @@ public class SlotView : MonoBehaviour
 
     private Coroutine reelStartRoutine;
     private Coroutine reelStopRoutine;
+    private Sequence goldBurstSettleSequence;
     private bool isSpinning;
     private bool quickStopRequested;
     private readonly List<WinAnimationRuntime> activeWinAnimations =
@@ -167,6 +179,7 @@ public class SlotView : MonoBehaviour
         new List<ThreeSlotBarrelPlacement>();
     private readonly List<TrainPlacement> preparedTrains =
         new List<TrainPlacement>();
+    private ReelResultSlots[] resultSlotsByReel = Array.Empty<ReelResultSlots>();
     private Transform baseGameReelRoot;
     private GameObject baseGameLayoutRoot;
     private GameObject megaGoldBurstLayoutRoot;
@@ -240,7 +253,6 @@ public class SlotView : MonoBehaviour
         internal bool baseImageWasEnabled;
         internal Vector3 baseImageOriginalScale;
         internal RectTransform animationCell;
-        internal Vector3 animationCellOriginalScale;
         internal Image animationCellImage;
         internal bool animationCellImageWasEnabled;
         internal ImageAnimation animation;
@@ -255,8 +267,6 @@ public class SlotView : MonoBehaviour
         internal bool baseImageHidden;
         internal RectTransform animationCell;
         internal bool usesBarrelVisual;
-        internal Vector3 originalScale;
-        internal Vector3 originalPosition;
         internal Image animationImage;
         internal bool animationImageWasEnabled;
         internal Sprite originalSprite;
@@ -272,7 +282,6 @@ public class SlotView : MonoBehaviour
         internal int rowCount;
         internal Image image;
         internal RectTransform pooledAnimationCell;
-        internal Vector3 originalPosition;
         internal ImageAnimation animation;
         internal Sprite originalSprite;
         internal List<Sprite> originalFrames;
@@ -375,7 +384,7 @@ public class SlotView : MonoBehaviour
 
     internal void RebuildGoldBurstLayout()
     {
-        BuildReelCache(true);
+        BuildReelCache();
         InitializeFeatureLayout();
     }
 
@@ -491,7 +500,7 @@ public class SlotView : MonoBehaviour
 
     #region Reel and symbol setup
 
-    private void BuildReelCache(bool forceDiscoverResultSlots = false)
+    private void BuildReelCache()
     {
         StopAnticipationAnimations();
         anticipationAnimationsByReel.Clear();
@@ -523,14 +532,13 @@ public class SlotView : MonoBehaviour
             : isUsingMegaGoldBurstLayout
                 ? MegaGoldBurstReelCount
                 : DefaultReelCount;
-        if (forceDiscoverResultSlots ||
-            !ResultSlotsMatchReels(resultSlotsByReel, candidates))
+        resultSlotsByReel = GetConfiguredResultSlots();
+        if (!ResultSlotsMatchReels(resultSlotsByReel, candidates))
         {
-            resultSlotsByReel = DiscoverResultSlots(candidates);
-        }
-        else
-        {
-            EnsureResultSlotArraySize(candidates.Count);
+            Debug.LogError(
+                $"[SlotView] {GetActiveLayoutName()} result-slot assignments are incomplete or invalid. " +
+                "Assign every reel's direct top, middle and bottom Images in consecutive order in the Inspector.",
+                this);
         }
 
         foreach (RectTransform reelTransform in candidates)
@@ -595,17 +603,22 @@ public class SlotView : MonoBehaviour
         }
     }
 
-    private void EnsureResultSlotArraySize(int reelCount)
+    private ReelResultSlots[] GetConfiguredResultSlots()
     {
-        reelCount = Mathf.Max(0, reelCount);
-        if (resultSlotsByReel != null && resultSlotsByReel.Length == reelCount) return;
-
-        ReelResultSlots[] previous = resultSlotsByReel;
-        resultSlotsByReel = new ReelResultSlots[reelCount];
-        if (previous != null)
+        if (isUsingUltimateGoldBurstLayout)
         {
-            Array.Copy(previous, resultSlotsByReel, Mathf.Min(previous.Length, resultSlotsByReel.Length));
+            return ultimateResultSlotsByReel ?? Array.Empty<ReelResultSlots>();
         }
+
+        return isUsingMegaGoldBurstLayout
+            ? megaResultSlotsByReel ?? Array.Empty<ReelResultSlots>()
+            : baseResultSlotsByReel ?? Array.Empty<ReelResultSlots>();
+    }
+
+    private string GetActiveLayoutName()
+    {
+        if (isUsingUltimateGoldBurstLayout) return "Two 7x3";
+        return isUsingMegaGoldBurstLayout ? "7x3" : "5x3";
     }
 
     private static bool ResultSlotsMatchReels(
@@ -630,62 +643,32 @@ public class SlotView : MonoBehaviour
             for (int row = 0; row < DefaultRowCount; row++)
             {
                 Image image = slots.Get(row);
-                if (image == null || !image.transform.IsChildOf(reel))
+                if (image == null || image.transform.parent != reel)
+                {
+                    return false;
+                }
+
+                Mask mask = slots.GetMask(row);
+                RectTransform spinningSlot = slots.GetSpinningSlot(row);
+                if ((mask == null) != (spinningSlot == null) ||
+                    (mask != null &&
+                     (!mask.transform.IsChildOf(image.transform) ||
+                      !spinningSlot.IsChildOf(mask.transform))))
                 {
                     return false;
                 }
             }
+
+            int topIndex = slots.Get(0).transform.GetSiblingIndex();
+            int middleIndex = slots.Get(1).transform.GetSiblingIndex();
+            int bottomIndex = slots.Get(2).transform.GetSiblingIndex();
+            if (middleIndex != topIndex + 1 || bottomIndex != topIndex + 2)
+            {
+                return false;
+            }
         }
 
         return true;
-    }
-
-    private static ReelResultSlots[] DiscoverResultSlots(
-        IReadOnlyList<RectTransform> reelCandidates)
-    {
-        if (reelCandidates == null) return Array.Empty<ReelResultSlots>();
-
-        var discovered = new ReelResultSlots[reelCandidates.Count];
-        for (int reelIndex = 0; reelIndex < reelCandidates.Count; reelIndex++)
-        {
-            RectTransform reel = reelCandidates[reelIndex];
-            if (reel == null) continue;
-
-            var directImages = new List<Image>();
-            var maskedImages = new List<Image>();
-            for (int childIndex = 0; childIndex < reel.childCount; childIndex++)
-            {
-                Transform child = reel.GetChild(childIndex);
-                Image image = child.GetComponent<Image>();
-                if (image == null) continue;
-
-                directImages.Add(image);
-                if (child.GetComponentInChildren<Mask>(true) != null)
-                {
-                    maskedImages.Add(image);
-                }
-            }
-
-            List<Image> resultImages = maskedImages.Count >= DefaultRowCount
-                ? maskedImages
-                : directImages
-                    .Skip(Mathf.Max(0, directImages.Count - DefaultRowCount))
-                    .ToList();
-            resultImages = resultImages
-                .OrderByDescending(image => image.rectTransform.anchoredPosition.y)
-                .Take(DefaultRowCount)
-                .ToList();
-
-            if (resultImages.Count == DefaultRowCount)
-            {
-                discovered[reelIndex] = new ReelResultSlots(
-                    resultImages[0],
-                    resultImages[1],
-                    resultImages[2]);
-            }
-        }
-
-        return discovered;
     }
 
     private static bool HasDirectSymbolImages(RectTransform candidate)
@@ -762,10 +745,12 @@ public class SlotView : MonoBehaviour
                 Image symbolImage = GetResultSlotImage(reelIndex, row);
                 if (symbolImage == null) continue;
 
-                Mask mask = symbolImage.GetComponentInChildren<Mask>(true);
-                RectTransform spinner = mask != null
-                    ? mask.transform.Find("SpinningSlot") as RectTransform
-                    : null;
+                ReelResultSlots configuredSlots =
+                    resultSlotsByReel != null && reelIndex < resultSlotsByReel.Length
+                        ? resultSlotsByReel[reelIndex]
+                        : null;
+                Mask mask = configuredSlots?.GetMask(row);
+                RectTransform spinner = configuredSlots?.GetSpinningSlot(row);
                 if (mask == null || spinner == null || spinner.childCount == 0) continue;
 
                 Image firstSpinnerImage = spinner.GetChild(0).GetComponent<Image>() ??
@@ -1220,6 +1205,7 @@ public class SlotView : MonoBehaviour
 
             animation.StopAnimation();
             animation.textureArray = animationFrames;
+            animation.secondaryTextureArray = null;
             animation.rendererDelegate = slotAnimationImage;
             animation.doLoopAnimation = true;
             animation.delayBetweenLoop = 0f;
@@ -1394,7 +1380,6 @@ public class SlotView : MonoBehaviour
             baseImageWasEnabled = baseImage.enabled,
             baseImageOriginalScale = GetOriginalResultSlotScale(baseImage),
             animationCell = animationCell,
-            animationCellOriginalScale = animationCell.localScale,
             animationCellImage = animationCellImage,
             animationCellImageWasEnabled = animationCellImage.enabled,
             animation = animationCell.GetComponent<ImageAnimation>() ??
@@ -1403,8 +1388,6 @@ public class SlotView : MonoBehaviour
 
         baseImage.rectTransform.localScale =
             runtime.baseImageOriginalScale * trainSymbolScale;
-        animationCell.localScale =
-            runtime.animationCellOriginalScale * trainSymbolScale;
 
         activeTrainAnimations.Add(runtime);
         animationCellImage.enabled = false;
@@ -1535,6 +1518,7 @@ public class SlotView : MonoBehaviour
 
         runtime.animation.StopAnimation();
         runtime.animation.textureArray = frames;
+        runtime.animation.secondaryTextureArray = null;
         runtime.animation.rendererDelegate = runtime.animationCellImage;
         runtime.animation.doLoopAnimation = shouldLoop;
         runtime.animation.delayBetweenLoop = 0f;
@@ -1591,11 +1575,6 @@ public class SlotView : MonoBehaviour
         if (runtime.animationCellImage != null)
         {
             runtime.animationCellImage.enabled = runtime.animationCellImageWasEnabled;
-        }
-
-        if (runtime.animationCell != null)
-        {
-            runtime.animationCell.localScale = runtime.animationCellOriginalScale;
         }
 
         featureVisualController?.ReleaseTrainAnimationCell(runtime.animationCell);
@@ -1737,7 +1716,7 @@ public class SlotView : MonoBehaviour
         if (isUsingMegaGoldBurstLayout || isUsingUltimateGoldBurstLayout)
         {
             ActivateBaseGameLayout();
-            BuildReelCache(true);
+            BuildReelCache();
             InitializeFeatureLayout();
             if (IsValidMatrix(currentDisplayMatrix)) ApplyMatrix(currentDisplayMatrix);
         }
@@ -1797,8 +1776,6 @@ public class SlotView : MonoBehaviour
                     : null,
                 animationCell = animationCell,
                 usesBarrelVisual = usesBarrelVisual,
-                originalScale = animationCell.localScale,
-                originalPosition = animationCell.position,
                 animationImage = animationImage,
                 animationImageWasEnabled = animationImage.enabled,
                 originalSprite = animationImage.sprite,
@@ -1910,6 +1887,7 @@ public class SlotView : MonoBehaviour
 
         animation.StopAnimation();
         animation.textureArray = frames;
+        animation.secondaryTextureArray = null;
         animation.rendererDelegate = runtime.animationImage;
         animation.doLoopAnimation = loopCount > 1;
         animation.delayBetweenLoop = 0f;
@@ -1926,13 +1904,6 @@ public class SlotView : MonoBehaviour
             runtime.completed = true;
         };
 
-        if (!runtime.usesBarrelVisual)
-        {
-            runtime.animationCell.localScale = new Vector3(
-                runtime.originalScale.x,
-                runtime.originalScale.y * prize.rowCount,
-                runtime.originalScale.z);
-        }
         runtime.animationImage.color = new Color(
             runtime.originalColor.r,
             runtime.originalColor.g,
@@ -2029,12 +2000,6 @@ public class SlotView : MonoBehaviour
 
             RestoreGoldBurstConversionBaseImage(runtime);
 
-            if (runtime.animationCell != null)
-            {
-                runtime.animationCell.position = runtime.originalPosition;
-                runtime.animationCell.localScale = runtime.originalScale;
-            }
-
             if (!runtime.usesBarrelVisual)
             {
                 featureVisualController?.ReleaseGoldBurstAnimationCell(runtime.animationCell);
@@ -2064,12 +2029,6 @@ public class SlotView : MonoBehaviour
         }
 
         RestoreGoldBurstConversionBaseImage(runtime);
-
-        if (runtime.animationCell != null)
-        {
-            runtime.animationCell.position = runtime.originalPosition;
-            runtime.animationCell.localScale = runtime.originalScale;
-        }
 
         if (!runtime.usesBarrelVisual)
         {
@@ -2162,14 +2121,12 @@ public class SlotView : MonoBehaviour
             }
 
             Image animationImage = animationCell.GetComponent<Image>();
-            Vector3 animationCellOriginalPosition = animationCell.position;
 
             if (!TryStartBarrelIdleAnimation(
                     animationImage,
                     singleSlotBarrelIdleFrames,
                     animatedImages,
                     animationCell,
-                    animationCellOriginalPosition,
                     cell.reelIndex,
                     cell.row,
                     1))
@@ -2184,7 +2141,6 @@ public class SlotView : MonoBehaviour
         List<Sprite> frames,
         ISet<Image> animatedImages,
         RectTransform pooledAnimationCell = null,
-        Vector3? originalPosition = null,
         int reelIndex = -1,
         int startRow = -1,
         int rowCount = 0)
@@ -2204,7 +2160,6 @@ public class SlotView : MonoBehaviour
             rowCount = rowCount,
             image = image,
             pooledAnimationCell = pooledAnimationCell,
-            originalPosition = originalPosition ?? image.rectTransform.position,
             animation = animation,
             originalSprite = image.sprite,
             originalFrames = animation.textureArray,
@@ -2325,7 +2280,6 @@ public class SlotView : MonoBehaviour
         if (runtime.image != null)
         {
             runtime.image.sprite = runtime.originalSprite;
-            runtime.image.rectTransform.position = runtime.originalPosition;
         }
 
         if (runtime.pooledAnimationCell != null)
@@ -2363,6 +2317,11 @@ public class SlotView : MonoBehaviour
         StopWinningSymbolAnimations();
         StopTrainSymbolAnimations();
         StopGoldBurstConversionAnimations();
+        // Idle barrel overlays hide their source Images and use pooled animation
+        // cells. Restore all of that state before starting another respin so a
+        // previous result cannot offset or blank the next result grid.
+        StopGoldBurstBarrelIdleAnimations();
+        featureVisualController?.ResetAnimationPoolForGoldBurstRespin();
         HideSymbolInfoCard();
         KillReelTweens(true);
         KillGoldBurstCellTweens(true);
@@ -2370,11 +2329,6 @@ public class SlotView : MonoBehaviour
         quickStopRequested = false;
         isSpinning = true;
         AudioManager.Instance?.PlayGoldMineReelSpinning();
-
-        if (activeBarrelIdleAnimations.Count == 0)
-        {
-            StartGoldBurstBarrelIdleAnimations();
-        }
 
         foreach (GoldBurstCellRuntime cell in goldBurstCells)
         {
@@ -2387,8 +2341,7 @@ public class SlotView : MonoBehaviour
 
             if (isLocked)
             {
-                cell.symbolImage.enabled =
-                    !barrelIdleSourceImageStates.ContainsKey(cell.symbolImage);
+                cell.symbolImage.enabled = true;
                 cell.mask.gameObject.SetActive(false);
                 cell.spinner.gameObject.SetActive(false);
                 continue;
@@ -2415,7 +2368,9 @@ public class SlotView : MonoBehaviour
 
         ApplyMatrix(resultMatrix);
 
-        Sequence settleSequence = DOTween.Sequence().SetUpdate(true);
+        goldBurstSettleSequence?.Kill();
+        goldBurstSettleSequence = DOTween.Sequence().SetUpdate(true);
+        Sequence settleSequence = goldBurstSettleSequence;
         bool hasSpinningCells = false;
 
         foreach (GoldBurstCellRuntime cell in goldBurstCells)
@@ -2443,29 +2398,32 @@ public class SlotView : MonoBehaviour
         if (!hasSpinningCells)
         {
             settleSequence.Kill();
+            goldBurstSettleSequence = null;
             CompleteGoldBurstRespin(onComplete);
             return;
         }
 
-        settleSequence.OnComplete(() => CompleteGoldBurstRespin(onComplete));
+        settleSequence.OnComplete(() =>
+        {
+            goldBurstSettleSequence = null;
+            CompleteGoldBurstRespin(onComplete);
+        });
         activeTweens.Add(settleSequence);
     }
 
     private void CompleteGoldBurstRespin(Action onComplete)
     {
-        foreach (GoldBurstCellRuntime cell in goldBurstCells)
-        {
-            cell.spinner.anchoredPosition = cell.restingPosition;
-            cell.symbolImage.enabled = true;
-            cell.mask.gameObject.SetActive(false);
-            cell.spinner.gameObject.SetActive(false);
-        }
+        // Always finish on the cached authored positions. Feature merging may
+        // now update overlays, but no spinner or idle tween remains alive to
+        // mutate the result cells during the following respin.
+        StopGoldBurstBarrelIdleAnimations();
+        KillGoldBurstCellTweens(true);
 
         activeTweens.RemoveAll(tween => tween == null || !tween.IsActive());
         isSpinning = false;
         AudioManager.Instance?.StopGoldMineReelSpinning();
         featureVisualController?.RevealAllFeatures();
-        StartGoldBurstBarrelIdleAnimations();
+        Canvas.ForceUpdateCanvases();
         AudioManager.Instance?.PlayReelStop();
         onComplete?.Invoke();
     }
@@ -3164,6 +3122,9 @@ public class SlotView : MonoBehaviour
 
     private void KillGoldBurstCellTweens(bool restoreVisuals)
     {
+        goldBurstSettleSequence?.Kill();
+        goldBurstSettleSequence = null;
+
         foreach (GoldBurstCellRuntime cell in goldBurstCells)
         {
             cell.motionTween?.Kill();
@@ -3237,8 +3198,20 @@ public class SlotView : MonoBehaviour
 public class ReelResultSlots
 {
     [SerializeField] private Image top;
+    [SerializeField] private Mask topMask;
+    [SerializeField] private RectTransform topSpinningSlot;
+    [SerializeField] private RectTransform topAnimationSlot;
+    [SerializeField] private RectTransform topAnimationWinbox;
     [SerializeField] private Image middle;
+    [SerializeField] private Mask middleMask;
+    [SerializeField] private RectTransform middleSpinningSlot;
+    [SerializeField] private RectTransform middleAnimationSlot;
+    [SerializeField] private RectTransform middleAnimationWinbox;
     [SerializeField] private Image bottom;
+    [SerializeField] private Mask bottomMask;
+    [SerializeField] private RectTransform bottomSpinningSlot;
+    [SerializeField] private RectTransform bottomAnimationSlot;
+    [SerializeField] private RectTransform bottomAnimationWinbox;
 
     public ReelResultSlots()
     {
@@ -3258,6 +3231,50 @@ public class ReelResultSlots
             case 0: return top;
             case 1: return middle;
             case 2: return bottom;
+            default: return null;
+        }
+    }
+
+    public Mask GetMask(int row)
+    {
+        switch (row)
+        {
+            case 0: return topMask;
+            case 1: return middleMask;
+            case 2: return bottomMask;
+            default: return null;
+        }
+    }
+
+    public RectTransform GetSpinningSlot(int row)
+    {
+        switch (row)
+        {
+            case 0: return topSpinningSlot;
+            case 1: return middleSpinningSlot;
+            case 2: return bottomSpinningSlot;
+            default: return null;
+        }
+    }
+
+    public RectTransform GetAnimationSlot(int row)
+    {
+        switch (row)
+        {
+            case 0: return topAnimationSlot;
+            case 1: return middleAnimationSlot;
+            case 2: return bottomAnimationSlot;
+            default: return null;
+        }
+    }
+
+    public RectTransform GetAnimationWinbox(int row)
+    {
+        switch (row)
+        {
+            case 0: return topAnimationWinbox;
+            case 1: return middleAnimationWinbox;
+            case 2: return bottomAnimationWinbox;
             default: return null;
         }
     }
