@@ -691,7 +691,9 @@ public class SlotFeatureController : TransitionController
             GetGoldBurstRespinController(tier);
         if (respinController != null)
         {
-            SetDarkBackgroundActive(true);
+            // In portrait, fully hide the reels while the respin intro plays.
+            // The following transition call restores the authored background alpha.
+            SetDarkBackgroundActive(true, forceOpaque: true);
             AudioManager.Instance?.PlayGoldMineRespinBg();
             yield return respinController.PlayIntro();
         }

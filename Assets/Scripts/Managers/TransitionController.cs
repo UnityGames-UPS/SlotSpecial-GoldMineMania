@@ -128,6 +128,9 @@ public abstract class TransitionController : MonoBehaviour
     private Vector2 transitionTrackStartPosition;
     private Vector3 transitionTrackStartScale;
     private bool hasCapturedTransitionTrackState;
+    private Graphic darkBackgroundGraphic;
+    private float darkBackgroundAuthoredAlpha = 1f;
+    private bool hasCapturedDarkBackgroundAlpha;
 
     private SkeletonGraphic goldBurstResultSkeleton;
     private RectTransform goldBurstResultPanelRect;
@@ -233,6 +236,7 @@ public abstract class TransitionController : MonoBehaviour
             ? trolleyMan
             : FindTransitionSceneGameObject("TrolleyMan");
 
+        CaptureDarkBackgroundState();
         CaptureTrackState();
         CaptureTrolleyManState();
         CacheGoldBurstResultPresentation();
@@ -585,7 +589,8 @@ public abstract class TransitionController : MonoBehaviour
 
     protected void SetDarkBackgroundActive(
         bool showDarkBackground,
-        bool showInLandscape = false)
+        bool showInLandscape = false,
+        bool forceOpaque = false)
     {
         if (trainJourneyOrientation == null)
         {
@@ -599,12 +604,32 @@ public abstract class TransitionController : MonoBehaviour
                                         (showInLandscape || isPortrait);
         if (darkBackground != null)
         {
+            CaptureDarkBackgroundState();
+            if (darkBackgroundGraphic != null)
+            {
+                Color backgroundColor = darkBackgroundGraphic.color;
+                backgroundColor.a = forceOpaque && shouldShowDarkBackground
+                    ? 1f
+                    : darkBackgroundAuthoredAlpha;
+                darkBackgroundGraphic.color = backgroundColor;
+            }
             darkBackground.SetActive(shouldShowDarkBackground);
         }
         if (landscapeExtraUI != null)
         {
             landscapeExtraUI.SetActive(!showDarkBackground);
         }
+    }
+
+    private void CaptureDarkBackgroundState()
+    {
+        if (darkBackground == null || hasCapturedDarkBackgroundAlpha) return;
+
+        darkBackgroundGraphic = darkBackground.GetComponent<Graphic>();
+        if (darkBackgroundGraphic == null) return;
+
+        darkBackgroundAuthoredAlpha = darkBackgroundGraphic.color.a;
+        hasCapturedDarkBackgroundAlpha = true;
     }
 
     protected float GetSharedPortraitOverlayCompensation()
