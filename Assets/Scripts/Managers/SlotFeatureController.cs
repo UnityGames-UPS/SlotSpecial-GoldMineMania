@@ -677,9 +677,7 @@ public class SlotFeatureController : TransitionController
     internal IEnumerator PlayGoldBurstTriggerPresentation(
         GoldBurstTier tier,
         Action afterTrolley,
-        Action beginHiddenRespin,
-        Func<bool> isHiddenRespinReady,
-        Func<bool> applyHiddenRespinResult)
+        Func<bool> applyEntryMatrix)
     {
         EnsureInitialized();
         if (!isGoldBurstPresentationActive)
@@ -699,19 +697,13 @@ public class SlotFeatureController : TransitionController
         }
 
         SetDarkBackgroundActive(true, showInLandscape: true);
-        beginHiddenRespin?.Invoke();
         yield return PlayTrolleyManAnimation();
 
-        while (isHiddenRespinReady != null && !isHiddenRespinReady())
-        {
-            yield return null;
-        }
-
         afterTrolley?.Invoke();
-        if (applyHiddenRespinResult != null && !applyHiddenRespinResult())
+        if (applyEntryMatrix != null && !applyEntryMatrix())
         {
             Debug.LogError(
-                "[SlotFeatureController] Hidden Gold Burst entry result could not be applied.",
+                "[SlotFeatureController] Server-provided Gold Burst entry matrix could not be applied.",
                 this);
             yield break;
         }

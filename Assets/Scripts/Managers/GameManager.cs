@@ -50,10 +50,6 @@ public class GameManager : MonoBehaviour
     private GoldBurstTier activeGoldBurstTier = GoldBurstTier.Cold;
     private int pendingFreeSpins;
     private bool isCompletingGoldBurstRespins;
-    private bool isHiddenGoldBurstEntryRespinInProgress;
-    private bool isAwaitingHiddenGoldBurstEntryResult;
-    private bool isHiddenGoldBurstEntryResultReady;
-    private bool isHiddenGoldBurstEntryResultApplied;
     private bool isCompletingFreeSpins;
 
     internal bool isInitialized;
@@ -736,26 +732,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (isHiddenGoldBurstEntryRespinInProgress)
-        {
-            if (!isAwaitingHiddenGoldBurstEntryResult)
-            {
-                Debug.LogWarning(
-                    "[GameManager] Ignored a duplicate result while committing the hidden Gold Burst entry respin.",
-                    this);
-                return;
-            }
-
-            lastResult = result;
-            isAwaitingHiddenGoldBurstEntryResult = false;
-            isHiddenGoldBurstEntryResultReady = result != null;
-            slotView?.StageGoldBurstRespinFeatures(
-                result?.twoSlotBarrels,
-                result?.threeSlotBarrels,
-                result?.trains);
-            return;
-        }
-
         lastResult = result;
         bool isFreeGameTrigger = IsFreeSpinsTriggered(result);
         slotView?.ConfigureTrainLandingAnimations(!isGoldBurstTrigger);
@@ -800,8 +776,10 @@ public class GameManager : MonoBehaviour
                 pendingFreeSpins = lastResult.freeSpinData.spinsAwarded;
             }
 
-            StartGoldBurstRespins(
-                ResolveGoldBurstTier(goldBurst, lastResult.resultMatrix));
+            GoldBurstTier tier = ResolveGoldBurstTier(
+                goldBurst,
+                lastResult.resultMatrix);
+            StartGoldBurstRespins(tier, lastResult);
             lastResult = null;
             return;
         }
@@ -1010,16 +988,29 @@ public class GameManager : MonoBehaviour
 
     #region Free Spins
 
-    private void StartGoldBurstRespins(GoldBurstTier tier)
+    private void StartGoldBurstRespins(
+        GoldBurstTier tier,
+        SpinResult triggerResult)
     {
+        List<List<int>> entryMatrix = GetGoldBurstEntryMatrix(
+            triggerResult,
+            tier);
+        if (entryMatrix == null)
+        {
+            Debug.LogError(
+                $"[GameManager] The server did not provide a valid {tier} Gold Burst entry matrix.",
+                this);
+            popupManager?.ShowServerError(
+                "The Gold Burst layout could not be displayed. Please reconnect and try again.");
+            currentState = GameState.Idle;
+            uiManager.EnableControlsAfterWinAnimation();
+            return;
+        }
+
         AudioManager.Instance?.PlayGoldMineRespinTrigger();
         activeGoldBurstTier = tier;
         isInGoldBurstRespins = true;
         isCompletingGoldBurstRespins = false;
-        isHiddenGoldBurstEntryRespinInProgress = false;
-        isAwaitingHiddenGoldBurstEntryResult = false;
-        isHiddenGoldBurstEntryResultReady = false;
-        isHiddenGoldBurstEntryResultApplied = false;
         uiManager.UseGoldBurstFeatureSpinCountDisplay(tier);
         uiManager.ShowGoodLuckDisplay();
         uiManager.HideFeatureSpinCount();
@@ -1036,95 +1027,51 @@ public class GameManager : MonoBehaviour
         }
 
         currentState = GameState.Stopping;
-        StartCoroutine(StartGoldBurstRespinsSequence(tier));
+        int initialRespins = Mathf.Max(
+            0,
+            triggerResult?.goldBurstData?.remainingRespins ?? 0);
+        StartCoroutine(StartGoldBurstRespinsSequence(
+            tier,
+            entryMatrix,
+            initialRespins));
     }
 
-    private IEnumerator StartGoldBurstRespinsSequence(GoldBurstTier tier)
+    private IEnumerator StartGoldBurstRespinsSequence(
+        GoldBurstTier tier,
+        List<List<int>> entryMatrix,
+        int initialRespins)
     {
+        bool entryMatrixApplied = false;
         if (slotView != null)
         {
             yield return slotView.PlayGoldBurstTriggerPresentation(
                 tier,
-                BeginHiddenGoldBurstEntryRespin,
-                IsHiddenGoldBurstEntryResultReady,
-                ApplyHiddenGoldBurstEntryResult);
-        }
-        else
-        {
-            BeginHiddenGoldBurstEntryRespin();
-            while (!IsHiddenGoldBurstEntryResultReady())
-            {
-                yield return null;
-            }
-            isHiddenGoldBurstEntryResultApplied = true;
+                () =>
+                {
+                    entryMatrixApplied =
+                        slotView.ApplyGoldBurstEntryMatrix(entryMatrix);
+                    return entryMatrixApplied;
+                });
         }
 
-        if (!isHiddenGoldBurstEntryResultReady ||
-            !isHiddenGoldBurstEntryResultApplied ||
-            lastResult == null)
+        if (!entryMatrixApplied)
         {
             Debug.LogError(
-                "[GameManager] The hidden Gold Burst entry respin could not be applied.",
+                "[GameManager] The server-provided Gold Burst entry matrix could not be applied.",
                 this);
             popupManager?.ShowServerError(
-                "The Gold Burst result could not be displayed. Please reconnect and try again.");
+                "The Gold Burst layout could not be displayed. Please reconnect and try again.");
             RestoreBackgroundMusicAfterGoldBurst();
+            isInGoldBurstRespins = false;
+            activeGoldBurstTier = GoldBurstTier.Cold;
+            currentState = GameState.Idle;
+            uiManager.EnableControlsAfterWinAnimation();
             yield break;
         }
 
-        isHiddenGoldBurstEntryRespinInProgress = false;
-        isAwaitingHiddenGoldBurstEntryResult = false;
-        isHiddenGoldBurstEntryResultReady = false;
-        isHiddenGoldBurstEntryResultApplied = false;
-        currentState = GameState.Stopping;
-        OnReelsStoppedComplete();
-    }
-
-    private void BeginHiddenGoldBurstEntryRespin()
-    {
-        if (!isInGoldBurstRespins ||
-            isHiddenGoldBurstEntryRespinInProgress ||
-            socketManager == null ||
-            !socketManager.isConnected)
-        {
-            return;
-        }
-
-        lastResult = null;
-        stopRequested = false;
-        currentState = GameState.Spinning;
-        isHiddenGoldBurstEntryRespinInProgress = true;
-        isAwaitingHiddenGoldBurstEntryResult = true;
-        isHiddenGoldBurstEntryResultReady = false;
-        isHiddenGoldBurstEntryResultApplied = false;
-
-        // This is a real Gold Burst respin. Only the reel movement is suppressed
-        // because the existing transition is already covering the slot layout.
-        uiManager.OnSpinStarted();
-        socketManager.SendSpinRequest(currentBetIndex, true);
-    }
-
-    private bool IsHiddenGoldBurstEntryResultReady()
-    {
-        return isHiddenGoldBurstEntryRespinInProgress &&
-               !isAwaitingHiddenGoldBurstEntryResult &&
-               isHiddenGoldBurstEntryResultReady &&
-               lastResult != null;
-    }
-
-    private bool ApplyHiddenGoldBurstEntryResult()
-    {
-        isHiddenGoldBurstEntryResultApplied =
-            IsHiddenGoldBurstEntryResultReady() &&
-            slotView != null &&
-            slotView.ApplyHiddenGoldBurstRespinResult(lastResult.resultMatrix);
-        if (isHiddenGoldBurstEntryResultApplied &&
-            lastResult.goldBurstData != null)
-        {
-            uiManager.UpdateFreeSpinCount(
-                Mathf.Max(0, lastResult.goldBurstData.remainingRespins));
-        }
-        return isHiddenGoldBurstEntryResultApplied;
+        uiManager.UpdateFreeSpinCount(initialRespins);
+        currentState = GameState.Idle;
+        RequestSpin();
     }
 
     private IEnumerator DelayBeforeNextGoldBurstRespin()
@@ -1232,6 +1179,54 @@ public class GameManager : MonoBehaviour
             : null;
     }
 
+    private static List<List<int>> GetGoldBurstEntryMatrix(
+        SpinResult triggerResult,
+        GoldBurstTier tier)
+    {
+        if (triggerResult == null) return null;
+
+        GoldBurstData goldBurst = triggerResult.goldBurstData;
+        if (tier == GoldBurstTier.Ultimate)
+        {
+            List<List<int>> combined = CombineGoldBurstMatrices(
+                goldBurst?.expandedMatrix,
+                goldBurst?.secondaryExpandedMatrix);
+            if (combined != null) return combined;
+
+            return HasMatrixDimensions(
+                    triggerResult.resultMatrix,
+                    ExpandedGoldBurstReelCount * 2,
+                    GoldBurstRowCount)
+                ? CloneMatrix(triggerResult.resultMatrix)
+                : null;
+        }
+
+        if (tier == GoldBurstTier.Mega)
+        {
+            if (HasMatrixDimensions(
+                    goldBurst?.expandedMatrix,
+                    ExpandedGoldBurstReelCount,
+                    GoldBurstRowCount))
+            {
+                return CloneMatrix(goldBurst.expandedMatrix);
+            }
+
+            return HasMatrixDimensions(
+                    triggerResult.resultMatrix,
+                    ExpandedGoldBurstReelCount,
+                    GoldBurstRowCount)
+                ? CloneMatrix(triggerResult.resultMatrix)
+                : null;
+        }
+
+        return HasMatrixDimensions(
+                triggerResult.resultMatrix,
+                5,
+                GoldBurstRowCount)
+            ? CloneMatrix(triggerResult.resultMatrix)
+            : null;
+    }
+
     private static List<List<int>> CombineGoldBurstMatrices(
         List<List<int>> firstMatrix,
         List<List<int>> secondMatrix)
@@ -1302,10 +1297,6 @@ public class GameManager : MonoBehaviour
         RestoreBackgroundMusicAfterGoldBurst();
         isCompletingGoldBurstRespins = false;
         isInGoldBurstRespins = false;
-        isHiddenGoldBurstEntryRespinInProgress = false;
-        isAwaitingHiddenGoldBurstEntryResult = false;
-        isHiddenGoldBurstEntryResultReady = false;
-        isHiddenGoldBurstEntryResultApplied = false;
         activeGoldBurstTier = GoldBurstTier.Cold;
         currentState = GameState.Idle;
 

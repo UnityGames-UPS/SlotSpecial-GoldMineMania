@@ -1087,32 +1087,6 @@ public class SlotView : MonoBehaviour
         featureVisualController?.PrepareTrains(placements);
     }
 
-    internal void StageGoldBurstRespinFeatures(
-        IReadOnlyList<TwoSlotBarrelPlacement> twoSlotBarrels,
-        IReadOnlyList<ThreeSlotBarrelPlacement> threeSlotBarrels,
-        IReadOnlyList<TrainPlacement> trains)
-    {
-        preparedTwoSlotBarrels.Clear();
-        if (twoSlotBarrels != null)
-        {
-            preparedTwoSlotBarrels.AddRange(
-                twoSlotBarrels.Where(item => item != null));
-        }
-
-        preparedThreeSlotBarrels.Clear();
-        if (threeSlotBarrels != null)
-        {
-            preparedThreeSlotBarrels.AddRange(
-                threeSlotBarrels.Where(item => item != null));
-        }
-
-        preparedTrains.Clear();
-        if (trains != null)
-        {
-            preparedTrains.AddRange(trains.Where(item => item != null));
-        }
-    }
-
     internal void ConfigureGoldBurstTriggerBarrelMerge(bool shouldDefer)
     {
         featureVisualController?.ConfigureGoldBurstTriggerBarrelMerge(shouldDefer);
@@ -1629,9 +1603,7 @@ public class SlotView : MonoBehaviour
 
     internal IEnumerator PlayGoldBurstTriggerPresentation(
         GoldBurstTier tier,
-        Action beginHiddenRespin,
-        Func<bool> isHiddenRespinReady,
-        Func<bool> applyHiddenRespinResult)
+        Func<bool> applyEntryMatrix)
     {
         StopWinningSymbolAnimations();
         ConfigureTrainLandingAnimations(false);
@@ -1653,9 +1625,7 @@ public class SlotView : MonoBehaviour
             yield return featureVisualController.PlayGoldBurstTriggerPresentation(
                 tier,
                 activateExpandedLayout,
-                beginHiddenRespin,
-                isHiddenRespinReady,
-                applyHiddenRespinResult);
+                applyEntryMatrix);
             StartGoldBurstBarrelIdleAnimations();
         }
     }
@@ -3067,12 +3037,12 @@ public class SlotView : MonoBehaviour
         }
     }
 
-    internal bool ApplyHiddenGoldBurstRespinResult(List<List<int>> matrix)
+    internal bool ApplyGoldBurstEntryMatrix(List<List<int>> matrix)
     {
         if (!IsValidMatrix(matrix))
         {
             Debug.LogError(
-                "[SlotView] Hidden Gold Burst result matrix does not match the activated layout.",
+                "[SlotView] Server-provided Gold Burst entry matrix does not match the activated layout.",
                 this);
             return false;
         }
