@@ -125892,15 +125892,7 @@ MonoBehaviour:
   popupManager: {fileID: 1363796882}
   JSManager: {fileID: 1504510397}
   RaycastBlocker: {fileID: 1502470262}
-  buttons:
-  - {fileID: 848782453}
-  - {fileID: 966170359}
-  - {fileID: 953288079}
-  - {fileID: 895458473}
-  - {fileID: 1794424203}
-  - {fileID: 1689736047}
-  - {fileID: 1390618900}
-  - {fileID: 18037864}
+  buttons: []
   enablePingDebug: 0
 --- !u!4 &1236468291
 Transform:
