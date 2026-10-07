@@ -165,7 +165,7 @@ public class ServerPayload
     public double winAmount;
     public double grandTotalWin;
     public double netReturnRatio;
-    public List<ServerWaysWin> waysWins;
+    public List<ServerWaysWin> lineWins;
     public ServerUSpinResult uSpin;
     public ServerMoneyBagResult moneyBag;
     public ServerFreeGamesResult freeGames;
@@ -727,7 +727,7 @@ public static class InitDataConverter
         List<List<int>> resultMatrix = ConvertReelsToMatrix(
             serverResponse.payload.reels,
             serverResponse.matrix,
-            serverResponse.payload.waysWins,
+            serverResponse.payload.lineWins,
             gameConfig);
         List<List<int>> expandedGoldBurstMatrix =
             serverResponse.payload.goldBurst?.matrixSet1 != null &&
@@ -754,7 +754,7 @@ public static class InitDataConverter
             winAmount = winAmountVal,
             grandTotalWin = grandTotalWinVal,
             winLines = ConvertWinningLines(
-                serverResponse.payload.waysWins,
+                serverResponse.payload.lineWins,
                 resultMatrix != null && resultMatrix.Count > 0
                     ? resultMatrix.Count
                     : gameConfig?.reelCount ?? 5),
@@ -1373,7 +1373,7 @@ public static class InitDataConverter
         return true;
     }
 
-    private static List<List<int>> ConvertReelsToMatrix(List<List<string>> serverReels, List<List<string>> serverMatrix, List<ServerWaysWin> waysWins, GameConfig gameConfig)
+    private static List<List<int>> ConvertReelsToMatrix(List<List<string>> serverReels, List<List<string>> serverMatrix, List<ServerWaysWin> lineWins, GameConfig gameConfig)
     {
         var sourceReels = serverMatrix ?? serverReels;
         int rowCount = gameConfig != null ? gameConfig.rowCount : 3;

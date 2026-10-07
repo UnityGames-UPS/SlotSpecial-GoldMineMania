@@ -2546,6 +2546,8 @@ public class SlotView : MonoBehaviour
         reel.transform.anchoredPosition = reel.restingPosition;
         reel.isAnticipating = false;
         reel.completedCycles = 0;
+        // Copies sit above the mask at rest, so this never changes a visible symbol.
+        SyncLoopCopiesWithResultSlots(reelIndex);
 
         int travelSymbols = GetTravelSymbolCount(reelIndex);
         float travelDistance = reel.symbolPitch * travelSymbols;
@@ -2707,12 +2709,184 @@ public class SlotView : MonoBehaviour
 
         SetAnticipationAnimationActive(reelIndex, false);
         reel.isAnticipating = false;
+
+        if (quickStop)
+        {
+            yield return QuickStopSingleReel(
+                reelIndex, resultColumn, overshoot, overshootDuration, settleDuration);
+            AudioManager.Instance?.PlayReelStop();
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        ApplyReelMotionSpeed(reel);
+
+        if (scheduledSpeed == SpinSpeed.Turbo)
+        {
+            yield return TurboStopSingleReel(
+                reelIndex, resultColumn, overshoot, overshootDuration, settleDuration);
+            AudioManager.Instance?.PlayReelStop();
+            onComplete?.Invoke();
+            yield break;
+        }
+
+        // The strip loops by travelling down `travel` pixels and restarting. The
+        // top rows of the strip are loop copies of the result rows, so the restart
+        // is invisible. Result sprites are only swapped while they are outside the
+        // mask, so no symbol ever changes on screen.
+        int rowCount = Mathf.Max(1, GetRowCount());
+        float travel = reel.symbolPitch * GetTravelSymbolCount(reelIndex);
+        float landingDistance = Mathf.Min(travel, reel.symbolPitch * rowCount);
+        float landingStart = travel - landingDistance;
+
+        // Wait (still spinning) until the loop copies are above the mask.
+        while (reel.restingPosition.y - reel.transform.anchoredPosition.y > landingStart)
+        {
+            yield return null;
+        }
+
+        float spinSpeed = reel.motionTween != null && reel.motionTween.IsActive()
+            ? reel.motionBasePixelsPerSecond * reel.motionTween.timeScale
+            : (GetSpinSpeed() == SpinSpeed.Normal ? normalReelSpeed : fastReelSpeed);
+        reel.motionTween?.Kill();
+        reel.motionTween = null;
+
+        float distance = reel.restingPosition.y - reel.transform.anchoredPosition.y;
+        ApplyLoopCopies(reelIndex, resultColumn);
+
+        bool resultApplied = false;
+        void SetDistance(float value)
+        {
+            distance = value;
+            if (!resultApplied && distance >= reel.symbolPitch * rowCount)
+            {
+                // Result rows have scrolled below the mask.
+                ApplyMatrixColumn(reelIndex, resultColumn);
+                resultApplied = true;
+            }
+
+            float wrapped = distance > travel ? distance - travel : distance;
+            reel.transform.anchoredPosition = reel.restingPosition + Vector2.down * wrapped;
+        }
+
+        Sequence stopSequence = DOTween.Sequence().SetUpdate(true);
+        float runIn = Mathf.Max(0f, landingStart - distance);
+        if (runIn > 0f)
+        {
+            stopSequence.Append(
+                DOTween.To(SetDistance, distance, landingStart, runIn / Mathf.Max(1f, spinSpeed))
+                    .SetEase(Ease.Linear));
+        }
+
+        stopSequence.Append(
+            DOTween.To(SetDistance, Mathf.Max(distance, landingStart), travel + overshoot, overshootDuration)
+                .SetEase(Ease.OutQuad));
+        stopSequence.Append(
+            DOTween.To(SetDistance, travel + overshoot, travel, settleDuration)
+                .SetEase(Ease.InOutQuad));
+
+        reel.stopTween = stopSequence;
+        activeTweens.Add(stopSequence);
+        yield return stopSequence.WaitForCompletion();
+        reel.stopTween = null;
+
+        if (!resultApplied) ApplyMatrixColumn(reelIndex, resultColumn);
+        reel.transform.anchoredPosition = reel.restingPosition;
+
+        AudioManager.Instance?.PlayReelStop();
+        onComplete?.Invoke();
+    }
+
+    // Turbo lands every reel the moment its stop is scheduled, so reels stop at
+    // even intervals. The landing runs to the next loop point that leaves room
+    // to swap the loop copies and result rows while each is outside the mask.
+    private IEnumerator TurboStopSingleReel(
+        int reelIndex,
+        List<int> resultColumn,
+        float overshoot,
+        float overshootDuration,
+        float settleDuration)
+    {
+        ReelRuntime reel = reels[reelIndex];
+        int rowCount = Mathf.Max(1, GetRowCount());
+        float travel = Mathf.Max(1f, reel.symbolPitch * GetTravelSymbolCount(reelIndex));
+        float landingDistance = Mathf.Min(travel, reel.symbolPitch * rowCount);
+
+        float spinSpeed = reel.motionTween != null && reel.motionTween.IsActive()
+            ? reel.motionBasePixelsPerSecond * reel.motionTween.timeScale
+            : fastReelSpeed;
+        reel.motionTween?.Kill();
+        reel.motionTween = null;
+
+        float start = Mathf.Clamp(
+            reel.restingPosition.y - reel.transform.anchoredPosition.y, 0f, travel);
+        float final = travel * Mathf.Max(1f, Mathf.Ceil((start + landingDistance) / travel));
+        float finalCycleStart = final - travel;
+
+        bool copiesApplied = false;
+        bool resultApplied = false;
+        void SetDistance(float value)
+        {
+            float inFinalCycle = value - finalCycleStart;
+            if (!copiesApplied && inFinalCycle >= 0f)
+            {
+                // Loop copies are above the mask at the start of the final cycle.
+                ApplyLoopCopies(reelIndex, resultColumn);
+                copiesApplied = true;
+            }
+
+            if (!resultApplied && inFinalCycle >= reel.symbolPitch * rowCount)
+            {
+                // Result rows have scrolled below the mask.
+                ApplyMatrixColumn(reelIndex, resultColumn);
+                resultApplied = true;
+            }
+
+            float wrapped = value - travel * Mathf.Floor(value / travel);
+            reel.transform.anchoredPosition = reel.restingPosition + Vector2.down * wrapped;
+        }
+
+        SetDistance(start);
+
+        // Same duration for every reel, so the scheduled stop interval is kept.
+        float landingDuration = Mathf.Max(
+            overshootDuration,
+            (landingDistance + travel + overshoot) / Mathf.Max(1f, spinSpeed));
+
+        Sequence stopSequence = DOTween.Sequence().SetUpdate(true);
+        stopSequence.Append(
+            DOTween.To(SetDistance, start, final + overshoot, landingDuration)
+                .SetEase(Ease.OutQuad));
+        stopSequence.Append(
+            DOTween.To(SetDistance, final + overshoot, final, settleDuration)
+                .SetEase(Ease.InOutQuad));
+
+        reel.stopTween = stopSequence;
+        activeTweens.Add(stopSequence);
+        yield return stopSequence.WaitForCompletion();
+        reel.stopTween = null;
+
+        if (!copiesApplied) ApplyLoopCopies(reelIndex, resultColumn);
+        if (!resultApplied) ApplyMatrixColumn(reelIndex, resultColumn);
+        reel.transform.anchoredPosition = reel.restingPosition;
+    }
+
+    // Skip spin lands immediately: the strip jumps so the result rows sit above
+    // the mask, the result is applied there, and the strip drops into place.
+    private IEnumerator QuickStopSingleReel(
+        int reelIndex,
+        List<int> resultColumn,
+        float overshoot,
+        float overshootDuration,
+        float settleDuration)
+    {
+        ReelRuntime reel = reels[reelIndex];
         reel.motionTween?.Kill();
         reel.motionTween = null;
 
         float landingDistance = Mathf.Max(
             stopAnticipationDistance,
-            reel.symbolPitch * (quickStop ? 0.75f : 2f));
+            reel.symbolPitch * Mathf.Max(1, GetRowCount()));
         reel.transform.anchoredPosition = reel.restingPosition + Vector2.up * landingDistance;
         ApplyMatrixColumn(reelIndex, resultColumn);
 
@@ -2730,9 +2904,6 @@ public class SlotView : MonoBehaviour
         activeTweens.Add(stopSequence);
         yield return stopSequence.WaitForCompletion();
         reel.stopTween = null;
-
-        AudioManager.Instance?.PlayReelStop();
-        onComplete?.Invoke();
     }
 
     private IEnumerator WaitForSpeedAdjustedStopDelay(float delay, SpinSpeed scheduledSpeed)
@@ -3026,6 +3197,49 @@ public class SlotView : MonoBehaviour
 
             Sprite sprite = GetSymbolSprite(column[row]);
             if (sprite != null) resultImage.sprite = sprite;
+        }
+    }
+
+    // The first rows of each strip are shown just before the loop restarts at
+    // the result rows, so they must mirror the result rows for a seamless loop.
+    private void ApplyLoopCopies(int reelIndex, List<int> column)
+    {
+        ReelRuntime reel = reels[reelIndex];
+        int rowCount = Mathf.Min(GetRowCount(), column.Count);
+
+        for (int row = 0; row < rowCount && row < reel.symbols.Count; row++)
+        {
+            Image copyImage = reel.symbols[row];
+            if (copyImage == null || copyImage == GetResultSlotImage(reelIndex, row)) continue;
+
+            copyImage.rectTransform.localScale = column[row] == GetFreeGameScatterId()
+                ? GetOriginalResultSlotScale(copyImage) * trainSymbolScale
+                : GetOriginalResultSlotScale(copyImage);
+
+            Sprite sprite = GetSymbolSprite(column[row]);
+            if (sprite != null) copyImage.sprite = sprite;
+        }
+    }
+
+    private void SyncLoopCopiesWithResultSlots(int reelIndex)
+    {
+        ReelRuntime reel = reels[reelIndex];
+        int rowCount = Mathf.Min(GetRowCount(), DefaultRowCount);
+
+        for (int row = 0; row < rowCount && row < reel.symbols.Count; row++)
+        {
+            Image resultImage = GetResultSlotImage(reelIndex, row);
+            Image copyImage = reel.symbols[row];
+            if (resultImage == null || copyImage == null || copyImage == resultImage) continue;
+
+            Vector3 resultOriginal = GetOriginalResultSlotScale(resultImage);
+            Vector3 copyOriginal = GetOriginalResultSlotScale(copyImage);
+            Vector3 resultScale = resultImage.rectTransform.localScale;
+            copyImage.rectTransform.localScale = new Vector3(
+                resultOriginal.x != 0f ? copyOriginal.x * resultScale.x / resultOriginal.x : copyOriginal.x,
+                resultOriginal.y != 0f ? copyOriginal.y * resultScale.y / resultOriginal.y : copyOriginal.y,
+                copyOriginal.z);
+            copyImage.sprite = resultImage.sprite;
         }
     }
 
