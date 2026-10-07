@@ -149574,9 +149574,9 @@ MonoBehaviour:
   quickReelStopInterval: 0.06
   normalReelSpeed: 2500
   fastReelSpeed: 6000
-  stopAnticipationDistance: 30
-  stopOvershootDistance: 59
-  stopOvershootDuration: 0.2
+  stopAnticipationDistance: 40
+  stopOvershootDistance: 60
+  stopOvershootDuration: 0.38
   stopSettleDuration: 0.3
   scatterAnticipationDuration: 1.5
   scatterAnticipationSpeedMultiplier: 1.15
