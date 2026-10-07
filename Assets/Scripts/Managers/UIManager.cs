@@ -1343,6 +1343,7 @@ public class UIManager : MonoBehaviour
 
         double startValue = totalFreeSpinWin;
         totalFreeSpinWin = targetTotal;
+        int decimalPlaces = GetDecimalPlaces(targetTotal);
         if (winTween != null) winTween.Kill();
         double displayed = startValue;
         winTween = DOTween.To(
@@ -1350,7 +1351,10 @@ public class UIManager : MonoBehaviour
                 value =>
                 {
                     displayed = value;
-                    UpdateWinDisplay(displayed, true);
+                    UpdateWinDisplay(
+                        QuantizeWinCountValue(displayed, decimalPlaces),
+                        true,
+                        decimalPlaces);
                 },
                 targetTotal,
                 0.8f)
@@ -1358,7 +1362,7 @@ public class UIManager : MonoBehaviour
             .SetUpdate(true)
             .OnComplete(() =>
             {
-                UpdateWinDisplay(targetTotal, true);
+                UpdateWinDisplay(targetTotal, true, decimalPlaces);
                 winTween = null;
                 onComplete?.Invoke();
             });
@@ -1594,11 +1598,17 @@ public class UIManager : MonoBehaviour
         SetTMPText(balanceText, balanceTextPortrait, "BALANCE : " + FormatAmount(gameManager.playerData.balance));
     }
 
-    private void UpdateWinDisplay(double amount, bool forceShowWinText = false)
+    private void UpdateWinDisplay(
+        double amount,
+        bool forceShowWinText = false,
+        int decimalPlaces = -1)
     {
         currentWinDisplayValue = amount;
-        if (winAmountText) winAmountText.text = FormatAmount(amount);
-        if (winAmountTextPortrait) winAmountTextPortrait.text = "WIN " + FormatAmount(amount);
+        string displayAmount = decimalPlaces >= 0
+            ? FormatWinCountAmount(amount, decimalPlaces)
+            : FormatAmount(amount);
+        if (winAmountText) winAmountText.text = displayAmount;
+        if (winAmountTextPortrait) winAmountTextPortrait.text = "WIN " + displayAmount;
 
         bool showWinText = forceShowWinText ||
                            amount > 0 ||
@@ -1649,7 +1659,8 @@ public class UIManager : MonoBehaviour
         }
 
         double clampedTarget = System.Math.Max(0d, targetWin);
-        UpdateWinDisplay(0d, clampedTarget > 0d);
+        int decimalPlaces = GetDecimalPlaces(clampedTarget);
+        UpdateWinDisplay(0d, clampedTarget > 0d, decimalPlaces);
         if (clampedTarget <= 0d)
         {
             onComplete?.Invoke();
@@ -1660,12 +1671,15 @@ public class UIManager : MonoBehaviour
                 0f,
                 (float)clampedTarget,
                 Mathf.Max(0.01f, duration),
-                value => UpdateWinDisplay(value, true))
+                value => UpdateWinDisplay(
+                    QuantizeWinCountValue(value, decimalPlaces),
+                    true,
+                    decimalPlaces))
             .SetEase(Ease.Linear)
             .SetUpdate(true)
             .OnComplete(() =>
             {
-                UpdateWinDisplay(clampedTarget, true);
+                UpdateWinDisplay(clampedTarget, true, decimalPlaces);
                 winTween = null;
                 onComplete?.Invoke();
             });
@@ -1695,6 +1709,25 @@ public class UIManager : MonoBehaviour
     private string FormatAmount(double amount)
     {
         return amount.ToString("0.###");
+    }
+
+    // A win counter should advance in the same smallest unit as its final win.
+    // This prevents tweened float values such as 0.0001 appearing for a 0.96 win.
+    private static double QuantizeWinCountValue(double amount, int decimalPlaces)
+    {
+        double step = System.Math.Pow(10d, -decimalPlaces);
+        double roundedDown = System.Math.Floor((amount / step) + 0.0000001d);
+        return System.Math.Round(roundedDown * step, decimalPlaces);
+    }
+
+    private static string FormatWinCountAmount(double amount, int decimalPlaces)
+    {
+        string format = decimalPlaces > 0
+            ? "0." + new string('0', decimalPlaces)
+            : "0";
+        return System.Math.Max(0d, amount).ToString(
+            format,
+            System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private void SetBetControlsEnabled(bool enabled)
@@ -2048,7 +2081,9 @@ public class UIManager : MonoBehaviour
         if (bigWinPresentationAmount != null)
         {
             bigWinPresentationAmount.gameObject.SetActive(true);
-            bigWinPresentationAmount.text = FormatBigWinAmount(0d);
+            bigWinPresentationAmount.text = FormatBigWinAmount(
+                0d,
+                GetDecimalPlaces(winAmount));
         }
         if (bigWinPresentationAmountRect != null &&
             hasCapturedBigWinAmountPosition)
@@ -2145,6 +2180,7 @@ public class UIManager : MonoBehaviour
 
         if (bigWinPresentationAmount != null)
         {
+            int decimalPlaces = GetDecimalPlaces(targetAmount);
             bigWinAmountTween = DOVirtual.Float(
                     0f,
                     (float)targetAmount,
@@ -2154,7 +2190,9 @@ public class UIManager : MonoBehaviour
                         if (bigWinPresentationAmount != null)
                         {
                             bigWinPresentationAmount.text =
-                                FormatBigWinAmount(value);
+                                FormatBigWinAmount(
+                                    QuantizeWinCountValue(value, decimalPlaces),
+                                    decimalPlaces);
                         }
                     })
                 .SetUpdate(true);
@@ -2166,7 +2204,9 @@ public class UIManager : MonoBehaviour
 
         if (bigWinPresentationAmount != null)
         {
-            bigWinPresentationAmount.text = FormatBigWinAmount(targetAmount);
+            bigWinPresentationAmount.text = FormatBigWinAmount(
+                targetAmount,
+                GetDecimalPlaces(targetAmount));
         }
 
         float holdDuration = Mathf.Max(
@@ -2296,10 +2336,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private static string FormatBigWinAmount(double amount)
+    private static string FormatBigWinAmount(double amount, int decimalPlaces = 2)
     {
-        return System.Math.Max(0d, amount)
-            .ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+        return FormatWinCountAmount(amount, decimalPlaces);
     }
 
     #endregion
@@ -2407,9 +2446,8 @@ public class UIManager : MonoBehaviour
         if (uwpWinAmountText != null && uwpWinAmountText.gameObject.activeSelf && winAmount > 0)
         {
             int decimals = GetDecimalPlaces(winAmount);
-            string formatStr = decimals > 0 ? "0." + new string('0', decimals) : "0";
 
-            uwpWinAmountText.text = (0.0).ToString(formatStr);
+            uwpWinAmountText.text = FormatWinCountAmount(0d, decimals);
 
             float countUpDuration = 1.0f;
 
@@ -2417,13 +2455,17 @@ public class UIManager : MonoBehaviour
             {
                 if (uwpWinAmountText != null)
                 {
-                    uwpWinAmountText.text = val.ToString(formatStr);
+                    uwpWinAmountText.text = FormatWinCountAmount(
+                        QuantizeWinCountValue(val, decimals),
+                        decimals);
                 }
             }).OnComplete(() =>
             {
                 if (uwpWinAmountText != null)
                 {
-                    uwpWinAmountText.text = FormatAmount(winAmount);
+                    uwpWinAmountText.text = FormatWinCountAmount(
+                        winAmount,
+                        decimals);
                 }
                 uwpWinTween = null;
             });
@@ -2433,10 +2475,12 @@ public class UIManager : MonoBehaviour
         uwpAutoCloseCoroutine = StartCoroutine(AutoCloseUniversalWinPopup());
     }
 
-    private int GetDecimalPlaces(double amount)
+    private static int GetDecimalPlaces(double amount)
     {
-        double rounded = System.Math.Round(amount, 4);
-        string str = rounded.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        double rounded = System.Math.Round(amount, 6);
+        string str = rounded.ToString(
+            "0.######",
+            System.Globalization.CultureInfo.InvariantCulture);
         int dotIndex = str.IndexOf('.');
         if (dotIndex < 0) return 0;
         return str.Length - dotIndex - 1;
