@@ -355,6 +355,7 @@ public class SpinResult
     public double grandTotalWin;
     public List<WinLine> winLines;
     public PlayerData playerData;
+    public bool hasServerBalance;
     public FreeSpinData freeSpinData;
     public ScatterData scatterData;
     public OverlayScatterData overlayScatterData; // Keep for safety/UI compilation
@@ -678,8 +679,8 @@ public static class InitDataConverter
     internal static SpinResult ConvertServerResponseToSpinResult(ServerSpinResponse serverResponse, double currentBalance, double betAmount, GameConfig gameConfig)
     {
         double winAmountVal = serverResponse.payload.winAmount > 0 ? serverResponse.payload.winAmount : serverResponse.payload.totalWin;
-        double totalPay = (gameConfig != null && gameConfig.creditDivisor > 0) ? betAmount * gameConfig.creditDivisor : betAmount * 25;
-        double newBalance = serverResponse.player?.balance ?? CalculateNewBalance(currentBalance, totalPay, winAmountVal);
+        double? serverBalance = serverResponse.player?.balance;
+        double newBalance = serverBalance ?? currentBalance;
 
         int spinsRemaining = 0;
         int spinsUsed = 0;
@@ -764,6 +765,7 @@ public static class InitDataConverter
                 balance = newBalance,
                 currentBetIndex = 0
             },
+            hasServerBalance = serverBalance.HasValue,
 
             freeSpinData = (serverResponse.payload.freeGames != null && serverResponse.payload.freeGames.triggered)
                 ? new FreeSpinData
@@ -1464,10 +1466,6 @@ public static class InitDataConverter
         return winLines;
     }
 
-    private static double CalculateNewBalance(double currentBalance, double totalPay, double winAmount)
-    {
-        return currentBalance + winAmount;
-    }
 }
 
 #endregion

@@ -1636,7 +1636,8 @@ public class SlotView : MonoBehaviour
 
     internal IEnumerator PlayGoldBurstFinalPresentation(
         IReadOnlyList<GoldBurstPrizePlacement> prizes,
-        double totalWin)
+        double totalWin,
+        Action onCollect = null)
     {
         StopWinningSymbolAnimations();
         if (featureVisualController == null) yield break;
@@ -1703,7 +1704,8 @@ public class SlotView : MonoBehaviour
         yield return featureVisualController.PlayGoldBurstResultPresentation(
             resultWin,
             uiManager,
-            showDarkBackgroundInLandscape: true);
+            showDarkBackgroundInLandscape: true,
+            onCollect: onCollect);
         yield return featureVisualController.PlayGoldBurstOutroPresentation();
     }
 

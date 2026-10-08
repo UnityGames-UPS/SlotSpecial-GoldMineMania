@@ -405,12 +405,7 @@ public class SocketIOManager : MonoBehaviour
 
       if (gameManager != null && gameManager.playerData != null)
       {
-        gameManager.playerData.balance = syncData.balance;
-
-        if (uiManager != null)
-        {
-          uiManager.UpdateBalanceDisplay();
-        }
+        gameManager.OnServerBalanceSyncReceived(syncData.balance);
       }
     }
     catch (Exception e)

@@ -420,7 +420,8 @@ public abstract class TransitionController : MonoBehaviour
     internal IEnumerator PlayGoldBurstResultPresentation(
         double totalWin,
         UIManager uiManager,
-        bool showDarkBackgroundInLandscape = false)
+        bool showDarkBackgroundInLandscape = false,
+        Action onCollect = null)
     {
         EnsureTransitionsCached();
         if (goldBurstResultPanel == null || goldBurstResultSkeleton == null)
@@ -455,13 +456,20 @@ public abstract class TransitionController : MonoBehaviour
         goldBurstResultPanel.SetActive(true);
 
         bool collectRequested = false;
+        Action completeCollection = () =>
+        {
+            if (collectRequested) return;
+
+            onCollect?.Invoke();
+            collectRequested = true;
+        };
         goldBurstResultCollectListener = () =>
         {
             if (collectRequested) return;
 
             AudioManager.Instance?.PlayTakeButton();
             uiManager?.ShowDisabledSpinButtonForGoldBurstOutro();
-            collectRequested = true;
+            completeCollection();
         };
         if (goldBurstResultCollectButton != null)
         {
@@ -472,10 +480,12 @@ public abstract class TransitionController : MonoBehaviour
         bool hasTakeButton = uiManager != null &&
                              uiManager.ShowGoldBurstTakeButton(
                                  () =>
-                                 {
-                                     uiManager.ShowDisabledSpinButtonForGoldBurstOutro();
-                                     collectRequested = true;
-                                 });
+                                  {
+                                      if (collectRequested) return;
+
+                                      uiManager.ShowDisabledSpinButtonForGoldBurstOutro();
+                                      completeCollection();
+                                  });
         uiManager?.SetGoldBurstTakeButtonInteractable(false);
         bool hasCollectButton = goldBurstResultCollectButton != null;
 
@@ -517,7 +527,7 @@ public abstract class TransitionController : MonoBehaviour
 
         if (!hasCollectButton && !hasTakeButton)
         {
-            collectRequested = true;
+            completeCollection();
         }
         while (!collectRequested)
         {

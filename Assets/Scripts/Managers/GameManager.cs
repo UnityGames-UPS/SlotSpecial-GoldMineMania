@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour
     private int pendingFreeSpins;
     private bool isCompletingGoldBurstRespins;
     private bool isCompletingFreeSpins;
+    private double pendingServerBalance;
+    private bool hasPendingServerBalance;
 
     internal bool isInitialized;
     internal bool initializationFailed;
@@ -74,6 +76,7 @@ public class GameManager : MonoBehaviour
     {
         gameConfig = config;
         playerData = player;
+        hasPendingServerBalance = false;
         currentBetIndex = playerData.currentBetIndex;
         UpdateBetAmount();
 
@@ -292,11 +295,10 @@ public class GameManager : MonoBehaviour
 
         if (lastResult != null)
         {
-            playerData = new PlayerData
+            if (lastResult.playerData != null)
             {
-                balance = lastResult.playerData != null ? lastResult.playerData.balance : 0,
-                currentBetIndex = lastResult.playerData != null ? lastResult.playerData.currentBetIndex : currentBetIndex
-            };
+                playerData.currentBetIndex = lastResult.playerData.currentBetIndex;
+            }
 
             // Keep the previous count visible while the reels are spinning. Apply the
             // server-authoritative count only after every reel has finished stopping.
@@ -719,6 +721,8 @@ public class GameManager : MonoBehaviour
 
     internal void OnSpinResultReceived(SpinResult result)
     {
+        CacheServerBalance(result);
+
         bool isGoldBurstTrigger = !isInGoldBurstRespins &&
                                   result?.goldBurstData != null &&
                                   result.goldBurstData.triggered;
@@ -757,7 +761,24 @@ public class GameManager : MonoBehaviour
     {
         if (lastResult == null) return;
 
-        playerData = lastResult.playerData;
+        if (lastResult.playerData != null)
+        {
+            playerData.currentBetIndex = lastResult.playerData.currentBetIndex;
+        }
+
+        bool startsGoldBurst = !isInGoldBurstRespins &&
+                               lastResult.goldBurstData != null &&
+                               lastResult.goldBurstData.triggered &&
+                               lastResult.goldBurstData.inRespin &&
+                               lastResult.goldBurstData.remainingRespins > 0;
+        bool startsFreeSpins = !isInFreeSpins &&
+                              lastResult.freeSpinData != null &&
+                              lastResult.freeSpinData.isTriggered;
+        if (!isInFreeSpins && !isInGoldBurstRespins &&
+            !startsGoldBurst && !startsFreeSpins)
+        {
+            CommitPendingServerBalance();
+        }
 
         uiManager.OnSpinCompleted(lastResult);
 
@@ -1100,7 +1121,13 @@ public class GameManager : MonoBehaviour
         {
             yield return slotView.PlayGoldBurstFinalPresentation(
                 prizes,
-                totalRoundWin);
+                totalRoundWin,
+                isInFreeSpins ? null : CommitPendingServerBalance);
+        }
+
+        if (!isInFreeSpins)
+        {
+            CommitPendingServerBalance();
         }
 
         EndGoldBurstRespins(totalRoundWin, totalSpinsUsed, isRoundOver);
@@ -1460,6 +1487,8 @@ public class GameManager : MonoBehaviour
                 uiManager);
         }
 
+        CommitPendingServerBalance();
+
         isInFreeSpins = false;
         freeSpinsRemaining = 0;
         waitingForFreeSpinStart = false;
@@ -1470,6 +1499,44 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
+
+    internal void OnServerBalanceSyncReceived(double serverBalance)
+    {
+        pendingServerBalance = serverBalance;
+        hasPendingServerBalance = true;
+
+        bool roundOrFeatureActive = lastResult != null ||
+                                    currentState != GameState.Idle ||
+                                    isInFreeSpins ||
+                                    isInGoldBurstRespins ||
+                                    isCompletingFreeSpins ||
+                                    isCompletingGoldBurstRespins;
+        if (!roundOrFeatureActive)
+        {
+            CommitPendingServerBalance();
+        }
+    }
+
+    private void CacheServerBalance(SpinResult result)
+    {
+        if (result == null || !result.hasServerBalance ||
+            result.playerData == null)
+        {
+            return;
+        }
+
+        pendingServerBalance = result.playerData.balance;
+        hasPendingServerBalance = true;
+    }
+
+    private void CommitPendingServerBalance()
+    {
+        if (!hasPendingServerBalance || playerData == null) return;
+
+        playerData.balance = pendingServerBalance;
+        hasPendingServerBalance = false;
+        uiManager?.UpdateBalanceDisplay();
+    }
 
     #region Connection Events
 
