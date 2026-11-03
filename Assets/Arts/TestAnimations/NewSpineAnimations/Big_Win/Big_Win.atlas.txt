@@ -1,0 +1,846 @@
+Big_Win.png
+size:2009,1977
+filter:Linear,Linear
+pma:true
+Layer 3
+bounds:784,1775,466,115
+offsets:1,15,468,131
+Partical _Fx/Big_Win_00081
+bounds:1151,957,349,223
+offsets:318,248,960,700
+Partical _Fx/Big_Win_00082
+bounds:1502,937,363,236
+offsets:312,243,960,700
+Partical _Fx/Big_Win_00083
+bounds:2,816,379,249
+offsets:305,237,960,700
+Partical _Fx/Big_Win_00084
+bounds:347,482,394,264
+offsets:299,230,960,700
+Partical _Fx/Big_Win_00085
+bounds:743,469,412,277
+offsets:291,224,960,700
+Partical _Fx/Big_Win_00086
+bounds:1157,455,431,291
+offsets:283,218,960,700
+Partical _Fx/Big_Win_00087
+bounds:1406,2,450,304
+offsets:275,212,960,700
+Partical _Fx/Big_Win_00092
+bounds:343,172,546,295
+offsets:236,260,960,700
+Partical _Fx/Big_Win_00113
+bounds:891,151,513,302
+offsets:155,202,960,700
+Partical _Fx/Big_Win_00170
+bounds:1745,601,334,262
+offsets:388,203,960,700
+rotate:90
+Partical _Fx/Big_Win_00171
+bounds:2,537,343,277
+offsets:386,195,960,700
+Partical _Fx/Big_Win_00172
+bounds:1590,308,352,291
+offsets:384,188,960,700
+Partical _Fx/Big_Win_00173
+bounds:2,229,339,306
+offsets:381,180,960,700
+big
+bounds:989,1411,313,181
+offsets:21,1,335,186
+big_Glow/big_00000
+bounds:2,1974,1,1
+big_Glow/big_00027
+bounds:2,1974,1,1
+win_Glow/win_00029
+bounds:2,1974,1,1
+big_Glow/big_00001
+bounds:88,1949,26,42
+offsets:306,131,335,186
+rotate:90
+big_Glow/big_00002
+bounds:249,1927,48,82
+offsets:285,98,335,186
+rotate:90
+big_Glow/big_00003
+bounds:740,1908,67,113
+offsets:267,69,335,186
+rotate:90
+big_Glow/big_00004
+bounds:1007,1893,82,143
+offsets:252,39,335,186
+rotate:90
+big_Glow/big_00005
+bounds:1453,1878,97,170
+offsets:237,12,335,186
+rotate:90
+big_Glow/big_00006
+bounds:1799,1866,109,181
+offsets:225,1,335,186
+rotate:90
+big_Glow/big_00007
+bounds:1434,1742,134,179
+offsets:200,1,335,186
+rotate:90
+big_Glow/big_00008
+bounds:477,1632,150,180
+offsets:183,1,335,186
+rotate:90
+big_Glow/big_00009
+bounds:1720,1566,159,180
+offsets:166,1,335,186
+rotate:90
+big_Glow/big_00010
+bounds:994,1617,156,180
+offsets:152,1,335,186
+rotate:90
+big_Glow/big_00011
+bounds:1615,1732,142,180
+offsets:149,1,335,186
+rotate:90
+big_Glow/big_00012
+bounds:1176,1594,157,180
+offsets:116,1,335,186
+rotate:90
+big_Glow/big_00013
+bounds:391,1470,160,180
+offsets:98,1,335,186
+rotate:90
+big_Glow/big_00014
+bounds:2,1503,159,179
+offsets:81,2,335,186
+rotate:90
+big_Glow/big_00015
+bounds:813,1619,154,179
+offsets:64,2,335,186
+rotate:90
+big_Glow/big_00016
+bounds:1358,1583,157,179
+offsets:47,2,335,186
+rotate:90
+big_Glow/big_00017
+bounds:1539,1572,158,179
+offsets:30,2,335,186
+rotate:90
+big_Glow/big_00018
+bounds:296,1647,149,179
+offsets:22,2,335,186
+rotate:90
+big_Glow/big_00019
+bounds:1252,1753,133,180
+offsets:21,1,335,186
+rotate:90
+big_Glow/big_00020
+bounds:2,1829,113,180
+offsets:21,1,335,186
+rotate:90
+big_Glow/big_00021
+bounds:1625,1876,99,172
+offsets:21,1,335,186
+rotate:90
+big_Glow/big_00022
+bounds:1152,1892,83,143
+offsets:21,1,335,186
+rotate:90
+big_Glow/big_00023
+bounds:625,1909,66,113
+offsets:21,1,335,186
+rotate:90
+big_Glow/big_00024
+bounds:333,1927,48,84
+offsets:22,1,335,186
+rotate:90
+big_Glow/big_00025
+bounds:132,1944,31,54
+offsets:22,1,335,186
+rotate:90
+big_Glow/big_00026
+bounds:20,1962,13,23
+offsets:22,2,335,186
+rotate:90
+glow_yellow
+bounds:147,1664,147,147
+offsets:6,7,160,160
+gold
+bounds:383,748,1360,187
+offsets:1,110,1362,428
+ray
+bounds:659,1621,152,152
+offsets:18,18,188,188
+star
+bounds:2,1685,142,143
+offsets:9,8,159,159
+rotate:90
+win
+bounds:624,999,525,207
+offsets:1,1,528,269
+win_Glow/win_00000
+bounds:5,1966,9,13
+offsets:507,192,528,269
+rotate:90
+win_Glow/win_00001
+bounds:188,1940,35,59
+offsets:483,148,528,269
+rotate:90
+win_Glow/win_00002
+bounds:519,1914,61,104
+offsets:460,103,528,269
+rotate:90
+win_Glow/win_00003
+bounds:855,1898,77,150
+offsets:446,57,528,269
+rotate:90
+win_Glow/win_00004
+bounds:184,1813,112,189
+offsets:413,18,528,269
+rotate:90
+win_Glow/win_00005
+bounds:1797,1727,137,206
+offsets:389,1,528,269
+rotate:90
+win_Glow/win_00006
+bounds:183,1486,159,206
+offsets:366,1,528,269
+rotate:90
+win_Glow/win_00007
+bounds:781,1435,182,206
+offsets:342,1,528,269
+rotate:90
+win_Glow/win_00008
+bounds:1041,1208,201,207
+offsets:318,1,528,269
+rotate:90
+win_Glow/win_00009
+bounds:415,1050,203,207
+offsets:294,1,528,269
+rotate:90
+win_Glow/win_00010
+bounds:625,1233,200,206
+offsets:273,1,528,269
+rotate:90
+win_Glow/win_00011
+bounds:1304,1397,184,206
+offsets:247,1,528,269
+rotate:90
+win_Glow/win_00012
+bounds:1250,1194,201,206
+offsets:224,1,528,269
+rotate:90
+win_Glow/win_00013
+bounds:1458,1182,201,206
+offsets:202,1,528,269
+rotate:90
+win_Glow/win_00014
+bounds:1512,1385,185,206
+offsets:194,1,528,269
+rotate:90
+win_Glow/win_00015
+bounds:417,1255,198,206
+offsets:153,1,528,269
+rotate:90
+win_Glow/win_00016
+bounds:2,1092,203,206
+offsets:129,1,528,269
+rotate:90
+win_Glow/win_00017
+bounds:1666,1175,202,205
+offsets:106,1,528,269
+rotate:90
+win_Glow/win_00018
+bounds:210,1275,193,205
+offsets:91,1,528,269
+rotate:90
+win_Glow/win_00019
+bounds:1720,1379,185,205
+offsets:58,1,528,269
+rotate:90
+win_Glow/win_00020
+bounds:833,1209,200,206
+offsets:35,1,528,269
+rotate:90
+win_Glow/win_00021
+bounds:210,1067,203,206
+offsets:11,1,528,269
+win_Glow/win_00022
+bounds:2,1297,187,206
+offsets:3,1,528,269
+rotate:90
+win_Glow/win_00023
+bounds:573,1455,164,206
+offsets:2,1,528,269
+rotate:90
+win_Glow/win_00024
+bounds:577,1784,122,205
+offsets:2,1,528,269
+rotate:90
+win_Glow/win_00025
+bounds:375,1798,114,200
+offsets:2,1,528,269
+rotate:90
+win_Glow/win_00026
+bounds:1297,1888,87,154
+offsets:8,1,528,269
+rotate:90
+win_Glow/win_00027
+bounds:419,1920,55,98
+offsets:17,1,528,269
+rotate:90
+win_Glow/win_00028
+bounds:45,1953,22,41
+offsets:26,1,528,269
+rotate:90
+
+Big_Win_2.png
+size:2017,2012
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00080
+bounds:1580,1355,333,371
+offsets:325,92,960,700
+rotate:90
+Partical _Fx/Big_Win_00088
+bounds:1108,1383,470,318
+offsets:267,205,960,700
+Partical _Fx/Big_Win_00089
+bounds:1171,699,489,331
+offsets:259,199,960,700
+Partical _Fx/Big_Win_00090
+bounds:374,46,508,345
+offsets:251,193,960,700
+Partical _Fx/Big_Win_00093
+bounds:498,1703,566,307
+offsets:228,256,960,700
+Partical _Fx/Big_Win_00094
+bounds:671,1060,585,321
+offsets:220,251,960,700
+Partical _Fx/Big_Win_00095
+bounds:380,393,604,335
+offsets:213,246,960,700
+Partical _Fx/Big_Win_00109
+bounds:461,1391,645,310
+offsets:189,223,960,700
+Partical _Fx/Big_Win_00110
+bounds:2,1070,667,319
+offsets:180,218,960,700
+Partical _Fx/Big_Win_00111
+bounds:482,730,687,328
+offsets:172,213,960,700
+Partical _Fx/Big_Win_00112
+bounds:884,14,709,337
+offsets:163,207,960,700
+Partical _Fx/Big_Win_00114
+bounds:1066,1703,530,307
+offsets:149,199,960,700
+Partical _Fx/Big_Win_00115
+bounds:2,1392,457,312
+offsets:234,196,960,700
+Partical _Fx/Big_Win_00116
+bounds:2,741,478,327
+offsets:225,188,960,700
+Partical _Fx/Big_Win_00117
+bounds:1516,353,498,341
+offsets:217,181,960,700
+Partical _Fx/Big_Win_00160
+bounds:2,1706,494,304
+offsets:150,118,960,700
+Partical _Fx/Big_Win_00161
+bounds:1258,1032,512,321
+offsets:140,105,960,700
+Partical _Fx/Big_Win_00162
+bounds:986,360,528,337
+offsets:131,92,960,700
+Partical _Fx/Big_Win_00163
+bounds:1662,696,334,353
+offsets:333,80,960,700
+rotate:90
+Partical _Fx/Big_Win_00164
+bounds:2,56,347,370
+offsets:328,67,960,700
+rotate:90
+Partical _Fx/Big_Win_00174
+bounds:1598,1690,356,320
+offsets:376,173,960,700
+Partical _Fx/Big_Win_00175
+bounds:2,405,376,334
+offsets:368,166,960,700
+Partical _Fx/Big_Win_00176
+bounds:1595,2,395,349
+offsets:361,158,960,700
+
+Big_Win_3.png
+size:2018,1836
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00079
+bounds:2,1129,356,456
+offsets:294,0,960,700
+rotate:90
+Partical _Fx/Big_Win_00091
+bounds:460,1126,528,356
+offsets:243,190,960,700
+Partical _Fx/Big_Win_00096
+bounds:2,1487,623,347
+offsets:205,242,960,700
+Partical _Fx/Big_Win_00097
+bounds:808,759,641,360
+offsets:198,238,960,700
+Partical _Fx/Big_Win_00098
+bounds:1510,1120,506,357
+offsets:190,249,960,700
+Partical _Fx/Big_Win_00099
+bounds:989,15,526,370
+offsets:183,245,960,700
+Partical _Fx/Big_Win_00101
+bounds:2,393,502,366
+offsets:232,266,960,700
+Partical _Fx/Big_Win_00118
+bounds:990,1121,518,356
+offsets:208,173,960,700
+Partical _Fx/Big_Win_00120
+bounds:1194,1479,558,355
+offsets:192,189,960,700
+Partical _Fx/Big_Win_00121
+bounds:2,21,579,368
+offsets:183,183,960,700
+Partical _Fx/Big_Win_00126
+bounds:627,1484,565,350
+offsets:258,237,960,700
+Partical _Fx/Big_Win_00127
+bounds:506,391,583,366
+offsets:252,228,960,700
+Partical _Fx/Big_Win_00134
+bounds:1601,381,395,372
+offsets:247,162,960,700
+Partical _Fx/Big_Win_00165
+bounds:2,767,360,386
+offsets:323,54,960,700
+rotate:90
+Partical _Fx/Big_Win_00166
+bounds:583,16,373,404
+offsets:318,40,960,700
+rotate:90
+Partical _Fx/Big_Win_00177
+bounds:390,761,416,363
+offsets:353,151,960,700
+Partical _Fx/Big_Win_00187
+bounds:1091,387,366,508
+offsets:276,74,960,700
+rotate:90
+Partical _Fx/Big_Win_00223
+bounds:1451,755,470,363
+offsets:163,126,960,700
+Partical _Fx/Big_Win_00224
+bounds:1517,2,401,377
+offsets:238,115,960,700
+
+Big_Win_4.png
+size:2042,1915
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00067
+bounds:1381,1450,659,463
+offsets:111,162,960,700
+Partical _Fx/Big_Win_00070
+bounds:1141,183,727,518
+offsets:78,122,960,700
+Partical _Fx/Big_Win_00073
+bounds:2,720,618,573
+offsets:221,81,960,700
+rotate:90
+Partical _Fx/Big_Win_00074
+bounds:1343,703,572,594
+offsets:214,67,960,700
+Partical _Fx/Big_Win_00075
+bounds:789,1299,590,614
+offsets:207,54,960,700
+Partical _Fx/Big_Win_00218
+bounds:577,2,741,562
+offsets:91,132,960,700
+rotate:90
+Partical _Fx/Big_Win_00219
+bounds:577,745,764,552
+offsets:79,125,960,700
+Partical _Fx/Big_Win_00220
+bounds:2,1340,785,573
+offsets:68,118,960,700
+Partical _Fx/Big_Win_00222
+bounds:2,137,581,564
+offsets:45,136,960,700
+rotate:90
+
+Big_Win_5.png
+size:1999,1811
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00066
+bounds:1411,91,636,458
+offsets:122,161,960,700
+rotate:90
+Partical _Fx/Big_Win_00068
+bounds:505,25,682,483
+offsets:99,148,960,700
+rotate:90
+Partical _Fx/Big_Win_00069
+bounds:2,2,705,501
+offsets:88,135,960,700
+rotate:90
+Partical _Fx/Big_Win_00072
+bounds:1397,1257,600,552
+offsets:228,95,960,700
+Partical _Fx/Big_Win_00125
+bounds:990,51,656,419
+offsets:155,161,960,700
+rotate:90
+Partical _Fx/Big_Win_00150
+bounds:700,709,519,546
+offsets:249,117,960,700
+Partical _Fx/Big_Win_00214
+bounds:1221,729,650,526
+offsets:137,164,960,700
+Partical _Fx/Big_Win_00215
+bounds:723,1265,672,544
+offsets:126,156,960,700
+Partical _Fx/Big_Win_00216
+bounds:2,709,696,552
+offsets:114,148,960,700
+Partical _Fx/Big_Win_00217
+bounds:2,1263,719,546
+offsets:102,140,960,700
+
+Big_Win_6.png
+size:1746,2048
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00064
+bounds:1078,2,590,433
+offsets:145,174,960,700
+Partical _Fx/Big_Win_00071
+bounds:1181,899,581,531
+offsets:235,108,960,700
+rotate:90
+Partical _Fx/Big_Win_00108
+bounds:1078,437,625,460
+offsets:197,229,960,700
+Partical _Fx/Big_Win_00124
+bounds:2,1638,640,408
+offsets:159,164,960,700
+Partical _Fx/Big_Win_00143
+bounds:1200,1515,544,531
+offsets:169,75,960,700
+Partical _Fx/Big_Win_00144
+bounds:2,1076,560,548
+offsets:161,66,960,700
+rotate:90
+Partical _Fx/Big_Win_00188
+bounds:549,26,386,526
+offsets:268,62,960,700
+rotate:90
+Partical _Fx/Big_Win_00189
+bounds:2,87,405,545
+offsets:260,50,960,700
+rotate:90
+Partical _Fx/Big_Win_00210
+bounds:549,414,557,527
+offsets:185,119,960,700
+rotate:90
+Partical _Fx/Big_Win_00211
+bounds:2,494,580,545
+offsets:173,112,960,700
+rotate:90
+Partical _Fx/Big_Win_00213
+bounds:552,973,627,507
+offsets:149,172,960,700
+Partical _Fx/Big_Win_00221
+bounds:644,1482,564,554
+offsets:56,146,960,700
+rotate:90
+
+Big_Win_7.png
+size:1955,1947
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00065
+bounds:1249,1098,613,445
+offsets:134,168,960,700
+Partical _Fx/Big_Win_00076
+bounds:623,1025,607,437
+offsets:200,40,960,700
+Partical _Fx/Big_Win_00107
+bounds:467,2,603,449
+offsets:206,234,960,700
+rotate:90
+Partical _Fx/Big_Win_00123
+bounds:2,1097,619,395
+offsets:167,170,960,700
+Partical _Fx/Big_Win_00128
+bounds:1352,222,601,383
+offsets:246,218,960,700
+Partical _Fx/Big_Win_00129
+bounds:1249,1545,618,400
+offsets:240,209,960,700
+Partical _Fx/Big_Win_00192
+bounds:2,2,463,603
+offsets:237,12,960,700
+Partical _Fx/Big_Win_00193
+bounds:627,1464,481,620
+offsets:230,1,960,700
+rotate:90
+Partical _Fx/Big_Win_00204
+bounds:607,607,578,416
+offsets:257,166,960,700
+Partical _Fx/Big_Win_00205
+bounds:918,4,601,432
+offsets:245,159,960,700
+rotate:90
+Partical _Fx/Big_Win_00206
+bounds:2,1494,623,451
+offsets:233,151,960,700
+Partical _Fx/Big_Win_00208
+bounds:1232,607,510,489
+offsets:209,135,960,700
+Partical _Fx/Big_Win_00212
+bounds:2,607,603,488
+offsets:161,180,960,700
+
+Big_Win_8.png
+size:1785,1915
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00063
+bounds:2,2,566,419
+offsets:157,181,960,700
+rotate:90
+Partical _Fx/Big_Win_00105
+bounds:849,20,561,421
+offsets:223,245,960,700
+rotate:90
+Partical _Fx/Big_Win_00106
+bounds:1199,1033,582,435
+offsets:214,240,960,700
+Partical _Fx/Big_Win_00122
+bounds:2,1531,599,382
+offsets:175,176,960,700
+Partical _Fx/Big_Win_00151
+bounds:1173,583,448,561
+offsets:239,107,960,700
+rotate:90
+Partical _Fx/Big_Win_00185
+bounds:2,570,575,469
+offsets:291,99,960,700
+Partical _Fx/Big_Win_00186
+bounds:2,1041,591,488
+offsets:284,87,960,700
+Partical _Fx/Big_Win_00190
+bounds:423,3,424,565
+offsets:253,37,960,700
+Partical _Fx/Big_Win_00191
+bounds:1199,1470,443,584
+offsets:245,24,960,700
+rotate:90
+Partical _Fx/Big_Win_00197
+bounds:1272,23,558,485
+offsets:199,85,960,700
+rotate:90
+Partical _Fx/Big_Win_00198
+bounds:595,890,576,502
+offsets:192,74,960,700
+Partical _Fx/Big_Win_00199
+bounds:603,1394,594,519
+offsets:185,63,960,700
+
+Big_Win_9.png
+size:2048,1916
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00062
+bounds:1116,1508,544,406
+offsets:168,188,960,700
+Partical _Fx/Big_Win_00078
+bounds:536,36,528,468
+offsets:300,12,960,700
+Partical _Fx/Big_Win_00100
+bounds:1662,1370,544,382
+offsets:177,242,960,700
+rotate:90
+Partical _Fx/Big_Win_00104
+bounds:1116,1098,540,408
+offsets:231,250,960,700
+Partical _Fx/Big_Win_00119
+bounds:2,1092,538,370
+offsets:200,166,960,700
+Partical _Fx/Big_Win_00149
+bounds:1074,95,503,528
+offsets:258,127,960,700
+rotate:90
+Partical _Fx/Big_Win_00153
+bounds:1635,456,411,490
+offsets:219,88,960,700
+Partical _Fx/Big_Win_00157
+bounds:1604,2,440,452
+offsets:180,155,960,700
+Partical _Fx/Big_Win_00167
+bounds:1658,948,386,420
+offsets:313,27,960,700
+Partical _Fx/Big_Win_00183
+bounds:2,658,535,432
+offsets:307,123,960,700
+Partical _Fx/Big_Win_00184
+bounds:2,1464,555,450
+offsets:299,111,960,700
+Partical _Fx/Big_Win_00196
+bounds:559,1016,538,469
+offsets:207,96,960,700
+Partical _Fx/Big_Win_00200
+bounds:1099,600,496,534
+offsets:294,53,960,700
+rotate:90
+Partical _Fx/Big_Win_00202
+bounds:2,240,532,416
+offsets:281,182,960,700
+Partical _Fx/Big_Win_00203
+bounds:559,1487,555,427
+offsets:269,174,960,700
+Partical _Fx/Big_Win_00209
+bounds:539,506,533,508
+offsets:197,127,960,700
+
+Big_Win_10.png
+size:2048,1859
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00060
+bounds:1548,494,498,380
+offsets:191,201,960,700
+Partical _Fx/Big_Win_00061
+bounds:531,1464,521,393
+offsets:179,195,960,700
+Partical _Fx/Big_Win_00077
+bounds:520,614,513,453
+offsets:305,26,960,700
+Partical _Fx/Big_Win_00102
+bounds:1054,1477,521,380
+offsets:225,261,960,700
+Partical _Fx/Big_Win_00103
+bounds:531,1069,519,393
+offsets:240,256,960,700
+Partical _Fx/Big_Win_00140
+bounds:1526,14,494,478
+offsets:195,104,960,700
+Partical _Fx/Big_Win_00141
+bounds:1035,525,511,496
+offsets:186,94,960,700
+Partical _Fx/Big_Win_00142
+bounds:2,1343,527,514
+offsets:178,84,960,700
+Partical _Fx/Big_Win_00147
+bounds:1577,1365,467,492
+offsets:278,147,960,700
+Partical _Fx/Big_Win_00148
+bounds:517,127,485,510
+offsets:268,137,960,700
+rotate:90
+Partical _Fx/Big_Win_00181
+bounds:1029,104,495,419
+offsets:322,122,960,700
+Partical _Fx/Big_Win_00182
+bounds:2,910,516,431
+offsets:314,117,960,700
+Partical _Fx/Big_Win_00194
+bounds:2,2,501,509
+offsets:222,117,960,700
+rotate:90
+Partical _Fx/Big_Win_00195
+bounds:1054,1023,520,452
+offsets:214,107,960,700
+Partical _Fx/Big_Win_00201
+bounds:2,505,513,403
+offsets:289,190,960,700
+Partical _Fx/Big_Win_00207
+bounds:1576,876,487,470
+offsets:221,143,960,700
+rotate:90
+
+Big_Win_11.png
+size:1766,1923
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00132
+bounds:1292,1472,403,449
+offsets:223,181,960,700
+Partical _Fx/Big_Win_00133
+bounds:1300,649,378,464
+offsets:256,171,960,700
+rotate:90
+Partical _Fx/Big_Win_00136
+bounds:1300,240,427,407
+offsets:230,143,960,700
+Partical _Fx/Big_Win_00137
+bounds:464,984,444,425
+offsets:221,133,960,700
+rotate:90
+Partical _Fx/Big_Win_00138
+bounds:462,488,461,443
+offsets:212,123,960,700
+rotate:90
+Partical _Fx/Big_Win_00139
+bounds:2,951,477,460
+offsets:204,114,960,700
+rotate:90
+Partical _Fx/Big_Win_00145
+bounds:454,5,437,471
+offsets:292,152,960,700
+Partical _Fx/Big_Win_00146
+bounds:2,2,450,474
+offsets:287,157,960,700
+Partical _Fx/Big_Win_00152
+bounds:480,1447,397,474
+offsets:229,97,960,700
+Partical _Fx/Big_Win_00156
+bounds:891,1029,422,433
+offsets:190,167,960,700
+Partical _Fx/Big_Win_00158
+bounds:2,478,458,471
+offsets:170,143,960,700
+Partical _Fx/Big_Win_00159
+bounds:2,1430,476,491
+offsets:160,130,960,700
+Partical _Fx/Big_Win_00168
+bounds:1315,1033,398,437
+offsets:308,14,960,700
+Partical _Fx/Big_Win_00169
+bounds:879,1464,411,457
+offsets:303,1,960,700
+Partical _Fx/Big_Win_00179
+bounds:907,571,456,391
+offsets:337,136,960,700
+rotate:90
+Partical _Fx/Big_Win_00180
+bounds:893,11,475,405
+offsets:330,129,960,700
+rotate:90
+
+Big_Win_12.png
+size:1280,790
+filter:Linear,Linear
+pma:true
+Partical _Fx/Big_Win_00130
+bounds:2,410,378,416
+offsets:234,200,960,700
+rotate:90
+Partical _Fx/Big_Win_00131
+bounds:2,17,391,433
+offsets:228,190,960,700
+rotate:90
+Partical _Fx/Big_Win_00135
+bounds:858,398,411,390
+offsets:238,152,960,700
+Partical _Fx/Big_Win_00154
+bounds:852,2,426,394
+offsets:209,191,960,700
+Partical _Fx/Big_Win_00155
+bounds:437,3,405,413
+offsets:199,179,960,700
+rotate:90
+Partical _Fx/Big_Win_00178
+bounds:420,410,436,378
+offsets:345,143,960,700

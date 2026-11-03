@@ -1,0 +1,131 @@
+Red barrel Blast.png
+size:1580,1554
+filter:Linear,Linear
+pma:true
+R_B_B_Fx/Red barrel blast_00000
+bounds:824,907,266,209
+offsets:3,36,275,275
+R_B_B_Fx/Red barrel blast_00001
+bounds:553,901,266,206
+offsets:3,35,275,275
+R_B_B_Fx/Red barrel blast_00002
+bounds:547,689,266,210
+offsets:3,35,275,275
+R_B_B_Fx/Red barrel blast_00003
+bounds:276,670,266,211
+offsets:3,35,275,275
+R_B_B_Fx/Red barrel blast_00004
+bounds:276,883,269,219
+offsets:0,27,275,275
+R_B_B_Fx/Red barrel blast_00005
+bounds:824,1336,266,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00006
+bounds:1092,1118,265,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00007
+bounds:1360,1288,264,216
+offsets:3,30,275,275
+rotate:90
+R_B_B_Fx/Red barrel blast_00008
+bounds:1359,1031,255,216
+offsets:3,30,275,275
+rotate:90
+R_B_B_Fx/Red barrel blast_00009
+bounds:1358,776,253,216
+offsets:4,30,275,275
+rotate:90
+R_B_B_Fx/Red barrel blast_00010
+bounds:1357,524,250,216
+offsets:7,30,275,275
+rotate:90
+R_B_B_Fx/Red barrel blast_00011
+bounds:1328,306,250,216
+offsets:7,30,275,275
+R_B_B_Fx/Red barrel blast_00012
+bounds:802,39,247,216
+offsets:9,30,275,275
+R_B_B_Fx/Red barrel blast_00013
+bounds:1067,256,250,216
+offsets:6,30,275,275
+R_B_B_Fx/Red barrel blast_00014
+bounds:1073,474,253,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00015
+bounds:538,52,262,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00016
+bounds:2,2,265,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00017
+bounds:2,438,266,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00018
+bounds:544,472,266,215
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00019
+bounds:272,456,266,212
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00020
+bounds:270,35,266,203
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00021
+bounds:540,270,266,200
+offsets:3,33,275,275
+R_B_B_Fx/Red barrel blast_00022
+bounds:2,1329,275,223
+offsets:0,26,275,275
+R_B_B_Fx/Red barrel blast_00023
+bounds:2,1104,275,223
+offsets:0,26,275,275
+R_B_B_Fx/Red barrel blast_00024
+bounds:821,693,266,212
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00025
+bounds:824,1118,266,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00026
+bounds:553,1109,269,218
+offsets:0,28,275,275
+R_B_B_Fx/Red barrel blast_00027
+bounds:2,656,268,221
+offsets:1,26,275,275
+R_B_B_Fx/Red barrel blast_00028
+bounds:553,1329,269,223
+offsets:0,26,275,275
+R_B_B_Fx/Red barrel blast_00029
+bounds:279,1329,272,223
+offsets:0,26,275,275
+R_B_B_Fx/Red barrel blast_00030
+bounds:2,879,272,223
+offsets:0,26,275,275
+R_B_B_Fx/Red barrel blast_00031
+bounds:279,1104,272,223
+offsets:0,26,275,275
+R_B_B_Fx/Red barrel blast_00032
+bounds:1319,88,239,216
+offsets:17,30,275,275
+R_B_B_Fx/Red barrel blast_00033
+bounds:1051,38,246,216
+offsets:17,30,275,275
+R_B_B_Fx/Red barrel blast_00034
+bounds:812,257,253,216
+offsets:15,30,275,275
+R_B_B_Fx/Red barrel blast_00035
+bounds:815,475,256,216
+offsets:13,30,275,275
+R_B_B_Fx/Red barrel blast_00036
+bounds:1092,900,264,216
+offsets:5,30,275,275
+R_B_B_Fx/Red barrel blast_00037
+bounds:1092,1336,266,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00038
+bounds:2,220,266,216
+offsets:3,30,275,275
+R_B_B_Fx/Red barrel blast_00039
+bounds:270,240,266,214
+offsets:3,32,275,275
+R_B_B_Fx/Red barrel blast_00040
+bounds:1089,692,266,206
+offsets:3,40,275,275
