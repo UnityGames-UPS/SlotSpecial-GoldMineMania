@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using Spine.Unity;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -20,7 +21,6 @@ public class SlotView : MonoBehaviour
     private const int DefaultRowCount = 3;
     private const int FirstGoldBurstLockedSymbolId = 11;
     private const int LastGoldBurstLockedSymbolId = 13;
-    private const float TrainAnimationFramesPerSecond = 30f;
     private const float BarrelBlastSourceFramesPerSecond = 30f;
     private const int GoldBoxRevealFramesBeforeBlastEnd = 5;
     private const float BarrelIdleSourceFramesPerSecond = 30f;
@@ -52,20 +52,36 @@ public class SlotView : MonoBehaviour
 
     [Header("Winning Symbol Animations")]
     [SerializeField, Min(0.1f)] private float winSymbolLoopDuration = 2f;
-    [SerializeField] private List<Sprite> animSpritesMiner = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesDonkey = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesGoldHelmet = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesBoots = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesLantern = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesA = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesK = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesQ = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesJ = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesWild = new List<Sprite>();
 
-    [Header("Free Games Train Animations")]
-    [SerializeField] private List<Sprite> animSpritesTrainLanding = new List<Sprite>();
-    [SerializeField] private List<Sprite> animSpritesFreeGameTrigger = new List<Sprite>();
+    [Header("Winning Symbol Spine Animations - 5x3 Only")]
+    [SerializeField] private SymbolSpineAnimation spineMiner =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineDonkey =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineGoldHelmet =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineBoots =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineLantern =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineA =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineK =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineQ =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineJ =
+        new SymbolSpineAnimation("animation");
+    [SerializeField] private SymbolSpineAnimation spineWild =
+        new SymbolSpineAnimation("animation");
+
+    [Header("Free Games Train Spine Animations - 5x3 Only")]
+    [Tooltip("Assign the Train animation used when the Train lands in the 5x3 grid.")]
+    [SerializeField] private SymbolSpineAnimation spineTrainLanding =
+        new SymbolSpineAnimation("Symbol_1");
+    [Tooltip("Assign the Train animation used when Free Games are triggered.")]
+    [SerializeField] private SymbolSpineAnimation spineTrainTrigger =
+        new SymbolSpineAnimation("Symbol_2");
 
     [Header("Gold Burst Winning Symbol Animations")]
     [SerializeField] private List<Sprite> animSpritesGoldBurstScatter = new List<Sprite>();
@@ -144,19 +160,26 @@ public class SlotView : MonoBehaviour
 
     private readonly List<ReelRuntime> reels = new List<ReelRuntime>();
     private readonly List<GoldBurstCellRuntime> goldBurstCells = new List<GoldBurstCellRuntime>();
-    private readonly Dictionary<int, ImageAnimation> anticipationAnimationsByReel =
-        new Dictionary<int, ImageAnimation>();
+    private readonly Dictionary<int, AnticipationSpineRuntime> anticipationAnimationsByReel =
+        new Dictionary<int, AnticipationSpineRuntime>();
     private RectTransform anticipationAnimationRoot;
     private bool anticipationOwnsAnimationRoot;
     private readonly List<Tween> activeTweens = new List<Tween>();
     private readonly Dictionary<int, Sprite> spritesByServerId = new Dictionary<int, Sprite>();
     private readonly Dictionary<int, List<Sprite>> winAnimationFramesByServerId =
         new Dictionary<int, List<Sprite>>();
+    private readonly Dictionary<int, SymbolSpineAnimation> winSpineAnimationsByServerId =
+        new Dictionary<int, SymbolSpineAnimation>();
+    private readonly Dictionary<int, string[]> winSpineAliasesByServerId =
+        new Dictionary<int, string[]>();
     private readonly Dictionary<Image, Vector3> originalResultSlotScales =
         new Dictionary<Image, Vector3>();
     private readonly List<int> mappedServerSymbolIds = new List<int>();
     private readonly HashSet<int> reportedUnknownSymbolIds = new HashSet<int>();
     private readonly HashSet<string> reportedResultSlotIssues = new HashSet<string>();
+    private readonly HashSet<string> reportedSpineAnimationIssues = new HashSet<string>();
+    private readonly HashSet<SkeletonDataAsset> authoredBaseSpineAssets =
+        new HashSet<SkeletonDataAsset>();
 
     private Coroutine reelStartRoutine;
     private Coroutine reelStopRoutine;
@@ -222,6 +245,12 @@ public class SlotView : MonoBehaviour
         internal int completedCycles;
     }
 
+    private sealed class AnticipationSpineRuntime
+    {
+        internal GameObject root;
+        internal SkeletonGraphic spineGraphic;
+    }
+
     private sealed class GoldBurstCellRuntime
     {
         internal int reelIndex;
@@ -241,6 +270,11 @@ public class SlotView : MonoBehaviour
         internal bool baseImageWasEnabled;
         internal RectTransform animationCell;
         internal ImageAnimation animation;
+        internal SkeletonGraphic spineGraphic;
+        internal Spine.TrackEntry spineTrack;
+        internal SkeletonDataAsset spineAsset;
+        internal string spineAnimationName;
+        internal float spineTimeScale = 1f;
         internal int completedLoops;
     }
 
@@ -255,9 +289,12 @@ public class SlotView : MonoBehaviour
         internal RectTransform animationCell;
         internal Image animationCellImage;
         internal bool animationCellImageWasEnabled;
-        internal ImageAnimation animation;
+        internal SkeletonGraphic spineGraphic;
+        internal Spine.TrackEntry spineTrack;
         internal Coroutine delayedStartRoutine;
         internal bool animationStarted;
+
+        internal bool HasAnimationRenderer => spineGraphic != null;
     }
 
     private sealed class GoldBurstConversionRuntime
@@ -294,6 +331,7 @@ public class SlotView : MonoBehaviour
 
     private void Awake()
     {
+        EnsureSpineAnimationReferences();
         gameManager = gameManager != null ? gameManager : FindSceneComponent<GameManager>();
         symbolInfoCard = symbolInfoCard != null
             ? symbolInfoCard
@@ -312,7 +350,31 @@ public class SlotView : MonoBehaviour
         }
 
         InitializeFeatureLayout();
+        CacheAuthoredBaseSpineAssets();
+        DisableAllBaseSpineChildren();
         symbolInfoCard?.HideCard();
+    }
+
+    private void EnsureSpineAnimationReferences()
+    {
+        if (spineMiner == null) spineMiner = new SymbolSpineAnimation("animation");
+        if (spineDonkey == null) spineDonkey = new SymbolSpineAnimation("animation");
+        if (spineGoldHelmet == null) spineGoldHelmet = new SymbolSpineAnimation("animation");
+        if (spineBoots == null) spineBoots = new SymbolSpineAnimation("animation");
+        if (spineLantern == null) spineLantern = new SymbolSpineAnimation("animation");
+        if (spineA == null) spineA = new SymbolSpineAnimation("animation");
+        if (spineK == null) spineK = new SymbolSpineAnimation("animation");
+        if (spineQ == null) spineQ = new SymbolSpineAnimation("animation");
+        if (spineJ == null) spineJ = new SymbolSpineAnimation("animation");
+        if (spineWild == null) spineWild = new SymbolSpineAnimation("animation");
+        if (spineTrainLanding == null)
+        {
+            spineTrainLanding = new SymbolSpineAnimation("Symbol_1");
+        }
+        if (spineTrainTrigger == null)
+        {
+            spineTrainTrigger = new SymbolSpineAnimation("Symbol_2");
+        }
     }
 
     private void Start()
@@ -783,23 +845,30 @@ public class SlotView : MonoBehaviour
         if (animationRoot == null) return;
         anticipationAnimationRoot = animationRoot;
 
-        List<ImageAnimation> anticipationAnimations = animationRoot
-            .GetComponentsInChildren<ImageAnimation>(true)
-            .Where(animation =>
-                animation != null &&
-                animation.name.StartsWith(
+        List<AnticipationSpineRuntime> anticipationAnimations = animationRoot
+            .GetComponentsInChildren<Transform>(true)
+            .Where(candidate =>
+                candidate != null &&
+                candidate.parent == animationRoot &&
+                candidate.name.StartsWith(
                     "Anticipation",
                     StringComparison.OrdinalIgnoreCase))
+            .Select(candidate => new AnticipationSpineRuntime
+            {
+                root = candidate.gameObject,
+                spineGraphic = candidate.GetComponentInChildren<SkeletonGraphic>(true)
+            })
+            .Where(animation => animation.spineGraphic != null)
             .OrderBy(animation =>
-                animation.transform is RectTransform rect
+                animation.root.transform is RectTransform rect
                     ? rect.anchoredPosition.x
-                    : animation.transform.localPosition.x)
+                    : animation.root.transform.localPosition.x)
             .ToList();
 
-        foreach (ImageAnimation animation in anticipationAnimations)
+        foreach (AnticipationSpineRuntime animation in anticipationAnimations)
         {
-            animation.StopAnimation();
-            animation.gameObject.SetActive(false);
+            StopSpineAnimation(animation.spineGraphic);
+            animation.root.SetActive(false);
         }
 
         int mappedCount = Mathf.Min(reels.Count, anticipationAnimations.Count);
@@ -887,6 +956,8 @@ public class SlotView : MonoBehaviour
     {
         spritesByServerId.Clear();
         winAnimationFramesByServerId.Clear();
+        winSpineAnimationsByServerId.Clear();
+        winSpineAliasesByServerId.Clear();
         mappedServerSymbolIds.Clear();
         reportedUnknownSymbolIds.Clear();
 
@@ -919,12 +990,22 @@ public class SlotView : MonoBehaviour
             spritesByServerId.Add(symbol.id, sprite);
             mappedServerSymbolIds.Add(symbol.id);
 
+            string normalizedName = NormalizeSymbolName(symbol.name);
             if (TryResolveNamedWinAnimation(
-                    NormalizeSymbolName(symbol.name),
+                    normalizedName,
                     out List<Sprite> animationFrames) &&
                 animationFrames != null && animationFrames.Count > 0)
             {
                 winAnimationFramesByServerId[symbol.id] = animationFrames;
+            }
+
+            if (TryResolveNamedSpineWinAnimation(
+                    normalizedName,
+                    out SymbolSpineAnimation spineAnimation,
+                    out string[] assetAliases))
+            {
+                winSpineAnimationsByServerId[symbol.id] = spineAnimation;
+                winSpineAliasesByServerId[symbol.id] = assetAliases;
             }
         }
 
@@ -978,22 +1059,6 @@ public class SlotView : MonoBehaviour
         animationFrames = null;
         switch (normalizedName)
         {
-            case "miner": animationFrames = animSpritesMiner; break;
-            case "donkey": animationFrames = animSpritesDonkey; break;
-            case "goldhelmet":
-            case "helmet": animationFrames = animSpritesGoldHelmet; break;
-            case "boots":
-            case "boot": animationFrames = animSpritesBoots; break;
-            case "lantern": animationFrames = animSpritesLantern; break;
-            case "a":
-            case "ace": animationFrames = animSpritesA; break;
-            case "k":
-            case "king": animationFrames = animSpritesK; break;
-            case "q":
-            case "queen": animationFrames = animSpritesQ; break;
-            case "j":
-            case "jack": animationFrames = animSpritesJ; break;
-            case "wild": animationFrames = animSpritesWild; break;
             case "goldburstscatter":
             case "goldburst": animationFrames = animSpritesGoldBurstScatter; break;
             case "megagoldburstscatter":
@@ -1001,6 +1066,69 @@ public class SlotView : MonoBehaviour
             case "ultimategoldburstscatter":
             case "ultimategoldburst": animationFrames = animSpritesUltimateGoldBurstScatter; break;
             default: return false;
+        }
+
+        return true;
+    }
+
+    private bool TryResolveNamedSpineWinAnimation(
+        string normalizedName,
+        out SymbolSpineAnimation spineAnimation,
+        out string[] assetAliases)
+    {
+        spineAnimation = null;
+        assetAliases = Array.Empty<string>();
+
+        switch (normalizedName)
+        {
+            case "miner":
+                spineAnimation = spineMiner;
+                assetAliases = new[] { "miner", "man" };
+                break;
+            case "donkey":
+                spineAnimation = spineDonkey;
+                assetAliases = new[] { "donkey" };
+                break;
+            case "goldhelmet":
+            case "helmet":
+                spineAnimation = spineGoldHelmet;
+                assetAliases = new[] { "goldhelmet", "helmet" };
+                break;
+            case "boots":
+            case "boot":
+                spineAnimation = spineBoots;
+                assetAliases = new[] { "boots", "boot", "shoes", "shoe" };
+                break;
+            case "lantern":
+                spineAnimation = spineLantern;
+                assetAliases = new[] { "lantern" };
+                break;
+            case "a":
+            case "ace":
+                spineAnimation = spineA;
+                assetAliases = new[] { "a", "ace" };
+                break;
+            case "k":
+            case "king":
+                spineAnimation = spineK;
+                assetAliases = new[] { "k", "king" };
+                break;
+            case "q":
+            case "queen":
+                spineAnimation = spineQ;
+                assetAliases = new[] { "q", "queen" };
+                break;
+            case "j":
+            case "jack":
+                spineAnimation = spineJ;
+                assetAliases = new[] { "j", "jack" };
+                break;
+            case "wild":
+                spineAnimation = spineWild;
+                assetAliases = new[] { "wild" };
+                break;
+            default:
+                return false;
         }
 
         return true;
@@ -1107,7 +1235,7 @@ public class SlotView : MonoBehaviour
         if (!stopTrainLandingAnimationsBeforeWins) yield break;
 
         while (activeTrainAnimations.Any(active =>
-                   active?.animation != null &&
+                   active?.HasAnimationRenderer == true &&
                    active.completedLandingLoops <
                        requiredTrainLandingLoopsBeforeWins))
         {
@@ -1171,6 +1299,22 @@ public class SlotView : MonoBehaviour
             int symbolId = currentDisplayMatrix[reelIndex][row];
             if (symbolId == GetFreeGameScatterId()) continue;
 
+            if (IsBaseFiveByThreeLayout() &&
+                winSpineAnimationsByServerId.TryGetValue(
+                    symbolId,
+                    out SymbolSpineAnimation spineAnimation))
+            {
+                winSpineAliasesByServerId.TryGetValue(
+                    symbolId,
+                    out string[] assetAliases);
+                TryPrepareSpineWinAnimation(
+                    reelIndex,
+                    row,
+                    spineAnimation,
+                    assetAliases);
+                continue;
+            }
+
             if (!winAnimationFramesByServerId.TryGetValue(
                     symbolId,
                     out List<Sprite> animationFrames) ||
@@ -1196,6 +1340,8 @@ public class SlotView : MonoBehaviour
                 featureVisualController.ReleaseWinAnimationCell(animationCell);
                 continue;
             }
+
+            DisableSpineChildren(animationCell);
 
             ImageAnimation animation = animationCell.GetComponent<ImageAnimation>();
             if (animation == null)
@@ -1243,15 +1389,96 @@ public class SlotView : MonoBehaviour
 
         foreach (WinAnimationRuntime runtime in activeWinAnimations)
         {
-            runtime.animation.StartAnimation();
-            Image overlayImage = runtime.animation.rendererDelegate;
-            if (IsAnimationOverlayReady(runtime.animation, overlayImage) &&
-                runtime.baseImage != null &&
-                runtime.baseImage != overlayImage)
+            bool animationStarted;
+            if (runtime.spineGraphic != null)
+            {
+                animationStarted = StartSpineWinAnimation(session, runtime);
+            }
+            else
+            {
+                runtime.animation.StartAnimation();
+                Image overlayImage = runtime.animation.rendererDelegate;
+                animationStarted = IsAnimationOverlayReady(
+                    runtime.animation,
+                    overlayImage);
+            }
+
+            if (animationStarted && runtime.baseImage != null)
             {
                 runtime.baseImage.enabled = false;
             }
         }
+    }
+
+    private bool TryPrepareSpineWinAnimation(
+        int reelIndex,
+        int row,
+        SymbolSpineAnimation spineAnimation,
+        IReadOnlyList<string> assetAliases)
+    {
+        Image baseImage = GetResultSlotImage(reelIndex, row);
+        if (baseImage == null ||
+            featureVisualController == null ||
+            !featureVisualController.TryAcquireWinAnimationCell(
+                reelIndex,
+                row,
+                out RectTransform animationCell))
+        {
+            return false;
+        }
+
+        SkeletonGraphic spineGraphic =
+            animationCell.GetComponentInChildren<SkeletonGraphic>(true);
+        if (spineGraphic == null ||
+            !TryResolveSpineAnimation(
+                spineAnimation,
+                assetAliases,
+                out SkeletonDataAsset spineAsset,
+                out string animationName,
+                out float timeScale))
+        {
+            ReportSpineAnimationIssue(
+                $"win-{reelIndex}-{row}",
+                $"[SlotView] The 5x3 Spine child or Spine asset is not configured for the winning symbol at reel {reelIndex + 1}, row {row + 1}.");
+            featureVisualController.ReleaseWinAnimationCell(animationCell);
+            return false;
+        }
+
+        Image animationCellImage = animationCell.GetComponent<Image>();
+        if (animationCellImage != null) animationCellImage.enabled = false;
+        spineGraphic.enabled = false;
+
+        var runtime = new WinAnimationRuntime
+        {
+            baseImage = baseImage,
+            baseImageWasEnabled = baseImage.enabled,
+            animationCell = animationCell,
+            spineGraphic = spineGraphic,
+            spineAsset = spineAsset,
+            spineAnimationName = animationName,
+            spineTimeScale = timeScale
+        };
+        activeWinAnimations.Add(runtime);
+        return true;
+    }
+
+    private bool StartSpineWinAnimation(
+        int session,
+        WinAnimationRuntime runtime)
+    {
+        if (runtime?.spineGraphic == null) return false;
+
+        runtime.spineTrack = StartSpineAnimation(
+            runtime.spineGraphic,
+            runtime.spineAsset,
+            runtime.spineAnimationName,
+            runtime.spineTimeScale,
+            true,
+            () => HandleWinAnimationLoop(
+                session,
+                runtime,
+                runtime.completedLoops + 1));
+        return runtime.spineTrack != null;
     }
 
     internal void StopWinningSymbolAnimations()
@@ -1267,6 +1494,9 @@ public class SlotView : MonoBehaviour
                 runtime.animation.StopAnimation();
                 runtime.animation.ClearLoopDuration();
             }
+
+            StopSpineAnimation(runtime.spineGraphic);
+            runtime.spineTrack = null;
 
             if (runtime.baseImage != null)
             {
@@ -1308,6 +1538,17 @@ public class SlotView : MonoBehaviour
         }
 
         Action completionCallback = winAnimationCompleteCallback;
+        bool keepRegularSpineWinsPlaying = activeWinAnimations.Count > 0 &&
+                                           activeWinAnimations.All(active =>
+                                               active.spineGraphic != null);
+        if (keepRegularSpineWinsPlaying)
+        {
+            winAnimationCompleteCallback = null;
+            requiredWinAnimationLoops = 0;
+            completionCallback?.Invoke();
+            return;
+        }
+
         StopWinningSymbolAnimations();
         completionCallback?.Invoke();
     }
@@ -1346,8 +1587,7 @@ public class SlotView : MonoBehaviour
 
     private void StartTrainLandingAnimation(int reelIndex, int row)
     {
-        if (animSpritesTrainLanding == null ||
-            animSpritesTrainLanding.Count == 0 ||
+        if (!IsBaseFiveByThreeLayout() ||
             activeTrainAnimations.Any(active =>
                 active.reelIndex == reelIndex && active.row == row))
         {
@@ -1372,6 +1612,19 @@ public class SlotView : MonoBehaviour
             return;
         }
 
+        DisableSpineChildren(animationCell);
+
+        SkeletonGraphic spineGraphic =
+            animationCell.GetComponentInChildren<SkeletonGraphic>(true);
+        if (spineGraphic == null)
+        {
+            ReportSpineAnimationIssue(
+                $"train-child-{reelIndex}-{row}",
+                $"[SlotView] Assign a Spine child to the Train animation cell at reel {reelIndex + 1}, row {row + 1}.");
+            featureVisualController.ReleaseTrainAnimationCell(animationCell);
+            return;
+        }
+
         var runtime = new TrainSymbolAnimationRuntime
         {
             reelIndex = reelIndex,
@@ -1382,8 +1635,7 @@ public class SlotView : MonoBehaviour
             animationCell = animationCell,
             animationCellImage = animationCellImage,
             animationCellImageWasEnabled = animationCellImage.enabled,
-            animation = animationCell.GetComponent<ImageAnimation>() ??
-                        animationCell.gameObject.AddComponent<ImageAnimation>()
+            spineGraphic = spineGraphic
         };
 
         baseImage.rectTransform.localScale =
@@ -1391,6 +1643,7 @@ public class SlotView : MonoBehaviour
 
         activeTrainAnimations.Add(runtime);
         animationCellImage.enabled = false;
+        if (spineGraphic != null) spineGraphic.enabled = false;
         runtime.delayedStartRoutine = StartCoroutine(
             StartTrainLandingAnimationAfterBox(runtime));
     }
@@ -1420,12 +1673,14 @@ public class SlotView : MonoBehaviour
         }
 
         runtime.delayedStartRoutine = null;
-        runtime.animationCellImage.enabled = true;
-        runtime.animationStarted = StartTrainSpriteAnimation(
+        runtime.animationCellImage.enabled = false;
+        runtime.animationStarted = StartTrainSpineAnimation(
             runtime,
-            animSpritesTrainLanding,
+            spineTrainLanding,
             true,
-            loopCount => HandleTrainLandingAnimationLoop(runtime, loopCount));
+            () => HandleTrainLandingAnimationLoop(
+                runtime,
+                runtime.completedLandingLoops + 1));
         if (!runtime.animationStarted)
         {
             activeTrainAnimations.Remove(runtime);
@@ -1446,7 +1701,7 @@ public class SlotView : MonoBehaviour
         TrainSymbolAnimationRuntime runtime,
         int loopCount)
     {
-        if (runtime?.animation == null) return;
+        if (runtime?.HasAnimationRenderer != true) return;
 
         runtime.completedLandingLoops = Mathf.Max(
             runtime.completedLandingLoops,
@@ -1456,18 +1711,19 @@ public class SlotView : MonoBehaviour
             runtime.completedLandingLoops >=
                 requiredTrainLandingLoopsBeforeWins)
         {
-            runtime.animation.doLoopAnimation = false;
+            if (runtime.spineTrack != null)
+            {
+                runtime.spineTrack.Loop = false;
+            }
         }
     }
 
     internal IEnumerator PlayFreeGameTrainTriggerAnimation()
     {
         List<TrainSymbolAnimationRuntime> activeAnimations = activeTrainAnimations
-            .Where(active => active?.animation != null)
+            .Where(active => active?.HasAnimationRenderer == true)
             .ToList();
-        if (activeAnimations.Count == 0 ||
-            animSpritesFreeGameTrigger == null ||
-            animSpritesFreeGameTrigger.Count == 0)
+        if (!IsBaseFiveByThreeLayout() || activeAnimations.Count == 0)
         {
             yield break;
         }
@@ -1485,14 +1741,15 @@ public class SlotView : MonoBehaviour
             .ToList();
         if (activeAnimations.Count == 0) yield break;
 
-        float triggerDuration =
-            animSpritesFreeGameTrigger.Count / TrainAnimationFramesPerSecond;
+        float triggerDuration = GetSpineAnimationDuration(
+            spineTrainTrigger,
+            new[] { "train", "engine" });
         bool startedAnyAnimation = false;
         foreach (TrainSymbolAnimationRuntime active in activeAnimations)
         {
-            startedAnyAnimation |= StartTrainSpriteAnimation(
+            startedAnyAnimation |= StartTrainSpineAnimation(
                 active,
-                animSpritesFreeGameTrigger,
+                spineTrainTrigger,
                 false);
         }
 
@@ -1503,32 +1760,272 @@ public class SlotView : MonoBehaviour
         AudioManager.Instance?.StopGoldMineTrainFreeSpins();
     }
 
-    private static bool StartTrainSpriteAnimation(
+    private bool StartTrainSpineAnimation(
         TrainSymbolAnimationRuntime runtime,
-        List<Sprite> frames,
+        SymbolSpineAnimation spineAnimation,
         bool shouldLoop,
-        Action<int> onLoopComplete = null)
+        Action onLoopComplete = null)
     {
-        if (runtime?.animation == null ||
-            runtime.animationCellImage == null ||
-            frames == null || frames.Count == 0)
+        if (runtime?.spineGraphic == null ||
+            !TryResolveSpineAnimation(
+                spineAnimation,
+                new[] { "train", "engine" },
+                out SkeletonDataAsset spineAsset,
+                out string animationName,
+                out float timeScale))
+        {
+            ReportSpineAnimationIssue(
+                shouldLoop ? "train-landing" : "train-trigger",
+                "[SlotView] Assign the Train Spine asset and animation name in the 5x3 Train Spine settings.");
+            return false;
+        }
+
+        runtime.spineTrack = StartSpineAnimation(
+            runtime.spineGraphic,
+            spineAsset,
+            animationName,
+            timeScale,
+            shouldLoop,
+            onLoopComplete);
+        return runtime.spineTrack != null;
+    }
+
+    private float GetSpineAnimationDuration(
+        SymbolSpineAnimation spineAnimation,
+        IReadOnlyList<string> assetAliases)
+    {
+        if (!TryResolveSpineAnimation(
+                spineAnimation,
+                assetAliases,
+                out SkeletonDataAsset spineAsset,
+                out string animationName,
+                out float timeScale))
+        {
+            return 0f;
+        }
+
+        Spine.SkeletonData skeletonData = spineAsset.GetSkeletonData(true);
+        Spine.Animation animation = skeletonData?.FindAnimation(animationName);
+        return animation != null
+            ? animation.Duration / Mathf.Max(0.01f, timeScale)
+            : 0f;
+    }
+
+    private bool TryResolveSpineAnimation(
+        SymbolSpineAnimation spineAnimation,
+        IReadOnlyList<string> assetAliases,
+        out SkeletonDataAsset spineAsset,
+        out string animationName,
+        out float timeScale)
+    {
+        spineAsset = spineAnimation?.SkeletonDataAsset;
+        animationName = spineAnimation?.AnimationName ?? string.Empty;
+        timeScale = Mathf.Max(0.01f, spineAnimation?.TimeScale ?? 1f);
+
+        if (TryResolveAnimationName(
+                spineAsset,
+                animationName,
+                out animationName))
+        {
+            return true;
+        }
+
+        foreach (SkeletonDataAsset candidate in GetAuthoredBaseSpineAssets())
+        {
+            if (!SpineAssetMatchesAliases(candidate, assetAliases) ||
+                !TryResolveAnimationName(
+                    candidate,
+                    animationName,
+                    out string resolvedAnimationName))
+            {
+                continue;
+            }
+
+            spineAsset = candidate;
+            animationName = resolvedAnimationName;
+            return true;
+        }
+
+        spineAsset = null;
+        return false;
+    }
+
+    private static bool TryResolveAnimationName(
+        SkeletonDataAsset spineAsset,
+        string requestedAnimationName,
+        out string resolvedAnimationName)
+    {
+        resolvedAnimationName = requestedAnimationName;
+        if (spineAsset == null) return false;
+
+        Spine.SkeletonData skeletonData = spineAsset.GetSkeletonData(true);
+        if (skeletonData == null) return false;
+
+        if (!string.IsNullOrWhiteSpace(requestedAnimationName) &&
+            skeletonData.FindAnimation(requestedAnimationName) != null)
+        {
+            return true;
+        }
+
+        Spine.ExposedList<Spine.Animation> animations = skeletonData.Animations;
+        if (animations == null || animations.Count == 0) return false;
+        if (!string.IsNullOrWhiteSpace(requestedAnimationName) &&
+            animations.Count > 1)
         {
             return false;
         }
 
-        runtime.animation.StopAnimation();
-        runtime.animation.textureArray = frames;
-        runtime.animation.secondaryTextureArray = null;
-        runtime.animation.rendererDelegate = runtime.animationCellImage;
-        runtime.animation.doLoopAnimation = shouldLoop;
-        runtime.animation.delayBetweenLoop = 0f;
-        runtime.animation.SetLoopDuration(
-            frames.Count / TrainAnimationFramesPerSecond);
-        runtime.animation.onLoopComplete = onLoopComplete;
-        runtime.animation.StartAnimation();
-        return IsAnimationOverlayReady(
-            runtime.animation,
-            runtime.animationCellImage);
+        resolvedAnimationName = animations.Items[0].Name;
+        return true;
+    }
+
+    private IEnumerable<SkeletonDataAsset> GetAuthoredBaseSpineAssets()
+    {
+        if (authoredBaseSpineAssets.Count == 0)
+        {
+            CacheAuthoredBaseSpineAssets();
+        }
+        return authoredBaseSpineAssets;
+    }
+
+    private void CacheAuthoredBaseSpineAssets()
+    {
+        if (baseResultSlotsByReel == null) return;
+
+        foreach (ReelResultSlots reelSlots in baseResultSlotsByReel)
+        {
+            if (reelSlots == null) continue;
+            for (int row = 0; row < DefaultRowCount; row++)
+            {
+                RectTransform animationCell = reelSlots.GetAnimationSlot(row);
+                if (animationCell == null) continue;
+
+                foreach (SkeletonGraphic graphic in
+                         animationCell.GetComponentsInChildren<SkeletonGraphic>(true))
+                {
+                    if (graphic?.skeletonDataAsset != null)
+                    {
+                        authoredBaseSpineAssets.Add(graphic.skeletonDataAsset);
+                    }
+                }
+            }
+        }
+    }
+
+    private static bool SpineAssetMatchesAliases(
+        SkeletonDataAsset spineAsset,
+        IReadOnlyList<string> aliases)
+    {
+        if (spineAsset == null || aliases == null || aliases.Count == 0)
+        {
+            return false;
+        }
+
+        string assetName = NormalizeSymbolName(spineAsset.name)
+            .Replace("skeletondata", string.Empty)
+            .Replace("frame", string.Empty)
+            .Replace("render", string.Empty)
+            .Replace("symbol", string.Empty);
+
+        foreach (string alias in aliases)
+        {
+            string normalizedAlias = NormalizeSymbolName(alias);
+            if (normalizedAlias.Length == 1
+                    ? assetName == normalizedAlias
+                    : assetName.Contains(normalizedAlias))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static Spine.TrackEntry StartSpineAnimation(
+        SkeletonGraphic spineGraphic,
+        SkeletonDataAsset spineAsset,
+        string animationName,
+        float timeScale,
+        bool shouldLoop,
+        Action onLoopComplete)
+    {
+        if (spineGraphic == null || spineAsset == null ||
+            string.IsNullOrWhiteSpace(animationName))
+        {
+            return null;
+        }
+
+        spineGraphic.enabled = false;
+        spineGraphic.skeletonDataAsset = spineAsset;
+        spineGraphic.Initialize(true);
+        if (spineGraphic.SkeletonData?.FindAnimation(animationName) == null)
+        {
+            return null;
+        }
+
+        spineGraphic.AnimationState.ClearTracks();
+        spineGraphic.Skeleton.SetToSetupPose();
+        spineGraphic.timeScale = 1f;
+        spineGraphic.freeze = false;
+        spineGraphic.enabled = true;
+
+        Spine.TrackEntry track = spineGraphic.AnimationState.SetAnimation(
+            0,
+            animationName,
+            shouldLoop);
+        if (track == null)
+        {
+            spineGraphic.enabled = false;
+            return null;
+        }
+
+        track.TimeScale = Mathf.Max(0.01f, timeScale);
+        if (onLoopComplete != null)
+        {
+            track.Complete += _ => onLoopComplete();
+        }
+        return track;
+    }
+
+    private static void StopSpineAnimation(SkeletonGraphic spineGraphic)
+    {
+        if (spineGraphic == null) return;
+
+        if (spineGraphic.AnimationState != null)
+        {
+            spineGraphic.AnimationState.ClearTracks();
+        }
+        if (spineGraphic.Skeleton != null)
+        {
+            spineGraphic.Skeleton.SetToSetupPose();
+        }
+        spineGraphic.freeze = false;
+        spineGraphic.enabled = false;
+    }
+
+    private void DisableAllBaseSpineChildren()
+    {
+        if (baseResultSlotsByReel == null) return;
+
+        foreach (ReelResultSlots reelSlots in baseResultSlotsByReel)
+        {
+            if (reelSlots == null) continue;
+            for (int row = 0; row < DefaultRowCount; row++)
+            {
+                DisableSpineChildren(reelSlots.GetAnimationSlot(row));
+            }
+        }
+    }
+
+    private static void DisableSpineChildren(RectTransform animationCell)
+    {
+        if (animationCell == null) return;
+
+        foreach (SkeletonGraphic spineGraphic in
+                 animationCell.GetComponentsInChildren<SkeletonGraphic>(true))
+        {
+            if (spineGraphic != null) spineGraphic.enabled = false;
+        }
     }
 
     private void StopTrainSymbolAnimations()
@@ -1543,13 +2040,8 @@ public class SlotView : MonoBehaviour
                 runtime.delayedStartRoutine = null;
             }
 
-            if (runtime?.animation != null)
-            {
-                runtime.animation.onLoopComplete = null;
-                runtime.animation.doLoopAnimation = false;
-                runtime.animation.StopAnimation();
-                runtime.animation.ClearLoopDuration();
-            }
+            StopSpineAnimation(runtime?.spineGraphic);
+            if (runtime != null) runtime.spineTrack = null;
 
             RestoreTrainAnimationRuntime(runtime);
         }
@@ -1575,6 +2067,11 @@ public class SlotView : MonoBehaviour
         if (runtime.animationCellImage != null)
         {
             runtime.animationCellImage.enabled = runtime.animationCellImageWasEnabled;
+        }
+
+        if (runtime.spineGraphic != null)
+        {
+            runtime.spineGraphic.enabled = false;
         }
 
         featureVisualController?.ReleaseTrainAnimationCell(runtime.animationCell);
@@ -1609,14 +2106,17 @@ public class SlotView : MonoBehaviour
         }
     }
 
-    internal IEnumerator PlayFreeGamesStartPresentation(UIManager uiManager)
+    internal IEnumerator PlayFreeGamesStartPresentation(
+        UIManager uiManager,
+        Action onStartRequested = null)
     {
         StopWinningSymbolAnimations();
         ConfigureTrainLandingAnimations(false);
         if (featureVisualController != null)
         {
             yield return featureVisualController.PlayFreeGamesStartPresentation(
-                uiManager);
+                uiManager,
+                onStartRequested);
         }
     }
 
@@ -3048,7 +3548,7 @@ public class SlotView : MonoBehaviour
     {
         if (!anticipationAnimationsByReel.TryGetValue(
                 reelIndex,
-                out ImageAnimation animation) ||
+                out AnticipationSpineRuntime animation) ||
             animation == null)
         {
             return;
@@ -3057,13 +3557,13 @@ public class SlotView : MonoBehaviour
         if (active)
         {
             ActivateAnticipationAnimationRoot();
-            animation.gameObject.SetActive(true);
-            animation.PlayAnimation();
+            animation.root.SetActive(true);
+            PlayConfiguredAnticipationAnimation(animation.spineGraphic);
             return;
         }
 
-        animation.StopAnimation();
-        animation.gameObject.SetActive(false);
+        StopSpineAnimation(animation.spineGraphic);
+        animation.root.SetActive(false);
         ReleaseAnticipationAnimationRoot();
     }
 
@@ -3071,12 +3571,12 @@ public class SlotView : MonoBehaviour
     {
         AudioManager.Instance?.StopGoldMineTension();
 
-        foreach (ImageAnimation animation in anticipationAnimationsByReel.Values)
+        foreach (AnticipationSpineRuntime animation in anticipationAnimationsByReel.Values)
         {
             if (animation == null) continue;
 
-            animation.StopAnimation();
-            animation.gameObject.SetActive(false);
+            StopSpineAnimation(animation.spineGraphic);
+            animation.root.SetActive(false);
         }
 
         ReleaseAnticipationAnimationRoot();
@@ -3115,7 +3615,7 @@ public class SlotView : MonoBehaviour
         if (!anticipationOwnsAnimationRoot ||
             anticipationAnimationRoot == null ||
             anticipationAnimationsByReel.Values.Any(animation =>
-                animation != null && animation.gameObject.activeSelf))
+                animation?.root != null && animation.root.activeSelf))
         {
             return;
         }
@@ -3125,7 +3625,7 @@ public class SlotView : MonoBehaviour
         {
             GameObject child = anticipationAnimationRoot.GetChild(index).gameObject;
             bool isAnticipation = anticipationAnimationsByReel.Values.Any(animation =>
-                animation != null && animation.gameObject == child);
+                animation?.root == child);
             if (!isAnticipation && child.activeSelf)
             {
                 hasActiveSibling = true;
@@ -3138,6 +3638,35 @@ public class SlotView : MonoBehaviour
             anticipationAnimationRoot.gameObject.SetActive(false);
         }
         anticipationOwnsAnimationRoot = false;
+    }
+
+    private static void PlayConfiguredAnticipationAnimation(
+        SkeletonGraphic spineGraphic)
+    {
+        if (spineGraphic == null ||
+            string.IsNullOrWhiteSpace(spineGraphic.startingAnimation))
+        {
+            return;
+        }
+
+        spineGraphic.enabled = true;
+        if (spineGraphic.SkeletonData == null)
+        {
+            spineGraphic.Initialize(false);
+        }
+        if (spineGraphic.SkeletonData?.FindAnimation(
+                spineGraphic.startingAnimation) == null)
+        {
+            return;
+        }
+
+        spineGraphic.AnimationState.ClearTracks();
+        spineGraphic.Skeleton.SetToSetupPose();
+        spineGraphic.freeze = false;
+        spineGraphic.AnimationState.SetAnimation(
+            0,
+            spineGraphic.startingAnimation,
+            spineGraphic.startingLoop);
     }
 
     private static bool IsSlotAnimationColumn(Transform candidate)
@@ -3298,6 +3827,22 @@ public class SlotView : MonoBehaviour
         return gameManager?.gameConfig != null && gameManager.gameConfig.rowCount > 0
             ? gameManager.gameConfig.rowCount
             : DefaultRowCount;
+    }
+
+    private bool IsBaseFiveByThreeLayout()
+    {
+        return !isUsingMegaGoldBurstLayout &&
+               !isUsingUltimateGoldBurstLayout &&
+               reels.Count == DefaultReelCount &&
+               GetRowCount() == DefaultRowCount;
+    }
+
+    private void ReportSpineAnimationIssue(string key, string message)
+    {
+        if (reportedSpineAnimationIssues.Add(key))
+        {
+            Debug.LogWarning(message, this);
+        }
     }
 
     private int GetFreeGameScatterId()
@@ -3493,5 +4038,26 @@ public class ReelResultSlots
             case 2: return bottomAnimationWinbox;
             default: return null;
         }
+    }
+}
+
+[Serializable]
+public class SymbolSpineAnimation
+{
+    [SerializeField] private SkeletonDataAsset skeletonDataAsset;
+    [SerializeField] private string animationName = "animation";
+    [SerializeField, Min(0.01f)] private float timeScale = 1f;
+
+    public SkeletonDataAsset SkeletonDataAsset => skeletonDataAsset;
+    public string AnimationName => animationName;
+    public float TimeScale => timeScale;
+
+    public SymbolSpineAnimation()
+    {
+    }
+
+    public SymbolSpineAnimation(string defaultAnimationName)
+    {
+        animationName = defaultAnimationName;
     }
 }

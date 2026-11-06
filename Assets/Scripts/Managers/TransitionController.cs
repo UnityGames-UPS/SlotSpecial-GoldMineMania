@@ -273,7 +273,9 @@ public abstract class TransitionController : MonoBehaviour
         SetDarkBackgroundActive(false);
     }
 
-    internal IEnumerator PlayFreeGamesStartPresentation(UIManager uiManager)
+    internal IEnumerator PlayFreeGamesStartPresentation(
+        UIManager uiManager,
+        Action onStartRequested = null)
     {
         EnsureTransitionsCached();
         ResetFreeGamesStartPresentation();
@@ -294,6 +296,7 @@ public abstract class TransitionController : MonoBehaviour
         {
             if (startRequested) return;
             startRequested = true;
+            onStartRequested?.Invoke();
             if (freeGamesStartButton != null)
             {
                 SetButtonInteractableWithoutAlphaChange(
@@ -358,6 +361,7 @@ public abstract class TransitionController : MonoBehaviour
         if (freeGamesStartButton == null && !hasBottomStartButton)
         {
             startRequested = true;
+            onStartRequested?.Invoke();
         }
         while (!startRequested)
         {

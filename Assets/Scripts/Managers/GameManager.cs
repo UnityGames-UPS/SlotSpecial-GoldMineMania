@@ -53,6 +53,9 @@ public class GameManager : MonoBehaviour
     private bool isCompletingFreeSpins;
     private double pendingServerBalance;
     private bool hasPendingServerBalance;
+    private int pendingRetriggerSpinsRemaining;
+    private int pendingRetriggerSpinsUsed;
+    private bool hasPendingRetriggerSpinCount;
 
     internal bool isInitialized;
     internal bool initializationFailed;
@@ -304,9 +307,20 @@ public class GameManager : MonoBehaviour
             // server-authoritative count only after every reel has finished stopping.
             if (isInFreeSpins && lastResult.serverSpinsRemaining >= 0)
             {
-                freeSpinsRemaining = lastResult.serverSpinsRemaining;
-                freeSpinsUsed = lastResult.serverSpinsUsed;
-                uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
+                bool isRetrigger = lastResult.freeSpinData != null &&
+                                   lastResult.freeSpinData.isTriggered;
+                if (isRetrigger)
+                {
+                    QueueRetriggerSpinCount(
+                        lastResult.serverSpinsRemaining,
+                        lastResult.serverSpinsUsed);
+                }
+                else
+                {
+                    freeSpinsRemaining = lastResult.serverSpinsRemaining;
+                    freeSpinsUsed = lastResult.serverSpinsUsed;
+                    uiManager.UpdateFreeSpinCount(freeSpinsRemaining);
+                }
             }
 
             if (isInGoldBurstRespins && lastResult.goldBurstData != null)
@@ -841,21 +855,23 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        bool freeSpinsTriggered = lastResult.freeSpinData != null &&
+                                  lastResult.freeSpinData.isTriggered;
+
         // The count is normally applied in OnReelsStoppedComplete. Keep this state-only
-        // fallback in case a result is processed through another path.
-        if (isInFreeSpins && freeSpinsRemaining != serverSpinsRemaining)
+        // fallback in case a result is processed through another path, but defer a
+        // retrigger's increased count until its Start button is pressed.
+        if (isInFreeSpins && !freeSpinsTriggered &&
+            freeSpinsRemaining != serverSpinsRemaining)
         {
             freeSpinsRemaining = serverSpinsRemaining;
         }
-
-
-        bool freeSpinsTriggered = lastResult.freeSpinData != null &&
-                                  lastResult.freeSpinData.isTriggered;
 
         // A retrigger replays the complete Free Games entry sequence without
         // resetting the server count or the accumulated Free Games win.
         if (freeSpinsTriggered && isInFreeSpins)
         {
+            QueueRetriggerSpinCount(serverSpinsRemaining, serverSpinsUsed);
             lastResult = null;
             waitingForFreeSpinStart = true;
             currentState = GameState.Stopping;
@@ -1380,6 +1396,7 @@ public class GameManager : MonoBehaviour
 
     private void StartFreeSpins(int spins)
     {
+        ClearPendingRetriggerSpinCount();
         isInFreeSpins = true;
         isCompletingFreeSpins = false;
         freeSpinsRemaining = spins;
@@ -1421,8 +1438,14 @@ public class GameManager : MonoBehaviour
     {
         if (slotView != null)
         {
-            yield return slotView.PlayFreeGamesStartPresentation(uiManager);
+            yield return slotView.PlayFreeGamesStartPresentation(
+                uiManager,
+                ApplyPendingRetriggerSpinCount);
         }
+
+        // If the presentation had no available Start button, apply the pending
+        // server count when the presentation completes instead.
+        ApplyPendingRetriggerSpinCount();
 
         waitingForFreeSpinStart = false;
 
@@ -1434,6 +1457,32 @@ public class GameManager : MonoBehaviour
 
         currentState = GameState.Idle;
         StartCoroutine(DelayBeforeNextFreeSpin());
+    }
+
+    private void QueueRetriggerSpinCount(int spinsRemaining, int spinsUsed)
+    {
+        if (spinsRemaining < 0) return;
+
+        pendingRetriggerSpinsRemaining = spinsRemaining;
+        pendingRetriggerSpinsUsed = spinsUsed;
+        hasPendingRetriggerSpinCount = true;
+    }
+
+    private void ApplyPendingRetriggerSpinCount()
+    {
+        if (!hasPendingRetriggerSpinCount) return;
+
+        freeSpinsRemaining = pendingRetriggerSpinsRemaining;
+        freeSpinsUsed = pendingRetriggerSpinsUsed;
+        ClearPendingRetriggerSpinCount();
+        uiManager?.UpdateFreeSpinCount(freeSpinsRemaining);
+    }
+
+    private void ClearPendingRetriggerSpinCount()
+    {
+        pendingRetriggerSpinsRemaining = 0;
+        pendingRetriggerSpinsUsed = 0;
+        hasPendingRetriggerSpinCount = false;
     }
 
     internal void StartFirstFreeSpin()
@@ -1491,6 +1540,7 @@ public class GameManager : MonoBehaviour
 
         isInFreeSpins = false;
         freeSpinsRemaining = 0;
+        ClearPendingRetriggerSpinCount();
         waitingForFreeSpinStart = false;
         isCompletingFreeSpins = false;
         AudioManager.Instance?.PlayMainBg();
@@ -1555,6 +1605,7 @@ public class GameManager : MonoBehaviour
 
         wasAutoPlayingBeforeFreeSpins = false;
         isCompletingFreeSpins = false;
+        ClearPendingRetriggerSpinCount();
         waitingForFreeSpinStart = false;
         if (isAutoPlaying)
         {

@@ -1,0 +1,11 @@
+slot_scroll_effect.png
+size:973,450
+filter:Linear,Linear
+pma:true
+glow_fx
+bounds:873,350,98,98
+offsets:1,1,100,103
+glow_rectangle
+bounds:2,2,446,869
+offsets:12,12,470,906
+rotate:90
